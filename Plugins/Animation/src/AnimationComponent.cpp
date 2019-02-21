@@ -398,4 +398,79 @@ bool AnimationComponent::restoreFrame( const std::string& dir, int frame ) {
     return true;
 }
 
+// TODO: Add cursor lists to load and save
+void AnimationComponent::loadRDMA( const std::string& filepath ) {
+    std::ifstream input{filepath, std::ios::binary};
+
+    size_t size;
+    input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
+    const auto pose_size = size;
+    if ( pose_size != m_refPose.size() )
+    {
+        // TODO: Log error/display a popup ?
+        std::cerr << "Animation pose size and current reference pose size mismatch.\n"
+                     "Please make sure you're trying to load animation corresponding to the "
+                     "currently loaded model.";
+        return;
+    }
+
+    /// Importing animations
+    input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
+    m_animations = std::vector<Ra::Core::Animation::Animation>( size );
+    for ( auto& anim : m_animations )
+    {
+        input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
+        for ( size_t i = 0; i < size; ++i )
+        {
+            Scalar timestamp;
+            input.read( reinterpret_cast<char*>( &timestamp ), sizeof( timestamp ) );
+            Ra::Core::Animation::Pose pose( pose_size );
+            for ( size_t i = 0; i < pose_size; ++i )
+            {
+                input.read( reinterpret_cast<char*>( pose[i].data() ),
+                            sizeof( Ra::Core::Transform ) );
+            }
+            anim.addKeyPose( pose, timestamp );
+        }
+    }
+
+    /// Importing delta t's
+    input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
+    m_dt.resize( size );
+    input.read( reinterpret_cast<char*>( &m_dt[0] ), size * sizeof( Scalar ) );
+}
+
+void AnimationComponent::saveRDMA( const std::string& filepath ) {
+    CORE_ASSERT( m_skel.size() != 0, "No skeleton loaded." );
+    std::ofstream output{filepath, std::ios::binary};
+
+    /// Exporting animations
+    const size_t pose_size = m_refPose.size();
+    output.write( reinterpret_cast<const char*>( &pose_size ), sizeof( pose_size ) );
+    size_t size = m_animations.size();
+    output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
+    for ( auto& anim : m_animations )
+    {
+        anim.normalize();
+        size = anim.size();
+        output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
+        for ( size_t i = 0; i < size; ++i )
+        {
+            const auto& keypose = anim.keyPose( i );
+            output.write( reinterpret_cast<const char*>( &keypose.first ),
+                          sizeof( keypose.first ) );
+            for ( const auto& transform : keypose.second )
+            {
+                output.write( reinterpret_cast<const char*>( transform.data() ),
+                              sizeof( Transform ) );
+            }
+        }
+    }
+
+    /// Exporting delta t's
+    size = m_dt.size();
+    output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
+    output.write( reinterpret_cast<const char*>( &m_dt[0] ), size * sizeof( Scalar ) );
+}
+
 } // namespace AnimationPlugin

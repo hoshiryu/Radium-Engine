@@ -29,6 +29,8 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     AnimationComponent( const AnimationComponent& ) = delete;
     AnimationComponent& operator=( const AnimationComponent& ) = delete;
 
+    using CursorList = std::vector<std::pair<Scalar, Scalar>>;
+
     virtual void initialize() override {}
 
     //
@@ -95,6 +97,13 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Toggle skeleton bones display.
     void toggleSkeleton( const bool status );
 
+    /// Loads the animations contained in the file at filepath
+    /// Only loads animations and each animation d_t and playzones
+    void loadRDMA( const std::string& filepath );
+
+    /// Save the created animations with their d_t and playzones
+    void saveRDMA( const std::string& filepath );
+
     //
     // Editable interface
     //
@@ -151,6 +160,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// The animations.
     std::vector<Ra::Core::Animation::Animation> m_animations;
 
+    /// Each animation saved cursor position.
+    std::vector<CursorList> m_cursors;
+
     /// Bones ROs.
     std::vector<std::unique_ptr<SkeletonBoneRenderObject>> m_boneDrawables;
 
@@ -180,6 +192,12 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// Is the reset process done?
     bool m_resetDone;
+
+    /// Current cursor index.
+    uint m_cursorID;
+
+    /// First editable animation index.
+    uint m_editableIndex;
 };
 
 } // namespace AnimationPlugin

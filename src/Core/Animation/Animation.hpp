@@ -37,6 +37,21 @@ class RA_CORE_API Animation
     // Get the animation last time.
     Scalar getDuration() const;
 
+    // Removes the i-th key pose from m_keys.
+    void removeKeyPose( size_t i );
+
+    // Sets the i-th key pose time to timestamp.
+    void setKeyPoseTime( size_t i, Scalar timestamp );
+
+    // Replace the i-th key pose pose with pose.
+    void replacePose( size_t i, const Pose& pose );
+
+    // Return the size of m_keys.
+    std::size_t size() const;
+
+    // Return the i-th key pose.
+    const MyKeyPose& keyPose( std::size_t i ) const;
+
   private:
     std::vector<MyKeyPose> m_keys;
 };

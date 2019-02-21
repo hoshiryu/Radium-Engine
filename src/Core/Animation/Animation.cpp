@@ -66,6 +66,33 @@ Pose Animation::getPose( Scalar timestamp ) const {
     return m_keys.back().second;
 }
 
+void Animation::removeKeyPose(size_t i) {
+    CORE_ASSERT((i < size()), "Index greater than animation size");
+    m_keys.erase(m_keys.begin() + i);
+}
+
+void Animation::setKeyPoseTime(size_t i, Scalar timestamp) {
+    CORE_ASSERT((i < size()), "Index greater than animation size");
+    m_keys[i].first = timestamp;
+    // TODO: Avoid unnecessary normalize calls
+    normalize();
+}
+
+void Animation::replacePose(size_t i, const Pose& pose) {
+    CORE_ASSERT((m_keys[i].second.size() < pose.size()), "Invalid pose size");
+    m_keys[i].second = pose;
+}
+
+std::size_t Animation::size() const {
+    return m_keys.size();
+}
+
+const Animation::MyKeyPose &Animation::keyPose(size_t i) const {
+    CORE_ASSERT((i < size()), "Index greater than animation size");
+    return m_keys[i];
+}
+
+
 } // namespace Animation
 } // namespace Core
 } // namespace Ra
