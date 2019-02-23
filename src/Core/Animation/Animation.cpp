@@ -78,9 +78,9 @@ void Animation::setKeyPoseTime(size_t i, Scalar timestamp) {
     normalize();
 }
 
-void Animation::replacePose(size_t i, const Pose& pose) {
-    CORE_ASSERT((m_keys[i].second.size() < pose.size()), "Invalid pose size");
-    m_keys[i].second = pose;
+void Animation::replacePose(size_t i, Pose&& pose) {
+    CORE_ASSERT((m_keys[i].second.size() == pose.size()), "Invalid pose size");
+    m_keys[i].second = std::move(pose);
 }
 
 std::size_t Animation::size() const {

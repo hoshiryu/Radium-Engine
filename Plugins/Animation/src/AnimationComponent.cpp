@@ -410,7 +410,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         // TODO: Log error/display a popup ?
         std::cerr << "Animation pose size and current reference pose size mismatch.\n"
                      "Please make sure you're trying to load animation corresponding to the "
-                     "currently loaded model.";
+                     "currently loaded model." << std::endl;
         return;
     }
 

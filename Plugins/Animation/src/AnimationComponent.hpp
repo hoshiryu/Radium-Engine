@@ -29,7 +29,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     AnimationComponent( const AnimationComponent& ) = delete;
     AnimationComponent& operator=( const AnimationComponent& ) = delete;
 
-    using CursorList = std::vector<std::pair<Scalar, Scalar>>;
+    using Playzones = std::vector<std::tuple<std::string, Scalar, Scalar>>;
 
     virtual void initialize() override {}
 
@@ -161,7 +161,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     std::vector<Ra::Core::Animation::Animation> m_animations;
 
     /// Each animation saved cursor position.
-    std::vector<CursorList> m_cursors;
+    std::vector<Playzones> m_playzones;
 
     /// Bones ROs.
     std::vector<std::unique_ptr<SkeletonBoneRenderObject>> m_boneDrawables;

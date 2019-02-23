@@ -44,7 +44,7 @@ class RA_CORE_API Animation
     void setKeyPoseTime( size_t i, Scalar timestamp );
 
     // Replace the i-th key pose pose with pose.
-    void replacePose( size_t i, const Pose& pose );
+    void replacePose( size_t i, Pose&& pose );
 
     // Return the size of m_keys.
     std::size_t size() const;
