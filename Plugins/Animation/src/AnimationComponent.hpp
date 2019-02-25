@@ -171,6 +171,12 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// Current animation ID.
     uint m_animationID;
+    
+    /// First editable animation index.
+    uint m_firstEditableID;
+
+    /// Current playzone ID.
+    uint m_playzoneID;
 
     /// Wheither to use the animation timestep (if available) or the app's.
     bool m_animationTimeStep;
@@ -192,12 +198,6 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// Is the reset process done?
     bool m_resetDone;
-
-    /// Current cursor index.
-    uint m_cursorID;
-
-    /// First editable animation index.
-    uint m_editableIndex;
 };
 
 } // namespace AnimationPlugin

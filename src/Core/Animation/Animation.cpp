@@ -66,32 +66,52 @@ Pose Animation::getPose( Scalar timestamp ) const {
     return m_keys.back().second;
 }
 
-void Animation::removeKeyPose(size_t i) {
-    CORE_ASSERT((i < size()), "Index greater than animation size");
-    m_keys.erase(m_keys.begin() + i);
+void Animation::removeKeyPose( size_t i ) {
+    CORE_ASSERT( ( i < size() ), "Index greater than animation size" );
+    m_keys.erase( m_keys.begin() + i );
 }
 
-void Animation::setKeyPoseTime(size_t i, Scalar timestamp) {
-    CORE_ASSERT((i < size()), "Index greater than animation size");
+void Animation::setKeyPoseTime( size_t i, Scalar timestamp ) {
+    CORE_ASSERT( ( i < size() ), "Index greater than animation size" );
     m_keys[i].first = timestamp;
-    // TODO: Avoid unnecessary normalize calls
-    normalize();
+
+    // Trying to avoid unecessary normalize calls
+    // Assumes that most of the times this function will be called to slightly adjust a timestamp
+    const auto size = m_keys.size();
+    if ( i > 0 && i < size - 1 )
+    {
+        if ( m_keys[i - 1].first > timestamp || m_keys[i + 1].first < timestamp )
+        {
+            normalize();
+        }
+    } else if ( i == size - 1 && size > 1 )
+    {
+        if ( timestamp < m_keys[i - 1].first )
+        {
+            normalize();
+        }
+    } else if ( size > 1 )
+    {
+        if ( timestamp > m_keys[1].first )
+        {
+            normalize();
+        }
+    }
 }
 
-void Animation::replacePose(size_t i, Pose&& pose) {
-    CORE_ASSERT((m_keys[i].second.size() == pose.size()), "Invalid pose size");
-    m_keys[i].second = std::move(pose);
+void Animation::replacePose( size_t i, Pose&& pose ) {
+    CORE_ASSERT( ( m_keys[i].second.size() == pose.size() ), "Invalid pose size" );
+    m_keys[i].second = std::move( pose );
 }
 
 std::size_t Animation::size() const {
     return m_keys.size();
 }
 
-const Animation::MyKeyPose &Animation::keyPose(size_t i) const {
-    CORE_ASSERT((i < size()), "Index greater than animation size");
+const Animation::MyKeyPose& Animation::keyPose( size_t i ) const {
+    CORE_ASSERT( ( i < size() ), "Index greater than animation size" );
     return m_keys[i];
 }
-
 
 } // namespace Animation
 } // namespace Core

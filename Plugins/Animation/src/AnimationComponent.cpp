@@ -398,7 +398,7 @@ bool AnimationComponent::restoreFrame( const std::string& dir, int frame ) {
     return true;
 }
 
-// TODO: Add cursor lists to load and save
+// TODO: Add playzones to load and save
 void AnimationComponent::loadRDMA( const std::string& filepath ) {
     std::ifstream input{filepath, std::ios::binary};
 
