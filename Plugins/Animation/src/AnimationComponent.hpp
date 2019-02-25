@@ -161,7 +161,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     std::vector<Ra::Core::Animation::Animation> m_animations;
 
     /// Each animation saved cursor position.
-    std::vector<Playzones> m_playzones;
+    std::vector<Playzones> m_animsPlayzones;
 
     /// Bones ROs.
     std::vector<std::unique_ptr<SkeletonBoneRenderObject>> m_boneDrawables;

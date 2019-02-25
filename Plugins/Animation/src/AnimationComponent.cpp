@@ -410,7 +410,8 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         // TODO: Log error/display a popup ?
         std::cerr << "Animation pose size and current reference pose size mismatch.\n"
                      "Please make sure you're trying to load animation corresponding to the "
-                     "currently loaded model." << std::endl;
+                     "currently loaded model."
+                  << std::endl;
         return;
     }
 
@@ -434,6 +435,21 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         }
     }
 
+    /// Importing each animation playzones
+    input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
+    m_animsPlayzones.resize( size );
+    for ( size_t i = 0; i < size; ++i )
+    {
+        size_t playzoneSize;
+        input.read( reinterpret_cast<char*>( &playzoneSize ), sizeof( playzoneSize ) );
+        m_animsPlayzones[i].resize( playzoneSize );
+        for ( auto& playzone : m_animsPlayzones[i] )
+        {
+            input.read( reinterpret_cast<char*>( &playzone.first ), sizeof( Scalar ) );
+            input.read( reinterpret_cast<char*>( &playzone.second ), sizeof( Scalar ) );
+        }
+    }
+
     /// Importing delta t's
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
     m_dt.resize( size );
@@ -449,9 +465,9 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     output.write( reinterpret_cast<const char*>( &pose_size ), sizeof( pose_size ) );
     size_t size = m_animations.size();
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
-    for ( auto& anim : m_animations )
+    for ( const auto& anim : m_animations )
     {
-        anim.normalize();
+        // anim.normalize();
         size = anim.size();
         output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
         for ( size_t i = 0; i < size; ++i )
@@ -464,6 +480,20 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
                 output.write( reinterpret_cast<const char*>( transform.data() ),
                               sizeof( Transform ) );
             }
+        }
+    }
+
+    /// Exporting each animation playzones
+    size = m_playzones.size();
+    output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
+    for ( const auto& playzones : m_animsPlayzones )
+    {
+        size = playzones.size();
+        output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
+        for ( const auto& playzone : playzones )
+        {
+            output.write( reinterpret_cast<const char*>( &playzone.first ), sizeof( Scalar ) );
+            output.write( reinterpret_cast<const char*>( &playzone.second ), sizeof( Scalar ) );
         }
     }
 
