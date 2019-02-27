@@ -445,8 +445,12 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         m_animsPlayzones[i].resize( playzoneSize );
         for ( auto& playzone : m_animsPlayzones[i] )
         {
-            input.read( reinterpret_cast<char*>( &playzone.first ), sizeof( Scalar ) );
-            input.read( reinterpret_cast<char*>( &playzone.second ), sizeof( Scalar ) );
+            auto& name = std::get<0>( playzone );
+            input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
+            name.resize( size );
+            input.read( reinterpret_cast<char*>( &name[0] ), size );
+            input.read( reinterpret_cast<char*>( &std::get<1>( playzone ) ), sizeof( Scalar ) );
+            input.read( reinterpret_cast<char*>( &std::get<2>( playzone ) ), sizeof( Scalar ) );
         }
     }
 
@@ -484,7 +488,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     }
 
     /// Exporting each animation playzones
-    size = m_playzones.size();
+    size = m_animsPlayzones.size();
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
     for ( const auto& playzones : m_animsPlayzones )
     {
@@ -492,8 +496,14 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
         output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
         for ( const auto& playzone : playzones )
         {
-            output.write( reinterpret_cast<const char*>( &playzone.first ), sizeof( Scalar ) );
-            output.write( reinterpret_cast<const char*>( &playzone.second ), sizeof( Scalar ) );
+            const auto& name = std::get<0>( playzone );
+            size = name.length();
+            output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
+            output.write( reinterpret_cast<const char*>( &name[0] ), size );
+            output.write( reinterpret_cast<const char*>( &std::get<1>( playzone ) ),
+                          sizeof( Scalar ) );
+            output.write( reinterpret_cast<const char*>( &std::get<2>( playzone ) ),
+                          sizeof( Scalar ) );
         }
     }
 
