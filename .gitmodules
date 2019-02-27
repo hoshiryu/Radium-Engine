@@ -22,3 +22,6 @@
 [submodule "3rdPartyLibraries/stb"]
 	path = 3rdPartyLibraries/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Plugins/Animation/src/AnimTimeline"]
+	path = Plugins/Animation/src/AnimTimeline
+	url = https://github.com/hiergaut/AnimTimeline.git

@@ -52,11 +52,12 @@ add_definitions( ${Qt5Widges_DEFINITIONS} )
 
 include_directories(
     src/
+    src/AnimTimeline/
     ${CMAKE_CURRENT_BINARY_DIR} # MOC
     ${RADIUM_INCLUDE_DIRS}
     )
 
-add_library( Animation SHARED ${sources} ${headers} ${inlines} ${app_uis})
+add_library( Animation SHARED ${sources} ${headers} ${inlines} ${app_uis} src/AnimTimeline/timeline.qrc)
 message(INFO " Animation : dependencies are ${RADIUM_LIBRARIES}")
 add_dependencies( Animation ${RADIUM_LIBRARIES})
 
