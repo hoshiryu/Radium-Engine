@@ -52,7 +52,7 @@ add_definitions( ${Qt5Widges_DEFINITIONS} )
 
 include_directories(
     src/
-    src/AnimTimeline/
+    src/AnimTimeline/ # because ui_animtimeline.h not found even with binary dir
     ${CMAKE_CURRENT_BINARY_DIR} # MOC
     ${RADIUM_INCLUDE_DIRS}
     )
