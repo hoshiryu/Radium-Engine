@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+
 AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::AnimationUI ) {
     ui->setupUi( this );
     ui->m_play->setProperty( "pressed", false );
@@ -14,10 +15,22 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( ui->actionPlay, &QAction::toggled, this, &AnimationUI::on_m_play_clicked );
     connect( ui->actionStep, &QAction::triggered, this, &AnimationUI::on_m_step_clicked );
     connect( ui->actionStop, &QAction::triggered, this, &AnimationUI::on_m_reset_clicked );
+
+    animTimeline = new AnimTimeline(this);
 }
 
 AnimationUI::~AnimationUI() {
     delete ui;
+}
+
+void AnimationUI::showEvent(QShowEvent *event)
+{
+    animTimeline->show();
+}
+
+void AnimationUI::hideEvent(QHideEvent *event)
+{
+    animTimeline->hide();
 }
 
 void AnimationUI::on_m_xray_clicked( bool checked ) {

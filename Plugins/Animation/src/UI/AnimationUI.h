@@ -2,6 +2,7 @@
 #define ANIMATIONUI_H
 
 #include <QFrame>
+#include <AnimTimeline/animtimeline.h>
 
 namespace UI {
 class AnimationUi;
@@ -23,6 +24,10 @@ class AnimationUI : public QFrame {
   public:
     explicit AnimationUI( QWidget* parent = 0 );
     ~AnimationUI();
+
+protected:
+    void showEvent(QShowEvent *event) override;
+    void hideEvent(QHideEvent *event) override;
 
   signals:
     void toggleXray( bool );
@@ -57,6 +62,8 @@ class AnimationUI : public QFrame {
 
   private:
     Ui::AnimationUI* ui;
+    AnimTimeline * animTimeline;
+
 
     void updateTime( float t );
     void updateFrame( int f );
