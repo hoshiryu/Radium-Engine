@@ -2,6 +2,8 @@
 #include "ui_AnimationUI.h"
 
 #include <iostream>
+#include <QInputDialog>
+#include <QDebug>
 
 
 AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::AnimationUI ) {
@@ -130,4 +132,27 @@ void AnimationUI::updateTime( float t ) {
 
 void AnimationUI::updateFrame( int f ) {
     ui->m_currentFrame->setText( QString::number( f ) );
+}
+
+void AnimationUI::on_comboBox_currentPlayZone_currentIndexChanged(int index)
+{
+    emit playZoneID(index);
+}
+
+void AnimationUI::on_pushButton_newPlayZone_clicked()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Adding PlayZone"), tr("PlayZone name :"), QLineEdit::Normal, "", &ok);
+
+    if (ok && !text.isEmpty()) {
+        ui->comboBox_currentPlayZone->addItem(text);
+    }
+}
+
+void AnimationUI::on_pushButton_removePlayZone_clicked()
+{
+    int removeIndex =ui->comboBox_currentPlayZone->currentIndex();
+    ui->comboBox_currentPlayZone->removeItem(removeIndex);
+
+    emit removePlayZoneID(removeIndex);
 }

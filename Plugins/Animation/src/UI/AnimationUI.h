@@ -44,6 +44,9 @@ protected:
     void restoreFrame( int );
     void changeDataDir();
 
+    void playZoneID( int );
+    void removePlayZoneID( int );
+
   private slots:
     void on_m_xray_clicked( bool checked );
     void on_m_showSkeleton_toggled( bool checked );
@@ -60,7 +63,12 @@ protected:
     void setMaxFrame( int f );
     void on_m_saveDir_clicked();
 
-  private:
+    void on_comboBox_currentPlayZone_currentIndexChanged(int index);
+    void on_pushButton_newPlayZone_clicked();
+
+    void on_pushButton_removePlayZone_clicked();
+
+private:
     Ui::AnimationUI* ui;
     AnimTimeline * animTimeline;
 
