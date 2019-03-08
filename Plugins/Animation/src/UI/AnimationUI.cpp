@@ -4,6 +4,8 @@
 #include <iostream>
 #include <QInputDialog>
 #include <QDebug>
+#include <QFileDialog>
+#include <QSettings>
 
 
 AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::AnimationUI ) {
@@ -18,6 +20,7 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( ui->actionStep, &QAction::triggered, this, &AnimationUI::on_m_step_clicked );
     connect( ui->actionStop, &QAction::triggered, this, &AnimationUI::on_m_reset_clicked );
 
+
     animTimeline = new AnimTimeline(this);
 }
 
@@ -28,7 +31,8 @@ AnimationUI::~AnimationUI() {
 
 void AnimationUI::showEvent(QShowEvent *event)
 {
-    animTimeline->show();
+    if (ui->groupBox_animation->isEnabled())
+        animTimeline->show();
 }
 
 void AnimationUI::hideEvent(QHideEvent *event)
@@ -179,3 +183,33 @@ void AnimationUI::on_pushButton_removeAnimation_clicked()
     emit removeAnimationID(removeIndex);
 }
 
+
+void AnimationUI::on_pushButton_loadRdmaFile_clicked()
+{
+    QSettings settings;
+    QString path = settings.value("files/load", QDir::homePath()).toString();
+    QString filename = QFileDialog::getOpenFileName(this, "Open RDMA file", path, "Radium Animation File (*.rdma)");
+
+    if (! filename.isEmpty()) {
+        ui->label_currentRDMA->setText(filename);
+        emit loadRDMA(filename);
+    }
+}
+
+
+void AnimationUI::on_pushButton_saveRdma_clicked()
+{
+    emit saveRDMA(ui->label_currentRDMA->text());
+}
+
+void AnimationUI::on_pushButton_newRdmaFile_clicked()
+{
+    QSettings settings;
+    QString path = settings.value("files/load", QDir::homePath()).toString();
+    QString filename = QFileDialog::getSaveFileName(this, "Open RDMA file", path, "Radium Animation File (*.rdma)");
+
+    if (! filename.isEmpty()) {
+        ui->label_currentRDMA->setText(filename);
+        emit newRDMA(filename);
+    }
+}

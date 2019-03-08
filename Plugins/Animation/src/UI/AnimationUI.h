@@ -47,6 +47,9 @@ protected:
     void playZoneID( int );
     void removePlayZoneID( int );
     void removeAnimationID( int );
+    void loadRDMA( QString filename );
+    void saveRDMA( QString filename );
+    void newRDMA( QString filename );
 
   private slots:
     void on_m_xray_clicked( bool checked );
@@ -69,7 +72,9 @@ protected:
     void on_comboBox_currentAnimation_currentIndexChanged(int index);
     void on_pushButton_newAnimation_clicked();
     void on_pushButton_removeAnimation_clicked();
-
+    void on_pushButton_loadRdmaFile_clicked();
+    void on_pushButton_saveRdma_clicked();
+    void on_pushButton_newRdmaFile_clicked();
 
 private:
     Ui::AnimationUI* ui;
