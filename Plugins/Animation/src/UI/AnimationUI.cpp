@@ -23,6 +23,7 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
 
 AnimationUI::~AnimationUI() {
     delete ui;
+    delete animTimeline;
 }
 
 void AnimationUI::showEvent(QShowEvent *event)
@@ -90,9 +91,6 @@ void AnimationUI::on_m_reset_clicked() {
     emit stop();
 }
 
-void AnimationUI::on_m_animationID_valueChanged( int arg1 ) {
-    emit animationID( arg1 );
-}
 
 void AnimationUI::on_m_timeStep_currentIndexChanged( int index ) {
     emit toggleAnimationTimeStep( ( index == 0 ) );
@@ -156,3 +154,28 @@ void AnimationUI::on_pushButton_removePlayZone_clicked()
 
     emit removePlayZoneID(removeIndex);
 }
+
+void AnimationUI::on_comboBox_currentAnimation_currentIndexChanged(int index)
+{
+    emit animationID( index );
+}
+
+void AnimationUI::on_pushButton_newAnimation_clicked()
+{
+    bool ok;
+    QString text = QInputDialog::getText(this, tr("Adding Animation"), tr("Animation name :"), QLineEdit::Normal, "", &ok);
+
+    if (ok && !text.isEmpty()) {
+        ui->comboBox_currentAnimation->addItem(text);
+    }
+
+}
+
+void AnimationUI::on_pushButton_removeAnimation_clicked()
+{
+    int removeIndex = ui->comboBox_currentAnimation->currentIndex();
+    ui->comboBox_currentAnimation->removeItem(removeIndex);
+
+    emit removeAnimationID(removeIndex);
+}
+

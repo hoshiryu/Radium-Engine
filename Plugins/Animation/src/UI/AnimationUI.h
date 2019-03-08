@@ -46,6 +46,7 @@ protected:
 
     void playZoneID( int );
     void removePlayZoneID( int );
+    void removeAnimationID( int );
 
   private slots:
     void on_m_xray_clicked( bool checked );
@@ -53,7 +54,6 @@ protected:
     void on_m_play_clicked( bool checked );
     void on_m_step_clicked();
     void on_m_reset_clicked();
-    void on_m_animationID_valueChanged( int arg1 );
     void on_m_timeStep_currentIndexChanged( int index );
     void on_m_speed_valueChanged( double arg1 );
     void on_m_slowMo_toggled( bool checked );
@@ -65,8 +65,11 @@ protected:
 
     void on_comboBox_currentPlayZone_currentIndexChanged(int index);
     void on_pushButton_newPlayZone_clicked();
-
     void on_pushButton_removePlayZone_clicked();
+    void on_comboBox_currentAnimation_currentIndexChanged(int index);
+    void on_pushButton_newAnimation_clicked();
+    void on_pushButton_removeAnimation_clicked();
+
 
 private:
     Ui::AnimationUI* ui;
