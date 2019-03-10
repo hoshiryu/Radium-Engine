@@ -59,8 +59,7 @@ void AnimationUI::on_m_play_clicked( bool checked ) {
         ui->m_play->update();
 
         emit play();
-    }
-    else
+    } else
     {
         ui->m_play->setChecked( false );
 
@@ -157,7 +156,7 @@ void AnimationUI::on_pushButton_removePlayZone_clicked()
     int removeIndex =ui->comboBox_currentPlayZone->currentIndex();
     ui->comboBox_currentPlayZone->removeItem(removeIndex);
 
-    emit removePlayZoneID(removeIndex);
+    emit removePlayzone(removeIndex);
 }
 
 void AnimationUI::on_comboBox_currentAnimation_currentIndexChanged(int index)
@@ -182,7 +181,7 @@ void AnimationUI::on_pushButton_removeAnimation_clicked()
     int removeIndex = ui->comboBox_currentAnimation->currentIndex();
     ui->comboBox_currentAnimation->removeItem(removeIndex);
 
-    emit removeAnimationID(removeIndex);
+    emit removeAnimation(removeIndex);
 }
 
 
@@ -194,15 +193,14 @@ void AnimationUI::on_pushButton_loadRdmaFile_clicked()
 
     if (! filename.isEmpty()) {
         ui->label_currentRDMA->setText(filename);
-        ui->pushButton_saveRdmaFile->setEnabled(true);
-        emit loadRDMA(filename);
+        emit loadRDMA(filename.toStdString());
     }
 }
 
 
-void AnimationUI::on_pushButton_saveRdmaFile_clicked()
+void AnimationUI::on_pushButton_saveRdma_clicked()
 {
-    emit saveRDMA(ui->label_currentRDMA->text());
+    emit saveRDMA(ui->label_currentRDMA->text().toStdString());
 }
 
 void AnimationUI::on_pushButton_newRdmaFile_clicked()
@@ -213,7 +211,6 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked()
 
     if (! filename.isEmpty()) {
         ui->label_currentRDMA->setText(filename);
-        ui->pushButton_saveRdmaFile->setEnabled(true);
-        emit newRDMA(filename);
+        emit newRDMA(filename.toStdString());
     }
 }

@@ -46,12 +46,12 @@ class AnimationUI : public QFrame {
 
     void playZoneID( int );
     void newPlayzone();
-    void removePlayZoneID( int );
+    void removePlayzone( int );
     void newAnimation();
-    void removeAnimationID( int );
-    void loadRDMA( QString filename );
-    void saveRDMA( QString filename );
-    void newRDMA( QString filename );
+    void removeAnimation( int );
+    void loadRDMA( std::string filename );
+    void saveRDMA( std::string filename );
+    void newRDMA( std::string filename );
 
   private slots:
     void on_m_xray_clicked( bool checked );

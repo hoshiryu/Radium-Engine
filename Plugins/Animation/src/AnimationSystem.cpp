@@ -210,4 +210,65 @@ bool AnimationSystem::restoreFrame( const std::string& dir, uint frameId ) {
     return success;
 }
 
+/// ???
+void AnimationSystem::playZoneID( int i ) {
+    // TODO
+}
+
+/// Creates a new playzone for the current animation.
+void AnimationSystem::newPlayzone() {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->newPlayzone();
+    }
+}
+
+/// Remove the i-th playzone for the current animation.
+void AnimationSystem::removePlayzone( int i ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->removePlayzone( i );
+    }
+}
+
+/// Creates a new animation.
+void AnimationSystem::newAnimation() {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->newAnimation();
+    }
+}
+
+/// Remove the i-th animation (and therefore its playzones).
+void AnimationSystem::removeAnimation( int i ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->removeAnimation( i );
+    }
+}
+
+/// Load and .rdma file.
+void AnimationSystem::loadRDMA( const std::string& filename ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->loadRDMA( filename );
+    }
+}
+
+/// Save all the animation that were not loaded with the model file.
+void AnimationSystem::saveRDMA( const std::string& filename ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->saveRDMA( filename );
+    }
+}
+
+/// Creates an empty .rdma file: temporary.
+// void AnimationSystem::newRDMA( const std::string& filename ) {
+//     for ( const auto& comp : m_components )
+//     {
+//         static_cast<AnimationComponent*>( comp.second )->newRDMA( filename );
+//     }
+// }
+
 } // namespace AnimationPlugin

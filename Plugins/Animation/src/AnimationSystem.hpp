@@ -79,6 +79,30 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// @returns the system frame.
     uint getMaxFrame() const;
 
+    /// ???
+    void playZoneID( int i );
+
+    /// Creates a new playzone for the current animation.
+    void newPlayzone();
+
+    /// Remove the i-th playzone for the current animation.
+    void removePlayzone( int i );
+
+    /// Creates a new animation.
+    void newAnimation();
+
+    /// Remove the i-th animation (and therefore its playzones).
+    void removeAnimation( int i );
+
+    /// Load and .rdma file.
+    void loadRDMA( const std::string& filename );
+
+    /// Save all the animation that were not loaded with the model file.
+    void saveRDMA( const std::string& filename );
+
+    /// Creates an empty .rdma file: temporary.
+    // void newRDMA( const std::string& filename );
+
   private:
     /// Current frame
     uint m_animFrame;

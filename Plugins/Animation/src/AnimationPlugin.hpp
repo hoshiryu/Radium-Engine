@@ -86,28 +86,28 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     void changeDataDir();
 
     /// ???
-    void playZoneID( int i );
+    void playzoneID( int i );
 
     /// Creates a new playzone for the current animation.
     void newPlayzone();
 
     /// Remove the i-th playzone for the current animation.
-    void removePlayZoneID( int i );
+    void removePlayzone( int i );
 
     /// Creates a new animation.
     void newAnimation();
 
     /// Remove the i-th animation (and therefore its playzones).
-    void removeAnimationID( int i );
+    void removeAnimation( int i );
 
     /// Load and .rdma file.
-    void loadRDMA( QString filename );
+    void loadRDMA( std::string filename );
 
     /// Save all the animation that were not loaded with the model file.
-    void saveRDMA( QString filename );
+    void saveRDMA( std::string filename );
 
     /// Creates an empty .rdma file: temporary.
-    void newRDMA( QString filename );
+    // void newRDMA( std::string filename );
     
 
   private:

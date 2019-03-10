@@ -55,15 +55,14 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::restoreFrame, this, &AnimationPluginC::restoreFrame );
     connect( m_widget, &AnimationUI::changeDataDir, this, &AnimationPluginC::changeDataDir );
 
-    connect(m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::playzoneID);
-    // void playZoneID( int );
-    // void newPlayzone();
-    // void removePlayZoneID( int );
-    // void newAnimation();
-    // void removeAnimationID( int );
-    // void loadRDMA( QString filename );
-    // void saveRDMA( QString filename );
-    // void newRDMA( QString filename );
+    connect( m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::playzoneID );
+    connect( m_widget, &AnimationUI::newPlayzone, this, &AnimationPluginC::newPlayzone );
+    connect( m_widget, &AnimationUI::removePlayzone, this, &AnimationPluginC::removePlayzone );
+    connect( m_widget, &AnimationUI::newAnimation, this, &AnimationPluginC::newAnimation );
+    connect( m_widget, &AnimationUI::removeAnimation, this, &AnimationPluginC::removeAnimation );
+    connect( m_widget, &AnimationUI::loadRDMA, this, &AnimationPluginC::loadRDMA );
+    connect( m_widget, &AnimationUI::saveRDMA, this, &AnimationPluginC::saveRDMA );
+    // connect( m_widget, &AnimationUI::newRDMA, this, &AnimationPluginC::newRDMA );
 
     return m_widget;
 }
@@ -168,5 +167,37 @@ void AnimationPluginC::changeDataDir() {
         m_dataDir = path.toStdString();
     }
 }
+
+void AnimationPluginC::playzoneID( int i ) {
+    // TODO
+}
+
+void AnimationPluginC::newPlayzone() {
+    m_system->newPlayzone();
+}
+
+void AnimationPluginC::removePlayzone( int i ) {
+    m_system->removePlayzone( i );
+}
+
+void AnimationPluginC::newAnimation() {
+    m_system->newAnimation();
+}
+
+void AnimationPluginC::removeAnimation( int i ) {
+    m_system->removeAnimation( i );
+}
+
+void AnimationPluginC::loadRDMA( std::string filename ) {
+    m_system->loadRDMA( filename );
+}
+
+void AnimationPluginC::saveRDMA( std::string filename ) {
+    m_system->saveRDMA( filename );
+}
+
+// void AnimationPluginC::newRDMA( std::string filename ) {
+//     m_system->newRDMA( filename );
+// }
 
 } // namespace AnimationPlugin

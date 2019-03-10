@@ -97,12 +97,27 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Toggle skeleton bones display.
     void toggleSkeleton( const bool status );
 
+    /// Creates a new playzone for the current animation.
+    void newPlayzone();
+
+    /// Remove the i-th playzone for the current animation.
+    void removePlayzone( int i );
+
+    /// Creates a new animation.
+    void newAnimation();
+
+    /// Remove the i-th animation (and therefore its playzones).
+    void removeAnimation( int i );
+
     /// Loads the animations contained in the file at filepath
     /// Only loads animations and each animation d_t and playzones
     void loadRDMA( const std::string& filepath );
 
     /// Save the created animations with their d_t and playzones
     void saveRDMA( const std::string& filepath );
+
+    /// Creates an empty .rdma file: temporary.
+    // void newRDMA( const std::string& filename );
 
     //
     // Editable interface

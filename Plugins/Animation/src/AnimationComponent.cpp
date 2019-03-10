@@ -417,9 +417,10 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
 
     /// Importing animations
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
-    m_animations = std::vector<Ra::Core::Animation::Animation>( size );
-    for ( auto& anim : m_animations )
+    m_animations.resize( m_animations.size() + size );
+    for ( size_t i = m_firstEditableID; i < m_animations.size(); ++i )
     {
+        auto& anim = m_animations[i];
         input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
         for ( size_t i = 0; i < size; ++i )
         {
@@ -437,13 +438,13 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
 
     /// Importing each animation playzones
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
-    m_animsPlayzones.resize( size );
-    for ( size_t i = 0; i < size; ++i )
+    m_animsPlayzones.resize( m_animsPlayzones.size() + size );
+    for ( auto& playzones : m_animsPlayzones )
     {
         size_t playzoneSize;
         input.read( reinterpret_cast<char*>( &playzoneSize ), sizeof( playzoneSize ) );
-        m_animsPlayzones[i].resize( playzoneSize );
-        for ( auto& playzone : m_animsPlayzones[i] )
+        playzones.resize( playzoneSize );
+        for ( auto& playzone : playzones )
         {
             auto& name = std::get<0>( playzone );
             input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
@@ -456,8 +457,8 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
 
     /// Importing delta t's
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
-    m_dt.resize( size );
-    input.read( reinterpret_cast<char*>( &m_dt[0] ), size * sizeof( Scalar ) );
+    m_dt.resize( m_dt.size() + size );
+    input.read( reinterpret_cast<char*>( &m_dt[m_firstEditableID] ), size * sizeof( Scalar ) );
 }
 
 void AnimationComponent::saveRDMA( const std::string& filepath ) {
@@ -467,10 +468,11 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     /// Exporting animations
     const size_t pose_size = m_refPose.size();
     output.write( reinterpret_cast<const char*>( &pose_size ), sizeof( pose_size ) );
-    size_t size = m_animations.size();
+    size_t size = m_animations.size() - m_firstEditableID + 1;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
-    for ( const auto& anim : m_animations )
+    for ( size_t i = m_firstEditableID; i < m_animations.size(); ++i )
     {
+        const auto& anim = m_animations[i];
         // anim.normalize();
         size = anim.size();
         output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
@@ -508,9 +510,52 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     }
 
     /// Exporting delta t's
-    size = m_dt.size();
+    size = m_dt.size() - m_firstEditableID + 1;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
-    output.write( reinterpret_cast<const char*>( &m_dt[0] ), size * sizeof( Scalar ) );
+    output.write( reinterpret_cast<const char*>( &m_dt[m_firstEditableID] ),
+                  size * sizeof( Scalar ) );
 }
+
+/// Creates a new playzone for the current animation.
+void AnimationComponent::newPlayzone() {
+    const auto& anim = m_animations[m_animationID];
+    m_playzoneID = m_animsPlayzones.size();
+    m_animsPlayzones[m_animationID].emplace_back( "Playzone #" + m_playzoneID,
+                                                  anim.keyPose( 0 ).first,
+                                                  anim.keyPose( anim.size() - 1 ).first );
+}
+
+/// Remove the i-th playzone for the current animation.
+void AnimationComponent::removePlayzone( int i ) {
+    auto& playzone = m_animsPlayzones[m_animationID];
+    playzone.erase( playzone.begin() + i );
+    if ( i <= m_playzoneID )
+    {
+        --m_playzoneID;
+    }
+}
+
+/// Creates a new animation.
+void AnimationComponent::newAnimation() {
+    m_animations.emplace_back();
+}
+
+/// Remove the i-th animation (and therefore its playzones).
+void AnimationComponent::removeAnimation( int i ) {
+    if ( i < m_firstEditableID )
+    {
+        return;
+    }
+
+    m_animations.erase(m_animations.begin() + i);
+    m_animsPlayzones.erase(m_animsPlayzones.begin() + i - m_firstEditableID);
+    m_playzoneID = 0;
+    if(i <= m_animationID) {
+        m_animationID;
+    }
+}
+
+/// Creates an empty .rdma file: temporary.
+// void AnimationComponent::newRDMA( const std::string& filename ) {}
 
 } // namespace AnimationPlugin
