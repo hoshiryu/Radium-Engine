@@ -54,6 +54,17 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::cacheFrame, this, &AnimationPluginC::cacheFrame );
     connect( m_widget, &AnimationUI::restoreFrame, this, &AnimationPluginC::restoreFrame );
     connect( m_widget, &AnimationUI::changeDataDir, this, &AnimationPluginC::changeDataDir );
+
+    connect(m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::playzoneID);
+    // void playZoneID( int );
+    // void newPlayzone();
+    // void removePlayZoneID( int );
+    // void newAnimation();
+    // void removeAnimationID( int );
+    // void loadRDMA( QString filename );
+    // void saveRDMA( QString filename );
+    // void newRDMA( QString filename );
+
     return m_widget;
 }
 

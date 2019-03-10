@@ -148,6 +148,7 @@ void AnimationUI::on_pushButton_newPlayZone_clicked()
 
     if (ok && !text.isEmpty()) {
         ui->comboBox_currentPlayZone->addItem(text);
+        emit newPlayzone();
     }
 }
 
@@ -171,6 +172,7 @@ void AnimationUI::on_pushButton_newAnimation_clicked()
 
     if (ok && !text.isEmpty()) {
         ui->comboBox_currentAnimation->addItem(text);
+        emit newAnimation();
     }
 
 }

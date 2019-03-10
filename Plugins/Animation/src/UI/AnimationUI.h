@@ -1,8 +1,8 @@
 #ifndef ANIMATIONUI_H
 #define ANIMATIONUI_H
 
-#include <QFrame>
 #include <AnimTimeline/animtimeline.h>
+#include <QFrame>
 
 namespace UI {
 class AnimationUi;
@@ -25,9 +25,9 @@ class AnimationUI : public QFrame {
     explicit AnimationUI( QWidget* parent = 0 );
     ~AnimationUI();
 
-protected:
-    void showEvent(QShowEvent *event) override;
-    void hideEvent(QHideEvent *event) override;
+  protected:
+    void showEvent( QShowEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
 
   signals:
     void toggleXray( bool );
@@ -45,7 +45,9 @@ protected:
     void changeDataDir();
 
     void playZoneID( int );
+    void newPlayzone();
     void removePlayZoneID( int );
+    void newAnimation();
     void removeAnimationID( int );
     void loadRDMA( QString filename );
     void saveRDMA( QString filename );
@@ -66,20 +68,19 @@ protected:
     void setMaxFrame( int f );
     void on_m_saveDir_clicked();
 
-    void on_comboBox_currentPlayZone_currentIndexChanged(int index);
+    void on_comboBox_currentPlayZone_currentIndexChanged( int index );
     void on_pushButton_newPlayZone_clicked();
     void on_pushButton_removePlayZone_clicked();
-    void on_comboBox_currentAnimation_currentIndexChanged(int index);
+    void on_comboBox_currentAnimation_currentIndexChanged( int index );
     void on_pushButton_newAnimation_clicked();
     void on_pushButton_removeAnimation_clicked();
     void on_pushButton_loadRdmaFile_clicked();
     void on_pushButton_saveRdmaFile_clicked();
     void on_pushButton_newRdmaFile_clicked();
 
-private:
+  private:
     Ui::AnimationUI* ui;
-    AnimTimeline * animTimeline;
-
+    AnimTimeline* animTimeline;
 
     void updateTime( float t );
     void updateFrame( int f );
