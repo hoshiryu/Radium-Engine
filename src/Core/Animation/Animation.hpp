@@ -43,6 +43,9 @@ class RA_CORE_API Animation
     // Sets the i-th key pose time to timestamp.
     void setKeyPoseTime( size_t i, Scalar timestamp );
 
+    // Offset keyposes
+    void offsetKeyPoses( Scalar offset );
+
     // Replace the i-th key pose pose with pose.
     void replacePose( size_t i, Pose&& pose );
 
@@ -51,6 +54,7 @@ class RA_CORE_API Animation
 
     // Return the i-th key pose.
     const MyKeyPose& keyPose( std::size_t i ) const;
+
 
   private:
     std::vector<MyKeyPose> m_keys;

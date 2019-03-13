@@ -98,6 +98,12 @@ void Animation::setKeyPoseTime( size_t i, Scalar timestamp ) {
         }
     }
 }
+   
+void Animation::offsetKeyPoses( Scalar offset ) {
+    for(auto& pose: m_keys) {
+        pose.first += offset;
+    }
+}
 
 void Animation::replacePose( size_t i, Pose&& pose ) {
     CORE_ASSERT( ( m_keys[i].second.size() == pose.size() ), "Invalid pose size" );

@@ -53,6 +53,15 @@ class AnimationUI : public QFrame {
     void saveRDMA( std::string filename );
     void newRDMA( std::string filename );
 
+    /// Timeline signals
+    void cursorChanged( Scalar );
+    void startChanged( Scalar );
+    void endChanged( Scalar );
+    void keyPoseAdded( Scalar );
+    void keyPoseDeleted( int );
+    void keyPoseChanged( int );
+    void keyPosesChanged( Scalar );
+
   private slots:
     void on_m_xray_clicked( bool checked );
     void on_m_showSkeleton_toggled( bool checked );

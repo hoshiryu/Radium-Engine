@@ -119,6 +119,24 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Creates an empty .rdma file: temporary.
     // void newRDMA( const std::string& filename );
 
+    /// Sets current pose to m_animationTime pose.
+    void setCurrentPose();
+
+    /// Updates the current pose.
+    void setCurrentAnimationTime( Scalar timestamp );
+
+    /// Add a keypose to the current animation at timestamp.
+    void addKeyPose( Scalar timestamp );
+
+    /// Remove the i-th keypose
+    void removeKeyPose( int i );
+
+    /// Set the i-th ?????
+    // void setKeyPoseTime( int i );
+
+    /// Add and offset to every key poses of the current animation.
+    void offsetKeyPoses( Scalar offset );
+
     //
     // Editable interface
     //

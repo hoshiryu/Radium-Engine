@@ -271,4 +271,46 @@ void AnimationSystem::saveRDMA( const std::string& filename ) {
 //     }
 // }
 
+
+/// Updates the current pose.
+void AnimationSystem::setCurrentAnimationTime( Scalar timestamp ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->setCurrentAnimationTime( timestamp );
+    }
+}
+
+/// Add a keypose to the current animation at timestamp.
+void AnimationSystem::addKeyPose( Scalar timestamp ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->addKeyPose( timestamp );
+    }
+}
+
+/// Remove the i-th keypose
+void AnimationSystem::removeKeyPose( int i )  {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->removeKeyPose( i );
+    }
+}
+
+/// Set the i-th ?????
+// void AnimationSystem::setKeyPoseTime( int i ) {
+//     for ( const auto& comp : m_components )
+//     {
+//         static_cast<AnimationComponent*>( comp.second )->setKeyPoseTime( i );
+//     }
+// }
+
+/// Add and offset to every key poses of the current animation.
+void AnimationSystem::offsetKeyPoses( Scalar offset ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->offsetKeyPoses( offset );
+    }
+}
+
+
 } // namespace AnimationPlugin

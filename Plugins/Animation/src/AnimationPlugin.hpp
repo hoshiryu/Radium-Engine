@@ -108,7 +108,21 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
 
     /// Creates an empty .rdma file: temporary.
     // void newRDMA( std::string filename );
-    
+
+    /// Updates the current pose.
+    void setCurrentAnimationTime( Scalar timestamp );
+
+    /// Add a keypose to the current animation at timestamp.
+    void addKeyPose( Scalar timestamp );
+
+    /// Remove the i-th keypose
+    void removeKeyPose( int i );
+
+    /// Set the i-th ?????
+    // void setKeyPoseTime( int i );
+
+    /// Add and offset to every key poses of the current animation.
+    void offsetKeyPoses( Scalar offset );
 
   private:
     /// The data directory.

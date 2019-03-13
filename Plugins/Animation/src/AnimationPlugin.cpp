@@ -64,6 +64,16 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::saveRDMA, this, &AnimationPluginC::saveRDMA );
     // connect( m_widget, &AnimationUI::newRDMA, this, &AnimationPluginC::newRDMA );
 
+    /// Timeline signals
+    connect( m_widget, &AnimationUI::cursorChanged, this, &AnimationPluginC::setCurrentAnimationTime );
+    // connect( m_widget, &AnimationUI::startChanged, this, &AnimationPluginC::startChanged );
+    // connect( m_widget, &AnimationUI::endChanged, this, &AnimationPluginC::endChanged );
+    connect( m_widget, &AnimationUI::keyPoseAdded, this, &AnimationPluginC::addKeyPose );
+    connect( m_widget, &AnimationUI::keyPoseDeleted, this, &AnimationPluginC::removeKeyPose );
+    // connect( m_widget, &AnimationUI::keyPoseChanged, this, &AnimationPluginC::setKeyPoseTime );
+    connect( m_widget, &AnimationUI::keyPosesChanged, this, &AnimationPluginC::offsetKeyPoses );
+
+
     return m_widget;
 }
 
@@ -200,4 +210,27 @@ void AnimationPluginC::saveRDMA( std::string filename ) {
 //     m_system->newRDMA( filename );
 // }
 
+
+void AnimationPluginC::setCurrentAnimationTime( Scalar timestamp ) {
+    m_system->setCurrentAnimationTime(timestamp);
+}
+
+void AnimationPluginC::addKeyPose( Scalar timestamp ) {
+    m_system->addKeyPose(timestamp);
+}
+
+void AnimationPluginC::removeKeyPose( int i ) {
+    m_system->removeKeyPose(i);
+}
+
+// void AnimationPluginC::setKeyPoseTime( int i ) {
+//     m_system->setKeyPoseTime(i);
+// }
+
+void AnimationPluginC::offsetKeyPoses( Scalar offset ) {
+    m_system->offsetKeyPoses(offset);
+}
+
 } // namespace AnimationPlugin
+
+

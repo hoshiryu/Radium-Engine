@@ -103,6 +103,22 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Creates an empty .rdma file: temporary.
     // void newRDMA( const std::string& filename );
 
+    /// Updates the current pose.
+    void setCurrentAnimationTime( Scalar timestamp );
+
+    /// Add a keypose to the current animation at timestamp.
+    void addKeyPose( Scalar timestamp );
+
+    /// Remove the i-th keypose
+    void removeKeyPose( int i );
+
+    /// Set the i-th ?????
+    // void setKeyPoseTime( int i );
+
+    /// Add and offset to every key poses of the current animation.
+    void offsetKeyPoses( Scalar offset );
+
+
   private:
     /// Current frame
     uint m_animFrame;

@@ -72,11 +72,7 @@ void AnimationComponent::update( Scalar dt ) {
     // get the current pose from the animation
     if ( dt > 0 && !m_animations.empty() )
     {
-        Ra::Core::Animation::Pose currentPose =
-            m_animations[m_animationID].getPose( m_animationTime );
-
-        // update the pose of the skeleton
-        m_skel.setPose( currentPose, Handle::SpaceType::LOCAL );
+        setCurrentPose();
     }
 
     // update the render objects
@@ -537,6 +533,7 @@ void AnimationComponent::removePlayzone( int i ) {
 
 /// Creates a new animation.
 void AnimationComponent::newAnimation() {
+    m_animationID = m_animations.size();
     m_animations.emplace_back();
 }
 
@@ -551,11 +548,49 @@ void AnimationComponent::removeAnimation( int i ) {
     m_animsPlayzones.erase(m_animsPlayzones.begin() + i - m_firstEditableID);
     m_playzoneID = 0;
     if(i <= m_animationID) {
-        m_animationID;
+        --m_animationID;
     }
 }
 
 /// Creates an empty .rdma file: temporary.
 // void AnimationComponent::newRDMA( const std::string& filename ) {}
+
+inline void AnimationComponent::setCurrentPose() {
+    const auto& pose = m_animations[m_animationID].getPose(m_animationTime);
+    m_skel.setPose(pose, Handle::SpaceType::LOCAL);
+}
+
+/// Updates the current pose.
+void AnimationComponent::setCurrentAnimationTime( Scalar timestamp ) {
+    m_animationTime = timestamp;
+    
+    setCurrentPose();
+}
+
+/// Add a keypose to the current animation at timestamp.
+void AnimationComponent::addKeyPose( Scalar timestamp ) {
+    if(m_animationID < m_firstEditableID) {
+        newAnimation();
+    }
+    m_animations[m_animationID].addKeyPose(m_skel.getPose(Handle::SpaceType::LOCAL), timestamp);
+}
+
+/// Remove the i-th keypose
+void AnimationComponent::removeKeyPose( int i ) {
+    if(m_animationID >= m_firstEditableID) {
+        m_animations[m_animationID].removeKeyPose(i);
+        setCurrentAnimationTime(m_animationTime);
+    }
+}
+
+/// Set the i-th ?????
+// void AnimationComponent::setKeyPoseTime( int i ) {}
+
+/// Add and offset to every key poses of the current animation.
+void AnimationComponent::offsetKeyPoses( Scalar offset ) {
+    if(m_animationID >= m_firstEditableID) {
+        m_animations[m_animationID].offsetKeyPoses(offset);
+    }
+}
 
 } // namespace AnimationPlugin
