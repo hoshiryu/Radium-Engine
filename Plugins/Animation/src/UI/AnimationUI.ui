@@ -544,7 +544,7 @@ border-image: url(:/Assets/Images/stop_on.png);
        <item>
         <widget class="QPushButton" name="pushButton_newRdmaFile">
          <property name="text">
-          <string>New File</string>
+          <string>Save as new</string>
          </property>
         </widget>
        </item>
@@ -556,7 +556,10 @@ border-image: url(:/Assets/Images/stop_on.png);
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_saveRdma">
+        <widget class="QPushButton" name="pushButton_saveRdmaFile">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Save</string>
          </property>

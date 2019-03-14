@@ -73,7 +73,7 @@ protected:
     void on_pushButton_newAnimation_clicked();
     void on_pushButton_removeAnimation_clicked();
     void on_pushButton_loadRdmaFile_clicked();
-    void on_pushButton_saveRdma_clicked();
+    void on_pushButton_saveRdmaFile_clicked();
     void on_pushButton_newRdmaFile_clicked();
 
 private:

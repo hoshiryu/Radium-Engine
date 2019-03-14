@@ -192,12 +192,13 @@ void AnimationUI::on_pushButton_loadRdmaFile_clicked()
 
     if (! filename.isEmpty()) {
         ui->label_currentRDMA->setText(filename);
+        ui->pushButton_saveRdmaFile->setEnabled(true);
         emit loadRDMA(filename);
     }
 }
 
 
-void AnimationUI::on_pushButton_saveRdma_clicked()
+void AnimationUI::on_pushButton_saveRdmaFile_clicked()
 {
     emit saveRDMA(ui->label_currentRDMA->text());
 }
@@ -210,6 +211,7 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked()
 
     if (! filename.isEmpty()) {
         ui->label_currentRDMA->setText(filename);
+        ui->pushButton_saveRdmaFile->setEnabled(true);
         emit newRDMA(filename);
     }
 }
