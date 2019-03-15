@@ -211,12 +211,12 @@ void AnimationPluginC::saveRDMA( std::string filename ) {
 // }
 
 
-void AnimationPluginC::setCurrentAnimationTime( Scalar timestamp ) {
-    m_system->setCurrentAnimationTime(timestamp);
+void AnimationPluginC::setCurrentAnimationTime( double timestamp ) {
+    m_system->setCurrentAnimationTime(static_cast<Scalar>(timestamp));
 }
 
-void AnimationPluginC::addKeyPose( Scalar timestamp ) {
-    m_system->addKeyPose(timestamp);
+void AnimationPluginC::addKeyPose( double timestamp ) {
+    m_system->addKeyPose(static_cast<Scalar>(timestamp));
 }
 
 void AnimationPluginC::removeKeyPose( int i ) {
@@ -227,8 +227,8 @@ void AnimationPluginC::removeKeyPose( int i ) {
 //     m_system->setKeyPoseTime(i);
 // }
 
-void AnimationPluginC::offsetKeyPoses( Scalar offset ) {
-    m_system->offsetKeyPoses(offset);
+void AnimationPluginC::offsetKeyPoses( double offset ) {
+    m_system->offsetKeyPoses(static_cast<Scalar>(offset));
 }
 
 } // namespace AnimationPlugin
