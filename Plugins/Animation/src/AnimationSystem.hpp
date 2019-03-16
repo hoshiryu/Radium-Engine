@@ -3,6 +3,7 @@
 
 #include <Engine/System/TimedSystem.hpp>
 
+#include <AnimationPlugin.hpp>
 #include <AnimationPluginMacros.hpp>
 #include <Engine/ItemModel/ItemEntry.hpp>
 
@@ -16,7 +17,7 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
 {
   public:
     /// Create a new animation system
-    AnimationSystem();
+    AnimationSystem( AnimationPluginC* plugin );
 
     AnimationSystem( const AnimationSystem& ) = delete;
     AnimationSystem& operator=( const AnimationSystem& ) = delete;
@@ -79,8 +80,8 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// @returns the system frame.
     uint getMaxFrame() const;
 
-    /// ???
-    void playZoneID( int i );
+    /// Sets playzoneID to i.
+    void setPlayZoneID( int i );
 
     /// Creates a new playzone for the current animation.
     void newPlayzone();
@@ -100,24 +101,32 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Save all the animation that were not loaded with the model file.
     void saveRDMA( const std::string& filename );
 
-    /// Creates an empty .rdma file: temporary.
-    // void newRDMA( const std::string& filename );
-
     /// Updates the current pose.
-    void setCurrentAnimationTime( Scalar timestamp );
+    void setCurrentAnimationTime( double timestamp );
+
+    /// Sets the current playzone start
+    void setStart( double timestamp );
+
+    /// Sets the current playzone end
+    void setEnd( double timestamp );
 
     /// Add a keypose to the current animation at timestamp.
-    void addKeyPose( Scalar timestamp );
+    void addKeyPose( double timestamp );
 
-    /// Remove the i-th keypose
+    /// Remove the i-th keypose.
     void removeKeyPose( int i );
 
-    /// Set the i-th ?????
-    // void setKeyPoseTime( int i );
+    /// Set the i-th keypose timestamp.
+    void setKeyPoseTime( int i, double timestamp );
 
     /// Add and offset to every key poses of the current animation.
-    void offsetKeyPoses( Scalar offset );
+    void offsetKeyPoses( double offset );
 
+    /// Getter for the playzones labels.
+    std::vector<std::string> playzonesLabels() const;
+
+    /// Getter for the animation count.
+    int animationCount() const;
 
   private:
     /// Current frame
@@ -131,6 +140,9 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
 
     /// True if we want to show xray-bones
     bool m_xrayOn;
+
+    /// Used to setup the UI according to the events
+    AnimationPluginC* m_plugin;
 };
 } // namespace AnimationPlugin
 

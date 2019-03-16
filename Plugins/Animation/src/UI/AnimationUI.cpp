@@ -20,6 +20,9 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( ui->actionStop, &QAction::triggered, this, &AnimationUI::on_m_reset_clicked );
 
     animTimeline = new AnimTimeline( this );
+    connect( animTimeline, &AnimTimeline::playClicked, this, &AnimationUI::play );
+    connect( animTimeline, &AnimTimeline::pauseClicked, this, &AnimationUI::pause );
+    connect( animTimeline, &AnimTimeline::durationChanged, this, &AnimationUI::durationChanged );
     connect( animTimeline, &AnimTimeline::cursorChanged, this, &AnimationUI::cursorChanged );
     connect( animTimeline, &AnimTimeline::startChanged, this, &AnimationUI::startChanged );
     connect( animTimeline, &AnimTimeline::endChanged, this, &AnimationUI::endChanged );
@@ -32,6 +35,23 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
 AnimationUI::~AnimationUI() {
     delete ui;
     delete animTimeline;
+}
+
+void AnimationUI::setAnimationComboBox( int count ) {
+    ui->comboBox_currentAnimation->clear();
+
+    for(int i = 0; i < count; ++i) {
+        ui->comboBox_currentAnimation->addItem(QString::number(i));
+    }
+}
+
+void AnimationUI::setPlayzoneComboBox( const std::vector<std::string> labels ) {
+    ui->comboBox_currentPlayZone->clear();
+    
+    for ( const auto& label : labels )
+    {
+        ui->comboBox_currentPlayZone->addItem( label.c_str() );
+    }
 }
 
 void AnimationUI::showEvent( QShowEvent* event ) {
@@ -148,6 +168,7 @@ void AnimationUI::on_pushButton_newPlayZone_clicked() {
     if ( ok && !text.isEmpty() )
     {
         ui->comboBox_currentPlayZone->addItem( text );
+        // TODO: Add the name to the signal
         emit newPlayzone();
     }
 }
@@ -164,15 +185,9 @@ void AnimationUI::on_comboBox_currentAnimation_currentIndexChanged( int index ) 
 }
 
 void AnimationUI::on_pushButton_newAnimation_clicked() {
-    bool ok;
-    QString text = QInputDialog::getText( this, tr( "Adding Animation" ), tr( "Animation name :" ),
-                                          QLineEdit::Normal, "", &ok );
-
-    if ( ok && !text.isEmpty() )
-    {
-        ui->comboBox_currentAnimation->addItem( text );
-        emit newAnimation();
-    }
+    const int num = ui->comboBox_currentAnimation->count();
+    ui->comboBox_currentAnimation->addItem(QString::number(num));
+    emit newAnimation();
 }
 
 void AnimationUI::on_pushButton_removeAnimation_clicked() {
@@ -208,6 +223,6 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
     if ( !filename.isEmpty() )
     {
         ui->label_currentRDMA->setText( filename );
-        emit newRDMA( filename.toStdString() );
+        emit saveRDMA( filename.toStdString() );
     }
 }

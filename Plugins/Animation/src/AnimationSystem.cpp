@@ -15,11 +15,12 @@
 
 namespace AnimationPlugin {
 
-AnimationSystem::AnimationSystem() {
+AnimationSystem::AnimationSystem( AnimationPluginC* plugin ) {
     m_isPlaying = false;
     m_oneStep   = false;
     m_xrayOn    = false;
     m_animFrame = 0;
+    m_plugin = plugin;
 }
 
 void AnimationSystem::generateTasks( Ra::Core::TaskQueue* taskQueue,
@@ -130,6 +131,7 @@ void AnimationSystem::handleAssetLoading( Ra::Engine::Entity* entity,
     }
 
     CoupledTimedSystem::handleAssetLoading( entity, fileData );
+    m_plugin->setupUIAnimation();
 }
 
 Scalar AnimationSystem::getTime( const Ra::Engine::ItemEntry& entry ) const {
@@ -210,9 +212,28 @@ bool AnimationSystem::restoreFrame( const std::string& dir, uint frameId ) {
     return success;
 }
 
-/// ???
-void AnimationSystem::playZoneID( int i ) {
-    // TODO
+/// Sets playzoneID to i.
+void AnimationSystem::setPlayZoneID( int i ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->setPlayzoneID( i );
+    }
+}
+
+/// Sets the current playzone start
+void AnimationSystem::setStart( double timestamp ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->setStart( timestamp );
+    }
+}
+
+/// Sets the current playzone end
+void AnimationSystem::setEnd( double timestamp ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->setEnd( timestamp );
+    }
 }
 
 /// Creates a new playzone for the current animation.
@@ -263,17 +284,8 @@ void AnimationSystem::saveRDMA( const std::string& filename ) {
     }
 }
 
-/// Creates an empty .rdma file: temporary.
-// void AnimationSystem::newRDMA( const std::string& filename ) {
-//     for ( const auto& comp : m_components )
-//     {
-//         static_cast<AnimationComponent*>( comp.second )->newRDMA( filename );
-//     }
-// }
-
-
 /// Updates the current pose.
-void AnimationSystem::setCurrentAnimationTime( Scalar timestamp ) {
+void AnimationSystem::setCurrentAnimationTime( double timestamp ) {
     for ( const auto& comp : m_components )
     {
         static_cast<AnimationComponent*>( comp.second )->setCurrentAnimationTime( timestamp );
@@ -281,7 +293,7 @@ void AnimationSystem::setCurrentAnimationTime( Scalar timestamp ) {
 }
 
 /// Add a keypose to the current animation at timestamp.
-void AnimationSystem::addKeyPose( Scalar timestamp ) {
+void AnimationSystem::addKeyPose( double timestamp ) {
     for ( const auto& comp : m_components )
     {
         static_cast<AnimationComponent*>( comp.second )->addKeyPose( timestamp );
@@ -289,28 +301,47 @@ void AnimationSystem::addKeyPose( Scalar timestamp ) {
 }
 
 /// Remove the i-th keypose
-void AnimationSystem::removeKeyPose( int i )  {
+void AnimationSystem::removeKeyPose( int i ) {
     for ( const auto& comp : m_components )
     {
         static_cast<AnimationComponent*>( comp.second )->removeKeyPose( i );
     }
 }
 
-/// Set the i-th ?????
-// void AnimationSystem::setKeyPoseTime( int i ) {
-//     for ( const auto& comp : m_components )
-//     {
-//         static_cast<AnimationComponent*>( comp.second )->setKeyPoseTime( i );
-//     }
-// }
+/// Set the i-th keypose timestamp.
+void AnimationSystem::setKeyPoseTime( int i, double timestamp ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->setKeyPoseTime( i, timestamp );
+    }
+}
 
 /// Add and offset to every key poses of the current animation.
-void AnimationSystem::offsetKeyPoses( Scalar offset ) {
+void AnimationSystem::offsetKeyPoses( double offset ) {
     for ( const auto& comp : m_components )
     {
         static_cast<AnimationComponent*>( comp.second )->offsetKeyPoses( offset );
     }
 }
 
+/// Getter for the playzones labels.
+std::vector<std::string> AnimationSystem::playzonesLabels() const {
+    std::vector<std::string> labels;
+    for ( const auto& comp : m_components )
+    {
+        labels = static_cast<AnimationComponent*>( comp.second )->playzonesLabels();
+    }
+    return labels;
+}
+
+/// Getter for the animation count.
+int AnimationSystem::animationCount() const {
+    int count = 0;
+    for ( const auto& comp : m_components )
+    {
+        count = static_cast<AnimationComponent*>( comp.second )->animationCount();
+    }
+    return count;
+}
 
 } // namespace AnimationPlugin

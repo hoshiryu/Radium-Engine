@@ -24,6 +24,9 @@ class AnimationUI : public QFrame {
   public:
     explicit AnimationUI( QWidget* parent = 0 );
     ~AnimationUI();
+    
+    void setAnimationComboBox(int count);
+    void setPlayzoneComboBox(const std::vector<std::string> labels);
 
   protected:
     void showEvent( QShowEvent* event ) override;
@@ -51,16 +54,16 @@ class AnimationUI : public QFrame {
     void removeAnimation( int );
     void loadRDMA( std::string filename );
     void saveRDMA( std::string filename );
-    void newRDMA( std::string filename );
 
     /// Timeline signals
-    void cursorChanged( Scalar );
-    void startChanged( Scalar );
-    void endChanged( Scalar );
-    void keyPoseAdded( Scalar );
+    void durationChanged(double time);
+    void cursorChanged( double );
+    void startChanged( double );
+    void endChanged( double );
+    void keyPoseAdded( double );
     void keyPoseDeleted( int );
-    void keyPoseChanged( int );
-    void keyPosesChanged( Scalar );
+    void keyPoseChanged( int, double );
+    void keyPosesChanged( double );
 
   private slots:
     void on_m_xray_clicked( bool checked );

@@ -116,26 +116,38 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Save the created animations with their d_t and playzones
     void saveRDMA( const std::string& filepath );
 
-    /// Creates an empty .rdma file: temporary.
-    // void newRDMA( const std::string& filename );
-
-    /// Sets current pose to m_animationTime pose.
+    /// Sets current pose according to the current m_animationTime.
     void setCurrentPose();
 
+    /// Sets current playzoneID to i.
+    void setPlayzoneID( int i );
+
     /// Updates the current pose.
-    void setCurrentAnimationTime( Scalar timestamp );
+    void setCurrentAnimationTime( double timestamp );
+
+    /// Sets the current playzone start.
+    void setStart( double timestamp );
+
+    /// Sets the current playzone end.
+    void setEnd( double timestamp );
 
     /// Add a keypose to the current animation at timestamp.
-    void addKeyPose( Scalar timestamp );
+    void addKeyPose( double timestamp );
 
     /// Remove the i-th keypose
     void removeKeyPose( int i );
 
-    /// Set the i-th ?????
-    // void setKeyPoseTime( int i );
+    /// Set the i-th keypose timestamp
+    void setKeyPoseTime( int i, double timestamp );
 
     /// Add and offset to every key poses of the current animation.
-    void offsetKeyPoses( Scalar offset );
+    void offsetKeyPoses( double offset );
+
+    /// Getter for the playzones labels.
+    std::vector<std::string> playzonesLabels() const;
+
+    /// Getter for the animation count.
+    int animationCount() const;
 
     //
     // Editable interface

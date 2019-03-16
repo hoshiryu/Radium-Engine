@@ -42,6 +42,9 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     bool doAddAction( int& nb ) override;
     QAction* getAction( int id ) override;
 
+    void setupUIAnimation();
+    void setupUIPlayzones();
+
   public slots:
     /// Slot for the user activating xray display of bones.
     void toggleXray( bool on );
@@ -85,8 +88,8 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// Request changing the data file directory.
     void changeDataDir();
 
-    /// ???
-    void playzoneID( int i );
+    /// Sets playzoneID to i.
+    void setPlayzoneID( int i );
 
     /// Creates a new playzone for the current animation.
     void newPlayzone();
@@ -106,20 +109,23 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// Save all the animation that were not loaded with the model file.
     void saveRDMA( std::string filename );
 
-    /// Creates an empty .rdma file: temporary.
-    // void newRDMA( std::string filename );
-
     /// Updates the current pose.
     void setCurrentAnimationTime( double timestamp );
+
+    /// Sets the current playzone start
+    void setStart( double timestamp );
+
+    /// Sets the current playzone end
+    void setEnd( double timestamp );
 
     /// Add a keypose to the current animation at timestamp.
     void addKeyPose( double timestamp );
 
-    /// Remove the i-th keypose
+    /// Remove the i-th keypose.
     void removeKeyPose( int i );
 
-    /// Set the i-th ?????
-    // void setKeyPoseTime( int i );
+    /// Set the i-th keypose timestamp .
+    void setKeyPoseTime( int i, double timestamp );
 
     /// Add and offset to every key poses of the current animation.
     void offsetKeyPoses( double offset );

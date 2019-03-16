@@ -24,7 +24,7 @@ void AnimationPluginC::registerPlugin( const Ra::PluginContext& context ) {
     QSettings settings;
     QString path = settings.value( "AnimDataDir" ).toString();
     if ( path.isEmpty() ) { path = QString( context.m_exportDir.c_str() ); }
-    m_system = new AnimationSystem;
+    m_system = new AnimationSystem( this );
     context.m_engine->registerSystem( "AnimationSystem", m_system );
     context.m_engine->getSignalManager()->m_frameEndCallbacks.push_back(
         std::bind( &AnimationPluginC::updateAnimTime, this ) );
@@ -55,24 +55,25 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::restoreFrame, this, &AnimationPluginC::restoreFrame );
     connect( m_widget, &AnimationUI::changeDataDir, this, &AnimationPluginC::changeDataDir );
 
-    connect( m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::playzoneID );
+    connect( m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::setPlayzoneID );
     connect( m_widget, &AnimationUI::newPlayzone, this, &AnimationPluginC::newPlayzone );
     connect( m_widget, &AnimationUI::removePlayzone, this, &AnimationPluginC::removePlayzone );
     connect( m_widget, &AnimationUI::newAnimation, this, &AnimationPluginC::newAnimation );
     connect( m_widget, &AnimationUI::removeAnimation, this, &AnimationPluginC::removeAnimation );
     connect( m_widget, &AnimationUI::loadRDMA, this, &AnimationPluginC::loadRDMA );
     connect( m_widget, &AnimationUI::saveRDMA, this, &AnimationPluginC::saveRDMA );
-    // connect( m_widget, &AnimationUI::newRDMA, this, &AnimationPluginC::newRDMA );
 
     /// Timeline signals
-    connect( m_widget, &AnimationUI::cursorChanged, this, &AnimationPluginC::setCurrentAnimationTime );
-    // connect( m_widget, &AnimationUI::startChanged, this, &AnimationPluginC::startChanged );
-    // connect( m_widget, &AnimationUI::endChanged, this, &AnimationPluginC::endChanged );
+    // connect( m_widget, &AnimationUI::durationChanged, this,
+    //          &AnimationPluginC::???? );
+    connect( m_widget, &AnimationUI::cursorChanged, this,
+             &AnimationPluginC::setCurrentAnimationTime );
+    connect( m_widget, &AnimationUI::startChanged, this, &AnimationPluginC::setStart );
+    connect( m_widget, &AnimationUI::endChanged, this, &AnimationPluginC::setEnd );
     connect( m_widget, &AnimationUI::keyPoseAdded, this, &AnimationPluginC::addKeyPose );
     connect( m_widget, &AnimationUI::keyPoseDeleted, this, &AnimationPluginC::removeKeyPose );
-    // connect( m_widget, &AnimationUI::keyPoseChanged, this, &AnimationPluginC::setKeyPoseTime );
+    connect( m_widget, &AnimationUI::keyPoseChanged, this, &AnimationPluginC::setKeyPoseTime );
     connect( m_widget, &AnimationUI::keyPosesChanged, this, &AnimationPluginC::offsetKeyPoses );
-
 
     return m_widget;
 }
@@ -106,6 +107,17 @@ QAction* AnimationPluginC::getAction( int id ) {
     }
 }
 
+void AnimationPluginC::setupUIAnimation() {
+    m_widget->ui->groupBox_animation->setEnabled( true );
+    m_widget->setAnimationComboBox( m_system->animationCount() );
+    m_widget->setPlayzoneComboBox(m_system->playzonesLabels());
+}
+
+void AnimationPluginC::setupUIPlayzones() {
+    m_widget->ui->groupBox_playZone->setEnabled( true );
+    m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
+}
+
 void AnimationPluginC::toggleXray( bool on ) {
     CORE_ASSERT( m_system, "System should be there " );
     m_system->setXray( on );
@@ -113,6 +125,8 @@ void AnimationPluginC::toggleXray( bool on ) {
 
 void AnimationPluginC::play() {
     CORE_ASSERT( m_system, "System should be there " );
+    m_widget->ui->groupBox_animation->setEnabled( true );
+    m_widget->ui->groupBox_playZone->setEnabled( true );
     m_system->play( true );
 }
 
@@ -139,6 +153,7 @@ void AnimationPluginC::toggleSkeleton( bool status ) {
 
 void AnimationPluginC::setAnimation( uint i ) {
     m_system->setAnimation( i );
+    m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
 
 void AnimationPluginC::toggleAnimationTimeStep( bool status ) {
@@ -170,7 +185,7 @@ void AnimationPluginC::restoreFrame( int frame ) {
 void AnimationPluginC::changeDataDir() {
     QSettings settings;
     QString path = settings.value( "AnimDataDir", QDir::homePath() ).toString();
-    path         = QFileDialog::getExistingDirectory( nullptr, "Animation Data Dir", path );
+    path = QFileDialog::getExistingDirectory( nullptr, "Animation Data Dir", path );
     if ( !path.isEmpty() )
     {
         settings.setValue( "AnimDataDir", path );
@@ -178,8 +193,8 @@ void AnimationPluginC::changeDataDir() {
     }
 }
 
-void AnimationPluginC::playzoneID( int i ) {
-    // TODO
+void AnimationPluginC::setPlayzoneID( int i ) {
+    m_system->setPlayZoneID( i );
 }
 
 void AnimationPluginC::newPlayzone() {
@@ -206,13 +221,16 @@ void AnimationPluginC::saveRDMA( std::string filename ) {
     m_system->saveRDMA( filename );
 }
 
-// void AnimationPluginC::newRDMA( std::string filename ) {
-//     m_system->newRDMA( filename );
-// }
-
-
 void AnimationPluginC::setCurrentAnimationTime( double timestamp ) {
     m_system->setCurrentAnimationTime(static_cast<Scalar>(timestamp));
+}
+
+void AnimationPluginC::setStart( double timestamp ) {
+    m_system->setStart( timestamp );
+}
+
+void AnimationPluginC::setEnd( double timestamp ) {
+    m_system->setEnd( timestamp );
 }
 
 void AnimationPluginC::addKeyPose( double timestamp ) {
@@ -223,14 +241,12 @@ void AnimationPluginC::removeKeyPose( int i ) {
     m_system->removeKeyPose(i);
 }
 
-// void AnimationPluginC::setKeyPoseTime( int i ) {
-//     m_system->setKeyPoseTime(i);
-// }
+void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
+    m_system->setKeyPoseTime( i, timestamp );
+}
 
 void AnimationPluginC::offsetKeyPoses( double offset ) {
     m_system->offsetKeyPoses(static_cast<Scalar>(offset));
 }
 
 } // namespace AnimationPlugin
-
-

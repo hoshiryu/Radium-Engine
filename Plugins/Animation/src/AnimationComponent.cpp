@@ -41,7 +41,7 @@ AnimationComponent::AnimationComponent( const std::string& name, Ra::Engine::Ent
 AnimationComponent::~AnimationComponent() {}
 
 void AnimationComponent::setSkeleton( const Ra::Core::Animation::Skeleton& skel ) {
-    m_skel    = skel;
+    m_skel = skel;
     m_refPose = skel.getPose( Handle::SpaceType::MODEL );
     setupSkeletonDisplay();
 }
@@ -65,7 +65,7 @@ void AnimationComponent::update( Scalar dt ) {
         else
         {
             m_resetDone = false;
-            m_wasReset  = false;
+            m_wasReset = false;
         }
     }
 
@@ -94,8 +94,7 @@ void AnimationComponent::setupSkeletonDisplay() {
             m_boneDrawables.emplace_back(
                 new SkeletonBoneRenderObject( name, this, i, getRoMgr() ) );
             m_renderObjects.push_back( m_boneDrawables.back()->getRenderObjectIndex() );
-        }
-        else
+        } else
         { LOG( logDEBUG ) << "Bone " << m_skel.getLabel( i ) << " not displayed."; }
     }
     for ( const auto& b : m_boneDrawables )
@@ -200,7 +199,9 @@ void AnimationComponent::handleAnimationLoading(
 
         m_dt.push_back( data[n]->getTimeStep() );
     }
-    m_animationID   = 0;
+    m_animationID = 0;
+    m_firstEditableID = m_animations.size();
+    m_playzoneID = 0;
     m_animationTime = 0.0;
 }
 
@@ -303,7 +304,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
         } );
 
     // get bone data
-    const uint boneIdx     = ( *bonePos )->getBoneIndex();
+    const uint boneIdx = ( *bonePos )->getBoneIndex();
     const auto& TBoneModel = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
     const auto& TBoneLocal = m_skel.getTransform( boneIdx, Handle::SpaceType::LOCAL );
 
@@ -317,7 +318,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
         Ra::Core::Vector3 B;
         m_skel.getBonePoints( pBoneIdx, A, B );
         Ra::Core::Vector3 B_ = transform.translation();
-        auto q               = Ra::Core::Quaternion::FromTwoVectors( ( B - A ), ( B_ - A ) );
+        auto q = Ra::Core::Quaternion::FromTwoVectors( ( B - A ), ( B_ - A ) );
         Ra::Core::Transform R( q );
         R.pretranslate( A );
         R.translate( -A );
@@ -347,7 +348,14 @@ Scalar AnimationComponent::getTime() const {
 }
 
 Scalar AnimationComponent::getDuration() const {
-    if ( m_animations.empty() ) { return Scalar( 0 ); }
+    if ( m_animations.empty() )
+    {
+        return Scalar( 0 );
+    }
+    if ( m_animations[m_animationID].size() == 0 )
+    {
+        return Scalar ( 5.0 );
+    }
     return m_animations[m_animationID].getDuration();
 }
 
@@ -394,7 +402,6 @@ bool AnimationComponent::restoreFrame( const std::string& dir, int frame ) {
     return true;
 }
 
-// TODO: Add playzones to load and save
 void AnimationComponent::loadRDMA( const std::string& filepath ) {
     std::ifstream input{filepath, std::ios::binary};
 
@@ -411,7 +418,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         return;
     }
 
-    /// Importing animations
+    // Importing animations
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
     m_animations.resize( m_animations.size() + size );
     for ( size_t i = m_firstEditableID; i < m_animations.size(); ++i )
@@ -432,7 +439,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         }
     }
 
-    /// Importing each animation playzones
+    // Importing each animation playzones
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
     m_animsPlayzones.resize( m_animsPlayzones.size() + size );
     for ( auto& playzones : m_animsPlayzones )
@@ -451,7 +458,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         }
     }
 
-    /// Importing delta t's
+    // Importing delta t's
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
     m_dt.resize( m_dt.size() + size );
     input.read( reinterpret_cast<char*>( &m_dt[m_firstEditableID] ), size * sizeof( Scalar ) );
@@ -461,7 +468,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     CORE_ASSERT( m_skel.size() != 0, "No skeleton loaded." );
     std::ofstream output{filepath, std::ios::binary};
 
-    /// Exporting animations
+    // Exporting animations
     const size_t pose_size = m_refPose.size();
     output.write( reinterpret_cast<const char*>( &pose_size ), sizeof( pose_size ) );
     size_t size = m_animations.size() - m_firstEditableID + 1;
@@ -485,7 +492,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
         }
     }
 
-    /// Exporting each animation playzones
+    // Exporting each animation playzones
     size = m_animsPlayzones.size();
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
     for ( const auto& playzones : m_animsPlayzones )
@@ -505,7 +512,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
         }
     }
 
-    /// Exporting delta t's
+    // Exporting delta t's
     size = m_dt.size() - m_firstEditableID + 1;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
     output.write( reinterpret_cast<const char*>( &m_dt[m_firstEditableID] ),
@@ -547,50 +554,92 @@ void AnimationComponent::removeAnimation( int i ) {
     m_animations.erase(m_animations.begin() + i);
     m_animsPlayzones.erase(m_animsPlayzones.begin() + i - m_firstEditableID);
     m_playzoneID = 0;
-    if(i <= m_animationID) {
+    if ( i <= m_animationID )
+    {
         --m_animationID;
     }
 }
-
-/// Creates an empty .rdma file: temporary.
-// void AnimationComponent::newRDMA( const std::string& filename ) {}
 
 inline void AnimationComponent::setCurrentPose() {
     const auto& pose = m_animations[m_animationID].getPose(m_animationTime);
     m_skel.setPose(pose, Handle::SpaceType::LOCAL);
 }
 
+/// Sets current playzoneID to i.
+void AnimationComponent::setPlayzoneID( int i ) {
+    m_playzoneID = i;
+}
+
 /// Updates the current pose.
-void AnimationComponent::setCurrentAnimationTime( Scalar timestamp ) {
-    m_animationTime = timestamp;
+void AnimationComponent::setCurrentAnimationTime( double timestamp ) {
+    m_animationTime = static_cast<Scalar>( timestamp );
     
     setCurrentPose();
 }
 
-/// Add a keypose to the current animation at timestamp.
-void AnimationComponent::addKeyPose( Scalar timestamp ) {
-    if(m_animationID < m_firstEditableID) {
-        newAnimation();
+/// Sets the current playzone start.
+void AnimationComponent::setStart( double timestamp ) {
+    const int index = m_animationID - m_firstEditableID;
+    if(m_animsPlayzones.empty()) {
+        newPlayzone();
     }
-    m_animations[m_animationID].addKeyPose(m_skel.getPose(Handle::SpaceType::LOCAL), timestamp);
+    std::get<1>( m_animsPlayzones[index][m_playzoneID] ) = static_cast<Scalar>( timestamp );
 }
 
-/// Remove the i-th keypose
+/// Sets the current playzone end.
+void AnimationComponent::setEnd( double timestamp ) {
+    std::get<2>( m_animsPlayzones[m_animationID][m_playzoneID] ) = static_cast<Scalar>( timestamp );
+}
+
+/// Add a keypose to the current animation at timestamp.
+void AnimationComponent::addKeyPose( double timestamp ) {
+    if ( m_animationID < m_firstEditableID )
+    {
+        newAnimation();
+    }
+    m_animations[m_animationID].addKeyPose( m_skel.getPose( Handle::SpaceType::LOCAL ),
+                                            static_cast<Scalar>( timestamp ) );
+}
+
+/// Remove the i-th keypose.
 void AnimationComponent::removeKeyPose( int i ) {
-    if(m_animationID >= m_firstEditableID) {
+    if ( m_animationID >= m_firstEditableID )
+    {
         m_animations[m_animationID].removeKeyPose(i);
         setCurrentAnimationTime(m_animationTime);
     }
 }
 
-/// Set the i-th ?????
-// void AnimationComponent::setKeyPoseTime( int i ) {}
+/// Set the i-th keypose timestamp
+void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {
+    m_animations[m_animationID].setKeyPoseTime( i, static_cast<Scalar>( timestamp ) );
+}
 
 /// Add and offset to every key poses of the current animation.
-void AnimationComponent::offsetKeyPoses( Scalar offset ) {
-    if(m_animationID >= m_firstEditableID) {
-        m_animations[m_animationID].offsetKeyPoses(offset);
+void AnimationComponent::offsetKeyPoses( double offset ) {
+    if ( m_animationID >= m_firstEditableID )
+    {
+        m_animations[m_animationID].offsetKeyPoses( static_cast<Scalar>( offset ) );
     }
+}
+
+/// Getter for the playzones labels.
+std::vector<std::string> AnimationComponent::playzonesLabels() const {
+    std::vector<std::string> labels;
+    const int index = m_animationID - m_firstEditableID;
+    if(index >= 0) {
+        labels.reserve( m_animsPlayzones[index].size() );
+        for ( const auto& playzone : m_animsPlayzones[index] )
+        {
+            labels.push_back( std::get<0>( playzone ) );
+        }
+    }
+    return labels;
+}
+
+/// Getter for the animation count.
+int AnimationComponent::animationCount() const {
+    return m_animations.size();
 }
 
 } // namespace AnimationPlugin
