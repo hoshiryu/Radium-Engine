@@ -344,4 +344,25 @@ int AnimationSystem::animationCount() const {
     return count;
 }
 
+/// Returns the current animation time
+double AnimationSystem::animationTime() const {
+    double count = 0.0;
+    for ( const auto& comp : m_components )
+    {
+        count = static_cast<AnimationComponent*>( comp.second )->getTime();
+    }
+    return count;
+}
+
+
+/// Returns a vector of the keyposes timestamps
+std::vector<double> AnimationSystem::keyposesTimes() const {
+    std::vector<double> times;
+    for ( const auto& comp : m_components )
+    {
+        times = static_cast<AnimationComponent*>( comp.second )->keyposesTimes();
+    }
+    return times;
+}
+
 } // namespace AnimationPlugin

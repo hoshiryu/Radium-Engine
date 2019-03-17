@@ -149,6 +149,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Getter for the animation count.
     int animationCount() const;
 
+    /// Returns the keyposes' timestamps.
+    std::vector<double> keyposesTimes() const;
+
     //
     // Editable interface
     //

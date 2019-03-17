@@ -30,6 +30,9 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( animTimeline, &AnimTimeline::keyPoseDeleted, this, &AnimationUI::keyPoseDeleted );
     connect( animTimeline, &AnimTimeline::keyPoseChanged, this, &AnimationUI::keyPoseChanged );
     connect( animTimeline, &AnimTimeline::keyPosesChanged, this, &AnimationUI::keyPosesChanged );
+
+    connect( this, &AnimationUI::setCursor, animTimeline, &AnimTimeline::onChangeCursor );
+    connect( this, &AnimationUI::addKeypose, animTimeline, &AnimTimeline::onAddingKeyPose );
 }
 
 AnimationUI::~AnimationUI() {
@@ -40,17 +43,25 @@ AnimationUI::~AnimationUI() {
 void AnimationUI::setAnimationComboBox( int count ) {
     ui->comboBox_currentAnimation->clear();
 
-    for(int i = 0; i < count; ++i) {
-        ui->comboBox_currentAnimation->addItem(QString::number(i));
+    for ( int i = 0; i < count; ++i )
+    {
+        ui->comboBox_currentAnimation->addItem( QString::number( i ) );
     }
 }
 
 void AnimationUI::setPlayzoneComboBox( const std::vector<std::string> labels ) {
     ui->comboBox_currentPlayZone->clear();
-    
+
     for ( const auto& label : labels )
     {
         ui->comboBox_currentPlayZone->addItem( label.c_str() );
+    }
+}
+
+void AnimationUI::setKeyposes( std::vector<double> timestamps ) {
+    for ( const auto& time : timestamps )
+    {
+        emit( addKeypose( time ) );
     }
 }
 
@@ -186,7 +197,7 @@ void AnimationUI::on_comboBox_currentAnimation_currentIndexChanged( int index ) 
 
 void AnimationUI::on_pushButton_newAnimation_clicked() {
     const int num = ui->comboBox_currentAnimation->count();
-    ui->comboBox_currentAnimation->addItem(QString::number(num));
+    ui->comboBox_currentAnimation->addItem( QString::number( num ) );
     emit newAnimation();
 }
 

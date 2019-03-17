@@ -122,11 +122,19 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Add and offset to every key poses of the current animation.
     void offsetKeyPoses( double offset );
 
+    //// TODO: FIX THOSE 4 FUNCTIONS ////
+
     /// Getter for the playzones labels.
     std::vector<std::string> playzonesLabels() const;
 
     /// Getter for the animation count.
     int animationCount() const;
+
+    /// Returns the current animation time
+    double animationTime() const;
+    
+    /// Returns a vector of the keyposes timestamps
+    std::vector<double> keyposesTimes() const; 
 
   private:
     /// Current frame

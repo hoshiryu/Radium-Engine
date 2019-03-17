@@ -24,9 +24,10 @@ class AnimationUI : public QFrame {
   public:
     explicit AnimationUI( QWidget* parent = 0 );
     ~AnimationUI();
-    
-    void setAnimationComboBox(int count);
-    void setPlayzoneComboBox(const std::vector<std::string> labels);
+
+    void setAnimationComboBox( int count );
+    void setPlayzoneComboBox( const std::vector<std::string> labels );
+    void setKeyposes( std::vector<double> timestamps );
 
   protected:
     void showEvent( QShowEvent* event ) override;
@@ -56,7 +57,7 @@ class AnimationUI : public QFrame {
     void saveRDMA( const std::string& filename );
 
     /// Timeline signals
-    void durationChanged(double time);
+    void durationChanged( double );
     void cursorChanged( double );
     void startChanged( double );
     void endChanged( double );
@@ -64,6 +65,10 @@ class AnimationUI : public QFrame {
     void keyPoseDeleted( int );
     void keyPoseChanged( int, double );
     void keyPosesChanged( double );
+
+    void setCursor( double );
+    void addKeypose( double );
+    
 
   private slots:
     void on_m_xray_clicked( bool checked );

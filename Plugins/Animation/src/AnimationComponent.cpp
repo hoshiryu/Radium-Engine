@@ -523,8 +523,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
 void AnimationComponent::newPlayzone( const std::string& name) {
     const auto& anim = m_animations[m_animationID];
     m_playzoneID = m_animsPlayzones.size();
-    m_animsPlayzones[m_animationID].emplace_back( name,
-                                                  anim.keyPose( 0 ).first,
+    m_animsPlayzones[m_animationID].emplace_back( name, anim.keyPose( 0 ).first,
                                                   anim.keyPose( anim.size() - 1 ).first );
 }
 
@@ -580,7 +579,8 @@ void AnimationComponent::setCurrentAnimationTime( double timestamp ) {
 /// Sets the current playzone start.
 void AnimationComponent::setStart( double timestamp ) {
     const int index = m_animationID - m_firstEditableID;
-    if(m_animsPlayzones.empty()) {
+    if ( m_animsPlayzones.empty() )
+    {
         newPlayzone( "New playzone" );
     }
     std::get<1>( m_animsPlayzones[index][m_playzoneID] ) = static_cast<Scalar>( timestamp );
@@ -626,20 +626,34 @@ void AnimationComponent::offsetKeyPoses( double offset ) {
 /// Getter for the playzones labels.
 std::vector<std::string> AnimationComponent::playzonesLabels() const {
     std::vector<std::string> labels;
-    const int index = m_animationID - m_firstEditableID;
-    if(index >= 0) {
-        labels.reserve( m_animsPlayzones[index].size() );
-        for ( const auto& playzone : m_animsPlayzones[index] )
-        {
-            labels.push_back( std::get<0>( playzone ) );
-        }
-    }
+    // const int index = m_animationID - m_firstEditableID;
+    // if ( index >= 0 )
+    // {
+    //     labels.reserve( m_animsPlayzones[index].size() );
+    //     for ( const auto& playzone : m_animsPlayzones[index] )
+    //     {
+    //         labels.push_back( std::get<0>( playzone ) );
+    //     }
+    // }
     return labels;
 }
 
 /// Getter for the animation count.
 int AnimationComponent::animationCount() const {
     return m_animations.size();
+}
+
+/// Returns the keyposes' timestamps.
+std::vector<double> AnimationComponent::keyposesTimes() const {
+    std::vector<double> times;
+    times.reserve( m_animations[m_animationID].size() );
+    
+    for ( int i = 0; i < m_animations[m_animationID].size(); ++i )
+    {
+        times.push_back( static_cast<double>( m_animations[m_animationID].keyPose(i).first ) );
+    }
+
+    return times;
 }
 
 } // namespace AnimationPlugin

@@ -110,7 +110,7 @@ QAction* AnimationPluginC::getAction( int id ) {
 void AnimationPluginC::setupUIAnimation() {
     m_widget->ui->groupBox_animation->setEnabled( true );
     m_widget->setAnimationComboBox( m_system->animationCount() );
-    m_widget->setPlayzoneComboBox(m_system->playzonesLabels());
+    m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
 
 void AnimationPluginC::setupUIPlayzones() {
@@ -125,8 +125,6 @@ void AnimationPluginC::toggleXray( bool on ) {
 
 void AnimationPluginC::play() {
     CORE_ASSERT( m_system, "System should be there " );
-    m_widget->ui->groupBox_animation->setEnabled( true );
-    m_widget->ui->groupBox_playZone->setEnabled( true );
     m_system->play( true );
 }
 
@@ -153,6 +151,7 @@ void AnimationPluginC::toggleSkeleton( bool status ) {
 
 void AnimationPluginC::setAnimation( uint i ) {
     m_system->setAnimation( i );
+    m_widget->setKeyposes( m_system->keyposesTimes() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
 
@@ -172,6 +171,8 @@ void AnimationPluginC::updateAnimTime() {
     m_widget->setMaxFrame( m_system->getMaxFrame() );
     m_widget->updateTime( m_system->getTime( m_selectionManager->currentItem() ) );
     m_widget->updateFrame( m_system->getAnimFrame() );
+
+    emit( m_widget->setCursor( m_system->animationTime() ) );
 }
 
 void AnimationPluginC::cacheFrame() {
@@ -197,8 +198,8 @@ void AnimationPluginC::setPlayzoneID( int i ) {
     m_system->setPlayZoneID( i );
 }
 
-void AnimationPluginC::newPlayzone( const std::string& name) {
-    m_system->newPlayzone(name);
+void AnimationPluginC::newPlayzone( const std::string& name ) {
+    m_system->newPlayzone( name );
 }
 
 void AnimationPluginC::removePlayzone( int i ) {
