@@ -20,7 +20,10 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( ui->actionStep, &QAction::triggered, this, &AnimationUI::on_m_step_clicked );
     connect( ui->actionStop, &QAction::triggered, this, &AnimationUI::on_m_reset_clicked );
 
-    animTimeline = new AnimTimeline( this );
+    // parent is null, can't access Ra::Gui::MainWindow so change Animation CMakeLists.txt
+    // or change constructor calling for AnimationUI
+    // so first timeline pos is fixed at the bottom right of current screen
+    animTimeline = new AnimTimeline( parent );
     connect( animTimeline, &AnimTimeline::playClicked, this, &AnimationUI::play );
     connect( animTimeline, &AnimTimeline::pauseClicked, this, &AnimationUI::pause );
     connect( animTimeline, &AnimTimeline::durationChanged, this, &AnimationUI::durationChanged );
