@@ -105,9 +105,9 @@ void Animation::offsetKeyPoses( Scalar offset ) {
     }
 }
 
-void Animation::replacePose( size_t i, Pose&& pose ) {
+void Animation::replacePose( size_t i, const Pose& pose ) {
     CORE_ASSERT( ( m_keys[i].second.size() == pose.size() ), "Invalid pose size" );
-    m_keys[i].second = std::move( pose );
+    m_keys[i].second = pose;
 }
 
 std::size_t Animation::size() const {

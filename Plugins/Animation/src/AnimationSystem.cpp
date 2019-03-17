@@ -237,10 +237,10 @@ void AnimationSystem::setEnd( double timestamp ) {
 }
 
 /// Creates a new playzone for the current animation.
-void AnimationSystem::newPlayzone() {
+void AnimationSystem::newPlayzone( const std::string& name ) {
     for ( const auto& comp : m_components )
     {
-        static_cast<AnimationComponent*>( comp.second )->newPlayzone();
+        static_cast<AnimationComponent*>( comp.second )->newPlayzone(name);
     }
 }
 

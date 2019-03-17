@@ -84,7 +84,7 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     void setPlayZoneID( int i );
 
     /// Creates a new playzone for the current animation.
-    void newPlayzone();
+    void newPlayzone(const std::string& name);
 
     /// Remove the i-th playzone for the current animation.
     void removePlayzone( int i );

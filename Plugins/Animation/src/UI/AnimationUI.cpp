@@ -169,7 +169,7 @@ void AnimationUI::on_pushButton_newPlayZone_clicked() {
     {
         ui->comboBox_currentPlayZone->addItem( text );
         // TODO: Add the name to the signal
-        emit newPlayzone();
+        emit newPlayzone( text.toStdString() );
     }
 }
 

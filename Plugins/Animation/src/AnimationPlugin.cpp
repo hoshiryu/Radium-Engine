@@ -197,8 +197,8 @@ void AnimationPluginC::setPlayzoneID( int i ) {
     m_system->setPlayZoneID( i );
 }
 
-void AnimationPluginC::newPlayzone() {
-    m_system->newPlayzone();
+void AnimationPluginC::newPlayzone( const std::string& name) {
+    m_system->newPlayzone(name);
 }
 
 void AnimationPluginC::removePlayzone( int i ) {

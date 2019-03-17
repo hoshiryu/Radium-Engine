@@ -98,7 +98,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     void toggleSkeleton( const bool status );
 
     /// Creates a new playzone for the current animation.
-    void newPlayzone();
+    void newPlayzone( const std::string& name );
 
     /// Remove the i-th playzone for the current animation.
     void removePlayzone( int i );

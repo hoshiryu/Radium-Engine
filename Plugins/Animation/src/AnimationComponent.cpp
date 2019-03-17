@@ -520,10 +520,10 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
 }
 
 /// Creates a new playzone for the current animation.
-void AnimationComponent::newPlayzone() {
+void AnimationComponent::newPlayzone( const std::string& name) {
     const auto& anim = m_animations[m_animationID];
     m_playzoneID = m_animsPlayzones.size();
-    m_animsPlayzones[m_animationID].emplace_back( "Playzone #" + m_playzoneID,
+    m_animsPlayzones[m_animationID].emplace_back( name,
                                                   anim.keyPose( 0 ).first,
                                                   anim.keyPose( anim.size() - 1 ).first );
 }
@@ -581,7 +581,7 @@ void AnimationComponent::setCurrentAnimationTime( double timestamp ) {
 void AnimationComponent::setStart( double timestamp ) {
     const int index = m_animationID - m_firstEditableID;
     if(m_animsPlayzones.empty()) {
-        newPlayzone();
+        newPlayzone( "New playzone" );
     }
     std::get<1>( m_animsPlayzones[index][m_playzoneID] ) = static_cast<Scalar>( timestamp );
 }

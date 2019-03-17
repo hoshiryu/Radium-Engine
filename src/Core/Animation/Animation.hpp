@@ -47,7 +47,7 @@ class RA_CORE_API Animation
     void offsetKeyPoses( Scalar offset );
 
     // Replace the i-th key pose pose with pose.
-    void replacePose( size_t i, Pose&& pose );
+    void replacePose( size_t i, const Pose& pose );
 
     // Return the size of m_keys.
     std::size_t size() const;

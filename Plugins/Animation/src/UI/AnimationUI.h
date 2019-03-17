@@ -48,12 +48,12 @@ class AnimationUI : public QFrame {
     void changeDataDir();
 
     void playZoneID( int );
-    void newPlayzone();
+    void newPlayzone( const std::string& );
     void removePlayzone( int );
     void newAnimation();
     void removeAnimation( int );
-    void loadRDMA( std::string filename );
-    void saveRDMA( std::string filename );
+    void loadRDMA( const std::string& filename );
+    void saveRDMA( const std::string& filename );
 
     /// Timeline signals
     void durationChanged(double time);

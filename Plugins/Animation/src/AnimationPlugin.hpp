@@ -92,7 +92,7 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     void setPlayzoneID( int i );
 
     /// Creates a new playzone for the current animation.
-    void newPlayzone();
+    void newPlayzone(const std::string& name);
 
     /// Remove the i-th playzone for the current animation.
     void removePlayzone( int i );
