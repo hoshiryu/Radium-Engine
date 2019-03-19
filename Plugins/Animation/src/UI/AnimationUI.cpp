@@ -33,6 +33,10 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
 
     connect( this, &AnimationUI::setCursor, animTimeline, &AnimTimeline::onChangeCursor );
     connect( this, &AnimationUI::addKeypose, animTimeline, &AnimTimeline::onAddingKeyPose );
+    connect( this, &AnimationUI::changeStart, animTimeline, &AnimTimeline::onChangeStart );
+    connect( this, &AnimationUI::changeEnd, animTimeline, &AnimTimeline::onChangeEnd );
+    connect( this, &AnimationUI::changeDuration, animTimeline,
+             &AnimTimeline::onChangeAnimDuration );
 }
 
 AnimationUI::~AnimationUI() {
@@ -179,16 +183,17 @@ void AnimationUI::on_pushButton_newPlayZone_clicked() {
     if ( ok && !text.isEmpty() )
     {
         ui->comboBox_currentPlayZone->addItem( text );
-        // TODO: Add the name to the signal
         emit newPlayzone( text.toStdString() );
     }
 }
 
 void AnimationUI::on_pushButton_removePlayZone_clicked() {
     int removeIndex = ui->comboBox_currentPlayZone->currentIndex();
-    ui->comboBox_currentPlayZone->removeItem( removeIndex );
-
-    emit removePlayzone( removeIndex );
+    if ( ui->comboBox_currentPlayZone->count() > 1 )
+    {
+        ui->comboBox_currentPlayZone->removeItem( removeIndex );
+        emit removePlayzone( removeIndex );
+    }
 }
 
 void AnimationUI::on_comboBox_currentAnimation_currentIndexChanged( int index ) {

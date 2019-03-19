@@ -80,8 +80,8 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// @returns the system frame.
     uint getMaxFrame() const;
 
-    /// Sets playzoneID to i.
-    void setPlayZoneID( int i );
+    /// Sets playzone to i.
+    void setPlayzone( int i );
 
     /// Creates a new playzone for the current animation.
     void newPlayzone(const std::string& name);
@@ -122,19 +122,26 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Add and offset to every key poses of the current animation.
     void offsetKeyPoses( double offset );
 
-    //// TODO: FIX THOSE 4 FUNCTIONS ////
-
-    /// Getter for the playzones labels.
+    /// Returns current animation playzones' labels.
     std::vector<std::string> playzonesLabels() const;
 
-    /// Getter for the animation count.
+    /// Returns the animation count.
     int animationCount() const;
 
-    /// Returns the current animation time
+    /// Returns the current animation time.
     double animationTime() const;
     
-    /// Returns a vector of the keyposes timestamps
+    /// Returns a vector of the keyposes timestamps.
     std::vector<double> keyposesTimes() const; 
+
+    /// Returns the start of the current playzone.
+    double getStart() const;
+
+    /// Returns the end of the current playzone.
+    double getEnd() const;
+
+    /// Return the duration of the current animation.
+    double getCurrentDuration() const;
 
   private:
     /// Current frame

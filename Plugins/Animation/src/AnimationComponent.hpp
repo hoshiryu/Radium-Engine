@@ -81,6 +81,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Set the animation to play.
     void setAnimation( const uint i );
 
+    /// Set the playzone to use.
+    void setPlayzone( const uint i );
+
     /// @returns the current time of animation.
     Scalar getTime() const;
 
@@ -125,6 +128,12 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Updates the current pose.
     void setCurrentAnimationTime( double timestamp );
 
+    /// Returns the start of the current playzone.
+    double getStart() const;
+
+    /// Returns the end of the current playzone.
+    double getEnd() const;
+
     /// Sets the current playzone start.
     void setStart( double timestamp );
 
@@ -151,6 +160,8 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// Returns the keyposes' timestamps.
     std::vector<double> keyposesTimes() const;
+
+    double getCurrentDuration() const;
 
     //
     // Editable interface

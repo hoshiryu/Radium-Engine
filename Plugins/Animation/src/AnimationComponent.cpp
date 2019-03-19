@@ -30,6 +30,7 @@ namespace AnimationPlugin {
 AnimationComponent::AnimationComponent( const std::string& name, Ra::Engine::Entity* entity ) :
     Component( name, entity ),
     m_animationID( 0 ),
+    m_playzoneID(0),
     m_animationTimeStep( true ),
     m_animationTime( 0.0 ),
     m_dt(),
@@ -273,7 +274,23 @@ void AnimationComponent::toggleSlowMotion( const bool status ) {
 }
 
 void AnimationComponent::setAnimation( const uint i ) {
-    if ( i < m_animations.size() ) { m_animationID = i; }
+    if ( i < m_animations.size() )
+    {
+        m_animationID = i;
+        if(m_animsPlayzones.empty()) {
+            m_animsPlayzones.emplace_back();
+        }
+        setPlayzone( 0 );
+    }
+}
+
+void AnimationComponent::setPlayzone( const uint i ) {
+    m_playzoneID = i;
+    
+    if ( i == 0 && m_animsPlayzones[m_animationID].empty() )
+    {
+        newPlayzone("Default playzone");
+    }
 }
 
 bool AnimationComponent::canEdit( const Ra::Core::Utils::Index& roIdx ) const {
@@ -442,8 +459,9 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
     // Importing each animation playzones
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
     m_animsPlayzones.resize( m_animsPlayzones.size() + size );
-    for ( auto& playzones : m_animsPlayzones )
+    for ( size_t i = m_firstEditableID; i < m_animsPlayzones.size(); ++i )
     {
+        auto& playzones = m_animsPlayzones[i];
         size_t playzoneSize;
         input.read( reinterpret_cast<char*>( &playzoneSize ), sizeof( playzoneSize ) );
         playzones.resize( playzoneSize );
@@ -533,7 +551,7 @@ void AnimationComponent::removePlayzone( int i ) {
     playzone.erase( playzone.begin() + i );
     if ( i <= m_playzoneID )
     {
-        --m_playzoneID;
+        setPlayzone(m_playzoneID - 1);
     }
 }
 
@@ -564,26 +582,29 @@ inline void AnimationComponent::setCurrentPose() {
     m_skel.setPose(pose, Handle::SpaceType::LOCAL);
 }
 
-/// Sets current playzoneID to i.
-void AnimationComponent::setPlayzoneID( int i ) {
-    m_playzoneID = i;
-}
-
 /// Updates the current pose.
 void AnimationComponent::setCurrentAnimationTime( double timestamp ) {
     m_animationTime = static_cast<Scalar>( timestamp );
-    
     setCurrentPose();
+}
+
+/// Returns the start of the current playzone.
+double AnimationComponent::getStart() const {
+    return std::get<1>(m_animsPlayzones[m_animationID][m_playzoneID]);
+}
+
+/// Returns the end of the current playzone.
+double AnimationComponent::getEnd() const {
+    return std::get<2>(m_animsPlayzones[m_animationID][m_playzoneID]);
 }
 
 /// Sets the current playzone start.
 void AnimationComponent::setStart( double timestamp ) {
-    const int index = m_animationID - m_firstEditableID;
     if ( m_animsPlayzones.empty() )
     {
         newPlayzone( "New playzone" );
     }
-    std::get<1>( m_animsPlayzones[index][m_playzoneID] ) = static_cast<Scalar>( timestamp );
+    std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] ) = static_cast<Scalar>( timestamp );
 }
 
 /// Sets the current playzone end.
@@ -626,15 +647,11 @@ void AnimationComponent::offsetKeyPoses( double offset ) {
 /// Getter for the playzones labels.
 std::vector<std::string> AnimationComponent::playzonesLabels() const {
     std::vector<std::string> labels;
-    // const int index = m_animationID - m_firstEditableID;
-    // if ( index >= 0 )
-    // {
-    //     labels.reserve( m_animsPlayzones[index].size() );
-    //     for ( const auto& playzone : m_animsPlayzones[index] )
-    //     {
-    //         labels.push_back( std::get<0>( playzone ) );
-    //     }
-    // }
+    labels.reserve( m_animsPlayzones[m_animationID].size() );
+    for ( const auto& playzone : m_animsPlayzones[m_animationID] )
+    {
+        labels.push_back( std::get<0>( playzone ) );
+    }
     return labels;
 }
 
@@ -654,6 +671,10 @@ std::vector<double> AnimationComponent::keyposesTimes() const {
     }
 
     return times;
+}
+
+double AnimationComponent::getCurrentDuration() const {
+    return std::get<2>( m_animsPlayzones[m_animationID][m_playzoneID] );
 }
 
 } // namespace AnimationPlugin

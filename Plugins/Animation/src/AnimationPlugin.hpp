@@ -67,6 +67,9 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// Slot for the user changing the animation to play.
     void setAnimation( uint i );
 
+    /// Sets playzone to the i-th.
+    void setPlayzone( int i );
+
     /// Slot for the user asking to use the animation timestep or the application's.
     void toggleAnimationTimeStep( bool status );
 
@@ -87,9 +90,6 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
 
     /// Request changing the data file directory.
     void changeDataDir();
-
-    /// Sets playzoneID to i.
-    void setPlayzoneID( int i );
 
     /// Creates a new playzone for the current animation.
     void newPlayzone(const std::string& name);

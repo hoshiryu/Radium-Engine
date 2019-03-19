@@ -68,7 +68,9 @@ class AnimationUI : public QFrame {
 
     void setCursor( double );
     void addKeypose( double );
-    
+    void changeStart( double );
+    void changeEnd( double );
+    void changeDuration( double );
 
   private slots:
     void on_m_xray_clicked( bool checked );

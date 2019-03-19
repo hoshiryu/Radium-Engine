@@ -55,7 +55,7 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::restoreFrame, this, &AnimationPluginC::restoreFrame );
     connect( m_widget, &AnimationUI::changeDataDir, this, &AnimationPluginC::changeDataDir );
 
-    connect( m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::setPlayzoneID );
+    connect( m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::setPlayzone );
     connect( m_widget, &AnimationUI::newPlayzone, this, &AnimationPluginC::newPlayzone );
     connect( m_widget, &AnimationUI::removePlayzone, this, &AnimationPluginC::removePlayzone );
     connect( m_widget, &AnimationUI::newAnimation, this, &AnimationPluginC::newAnimation );
@@ -110,7 +110,7 @@ QAction* AnimationPluginC::getAction( int id ) {
 void AnimationPluginC::setupUIAnimation() {
     m_widget->ui->groupBox_animation->setEnabled( true );
     m_widget->setAnimationComboBox( m_system->animationCount() );
-    m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
+    setupUIPlayzones();
 }
 
 void AnimationPluginC::setupUIPlayzones() {
@@ -172,7 +172,7 @@ void AnimationPluginC::updateAnimTime() {
     m_widget->updateTime( m_system->getTime( m_selectionManager->currentItem() ) );
     m_widget->updateFrame( m_system->getAnimFrame() );
 
-    emit( m_widget->setCursor( m_system->animationTime() ) );
+    emit m_widget->setCursor( m_system->animationTime() );
 }
 
 void AnimationPluginC::cacheFrame() {
@@ -194,8 +194,16 @@ void AnimationPluginC::changeDataDir() {
     }
 }
 
-void AnimationPluginC::setPlayzoneID( int i ) {
-    m_system->setPlayZoneID( i );
+void AnimationPluginC::setPlayzone( int i ) {
+    if ( i >= 0 )
+    {
+        m_system->setPlayzone( i );
+
+        const double end = m_system->getEnd();
+        emit m_widget->changeStart( m_system->getStart() );
+        emit m_widget->changeEnd( end );
+        emit m_widget->changeDuration( end * 1.25 );
+    }
 }
 
 void AnimationPluginC::newPlayzone( const std::string& name ) {

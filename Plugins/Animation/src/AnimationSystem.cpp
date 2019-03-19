@@ -212,11 +212,11 @@ bool AnimationSystem::restoreFrame( const std::string& dir, uint frameId ) {
     return success;
 }
 
-/// Sets playzoneID to i.
-void AnimationSystem::setPlayZoneID( int i ) {
+/// Sets playzone to i.
+void AnimationSystem::setPlayzone( int i ) {
     for ( const auto& comp : m_components )
     {
-        static_cast<AnimationComponent*>( comp.second )->setPlayzoneID( i );
+        static_cast<AnimationComponent*>( comp.second )->setPlayzone( i );
     }
 }
 
@@ -240,7 +240,7 @@ void AnimationSystem::setEnd( double timestamp ) {
 void AnimationSystem::newPlayzone( const std::string& name ) {
     for ( const auto& comp : m_components )
     {
-        static_cast<AnimationComponent*>( comp.second )->newPlayzone(name);
+        static_cast<AnimationComponent*>( comp.second )->newPlayzone( name );
     }
 }
 
@@ -326,43 +326,50 @@ void AnimationSystem::offsetKeyPoses( double offset ) {
 
 /// Getter for the playzones labels.
 std::vector<std::string> AnimationSystem::playzonesLabels() const {
-    std::vector<std::string> labels;
-    for ( const auto& comp : m_components )
-    {
-        labels = static_cast<AnimationComponent*>( comp.second )->playzonesLabels();
-    }
-    return labels;
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->playzonesLabels();
+    return std::vector<std::string>{};
 }
 
 /// Getter for the animation count.
 int AnimationSystem::animationCount() const {
-    int count = 0;
-    for ( const auto& comp : m_components )
-    {
-        count = static_cast<AnimationComponent*>( comp.second )->animationCount();
-    }
-    return count;
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->animationCount();
+    return 0;
 }
 
 /// Returns the current animation time
 double AnimationSystem::animationTime() const {
-    double count = 0.0;
-    for ( const auto& comp : m_components )
-    {
-        count = static_cast<AnimationComponent*>( comp.second )->getTime();
-    }
-    return count;
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->getTime();
+    return 0.0;
 }
-
 
 /// Returns a vector of the keyposes timestamps
 std::vector<double> AnimationSystem::keyposesTimes() const {
-    std::vector<double> times;
-    for ( const auto& comp : m_components )
-    {
-        times = static_cast<AnimationComponent*>( comp.second )->keyposesTimes();
-    }
-    return times;
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->keyposesTimes();
+    return std::vector<double>{};
+}
+
+/// Returns the start of the current playzone.
+double AnimationSystem::getStart() const {
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->getStart();
+    return 0.0;
+}
+
+/// Returns the end of the current playzone.
+double AnimationSystem::getEnd() const {
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->getEnd();
+    return 5.0;
+}
+
+double AnimationSystem::getCurrentDuration() const {
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->getCurrentDuration();
+    return 10.0;
 }
 
 } // namespace AnimationPlugin
