@@ -105,17 +105,12 @@ QAction* AnimationPluginC::getAction( int id ) {
     }
 }
 
-void AnimationPluginC::setupUIAnimation() {
+void AnimationPluginC::setupUI() {
     m_widget->ui->groupBox_animation->setEnabled( true );
     m_widget->ui->groupBox_playZone->setEnabled( true );
-    m_widget->setAnimationComboBox( m_system->animationCount() );
-    setupUIPlayzones();
-}
-
-void AnimationPluginC::setupUIPlayzones() {
+    m_widget->setAnimationComboBox( m_system->animationCount(), m_system->nonEditableCount() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
-
 void AnimationPluginC::toggleXray( bool on ) {
     CORE_ASSERT( m_system, "System should be there " );
     m_system->setXray( on );
@@ -130,11 +125,13 @@ void AnimationPluginC::play() {
     {
         m_system->setCurrentAnimationTime( start );
     }
+    m_widget->switchToPauseButton();
     m_system->play( true );
 }
 
 void AnimationPluginC::pause() {
     CORE_ASSERT( m_system, "System should be there " );
+    m_widget->switchToPlayButton();
     m_system->play( false );
 }
 
@@ -155,9 +152,11 @@ void AnimationPluginC::toggleSkeleton( bool status ) {
 }
 
 void AnimationPluginC::setAnimation( uint i ) {
+    emit m_widget->clearKeyPoses();
+
     m_system->setAnimation( i );
     m_system->setPlayzone( 0 );
-    m_widget->setKeyposes( m_system->keyposesTimes() );
+    m_widget->setKeyPoses( m_system->keyposesTimes() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
 
@@ -178,7 +177,17 @@ void AnimationPluginC::updateAnimTime() {
     m_widget->updateTime( m_system->getTime( m_selectionManager->currentItem() ) );
     m_widget->updateFrame( m_system->getAnimFrame() );
 
-    emit m_widget->changeCursor( m_system->animationTime() );
+    const double animationTime = m_system->animationTime();
+    if ( m_system->isPlaying() )
+    {
+        const double start = m_system->getStart();
+        if ( animationTime > m_system->getEnd() || animationTime < start )
+        {
+            m_system->setCurrentAnimationTime( start );
+        }
+    }
+
+    emit m_widget->changeCursor( animationTime );
 }
 
 void AnimationPluginC::cacheFrame() {

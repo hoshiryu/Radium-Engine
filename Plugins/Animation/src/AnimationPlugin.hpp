@@ -42,8 +42,7 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     bool doAddAction( int& nb ) override;
     QAction* getAction( int id ) override;
 
-    void setupUIAnimation();
-    void setupUIPlayzones();
+    void setupUI();
 
   public slots:
     /// Slot for the user activating xray display of bones.
@@ -92,7 +91,7 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     void changeDataDir();
 
     /// Creates a new playzone for the current animation.
-    void newPlayzone(const std::string& name);
+    void newPlayzone( const std::string& name );
 
     /// Remove the i-th playzone for the current animation.
     void removePlayzone( int i );

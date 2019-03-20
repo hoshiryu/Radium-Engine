@@ -131,7 +131,7 @@ void AnimationSystem::handleAssetLoading( Ra::Engine::Entity* entity,
     }
 
     CoupledTimedSystem::handleAssetLoading( entity, fileData );
-    m_plugin->setupUIAnimation();
+    m_plugin->setupUI();
 }
 
 Scalar AnimationSystem::getTime( const Ra::Engine::ItemEntry& entry ) const {
@@ -345,6 +345,13 @@ double AnimationSystem::animationTime() const {
     return 0.0;
 }
 
+/// Returns the number of non editable animation.
+int AnimationSystem::nonEditableCount() const {
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->nonEditableCount();
+    return 0;
+}
+
 /// Returns a vector of the keyposes timestamps
 std::vector<double> AnimationSystem::keyposesTimes() const {
     if ( !m_components.empty() )
@@ -364,6 +371,11 @@ double AnimationSystem::getEnd() const {
     if ( !m_components.empty() )
         return static_cast<AnimationComponent*>( m_components.back().second )->getEnd();
     return 5.0;
+}
+
+/// Returns m_isPlaying.
+bool AnimationSystem::isPlaying() const {
+    return m_isPlaying;
 }
 
 } // namespace AnimationPlugin

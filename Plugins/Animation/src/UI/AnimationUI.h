@@ -25,9 +25,11 @@ class AnimationUI : public QFrame {
     explicit AnimationUI( QWidget* parent = 0 );
     ~AnimationUI();
 
-    void setAnimationComboBox( int count );
+    void setAnimationComboBox( int count, int nonEditableCount );
     void setPlayzoneComboBox( const std::vector<std::string> labels );
-    void setKeyposes( std::vector<double> timestamps );
+    void setKeyPoses( std::vector<double> timestamps );
+    void switchToPlayButton();
+    void switchToPauseButton();
 
   protected:
     void showEvent( QShowEvent* event ) override;
@@ -67,7 +69,8 @@ class AnimationUI : public QFrame {
     void keyPosesChanged( double );
 
     void changeCursor( double );
-    void addKeypose( double );
+    void addKeyPose( double );
+    void clearKeyPoses();
     void changeStart( double );
     void changeEnd( double );
     void changeDuration( double );
@@ -75,7 +78,7 @@ class AnimationUI : public QFrame {
   private slots:
     void on_m_xray_clicked( bool checked );
     void on_m_showSkeleton_toggled( bool checked );
-    void on_m_play_clicked( bool checked );
+    void on_m_play_clicked();
     void on_m_step_clicked();
     void on_m_reset_clicked();
     void on_m_timeStep_currentIndexChanged( int index );

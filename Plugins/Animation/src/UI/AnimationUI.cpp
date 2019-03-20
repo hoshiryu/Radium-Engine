@@ -33,13 +33,14 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( animTimeline, &AnimTimeline::keyPosesChanged, this, &AnimationUI::keyPosesChanged );
 
     connect( this, &AnimationUI::changeCursor, animTimeline, &AnimTimeline::onChangeCursor );
-    connect( this, &AnimationUI::addKeypose, animTimeline, &AnimTimeline::onAddingKeyPose );
+    connect( this, &AnimationUI::addKeyPose, animTimeline, &AnimTimeline::onAddingKeyPose );
     connect( this, &AnimationUI::changeStart, animTimeline, &AnimTimeline::onChangeStart );
     connect( this, &AnimationUI::changeEnd, animTimeline, &AnimTimeline::onChangeEnd );
     connect( this, &AnimationUI::changeDuration, animTimeline,
              &AnimTimeline::onChangeAnimDuration );
     connect( this, &AnimationUI::play, animTimeline, &AnimTimeline::onSetPlayMode );
     connect( this, &AnimationUI::pause, animTimeline, &AnimTimeline::onSetPauseMode );
+    connect( this, &AnimationUI::clearKeyPoses, animTimeline, &AnimTimeline::onClearKeyPoses );
 }
 
 AnimationUI::~AnimationUI() {
@@ -47,12 +48,17 @@ AnimationUI::~AnimationUI() {
     delete animTimeline;
 }
 
-void AnimationUI::setAnimationComboBox( int count ) {
+void AnimationUI::setAnimationComboBox( int count, int nonEditableCount ) {
     ui->comboBox_currentAnimation->clear();
 
-    for ( int i = 0; i < count; ++i )
+    for ( int i = 0; i < nonEditableCount; ++i )
     {
-        ui->comboBox_currentAnimation->addItem( QString::number( i ) );
+        ui->comboBox_currentAnimation->addItem( "Not editable #" + QString::number( i ) );
+    }
+
+    for ( int i = nonEditableCount; i < count; ++i )
+    {
+        ui->comboBox_currentAnimation->addItem( "#" + QString::number( i ) );
     }
 }
 
@@ -65,10 +71,10 @@ void AnimationUI::setPlayzoneComboBox( const std::vector<std::string> labels ) {
     }
 }
 
-void AnimationUI::setKeyposes( std::vector<double> timestamps ) {
+void AnimationUI::setKeyPoses( std::vector<double> timestamps ) {
     for ( const auto& time : timestamps )
     {
-        emit addKeypose( time );
+        emit addKeyPose( time );
     }
 }
 
@@ -88,26 +94,32 @@ void AnimationUI::on_m_showSkeleton_toggled( bool checked ) {
     emit showSkeleton( checked );
 }
 
-void AnimationUI::on_m_play_clicked( bool checked ) {
-    if ( checked )
+void AnimationUI::switchToPauseButton() {
+    ui->m_play->setChecked( true );
+
+    ui->m_play->setProperty( "pressed", true );
+    ui->m_play->style()->unpolish( ui->m_play );
+    ui->m_play->style()->polish( ui->m_play );
+    ui->m_play->update();
+}
+
+void AnimationUI::switchToPlayButton() {
+    ui->m_play->setChecked( false );
+
+    ui->m_play->setProperty( "pressed", false );
+    ui->m_play->style()->unpolish( ui->m_play );
+    ui->m_play->style()->polish( ui->m_play );
+    ui->m_play->update();
+}
+
+void AnimationUI::on_m_play_clicked() {
+    if ( ui->m_play->isChecked() )
     {
-        ui->m_play->setChecked( true );
-
-        ui->m_play->setProperty( "pressed", true );
-        ui->m_play->style()->unpolish( ui->m_play );
-        ui->m_play->style()->polish( ui->m_play );
-        ui->m_play->update();
-
+        switchToPauseButton();
         emit play();
     } else
     {
-        ui->m_play->setChecked( false );
-
-        ui->m_play->setProperty( "pressed", false );
-        ui->m_play->style()->unpolish( ui->m_play );
-        ui->m_play->style()->polish( ui->m_play );
-        ui->m_play->update();
-
+        switchToPlayButton();
         emit pause();
     }
 }

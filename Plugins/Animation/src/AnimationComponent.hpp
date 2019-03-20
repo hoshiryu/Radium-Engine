@@ -109,6 +109,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Creates a new animation.
     void newAnimation();
 
+    /// Creates a new animation from the current one.
+    void copyAnimation();
+
     /// Remove the i-th animation (and therefore its playzones).
     void removeAnimation( int i );
 
@@ -152,11 +155,14 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Add and offset to every key poses of the current animation.
     void offsetKeyPoses( double offset );
 
-    /// Getter for the playzones labels.
+    /// Returns the playzones labels.
     std::vector<std::string> playzonesLabels() const;
 
-    /// Getter for the animation count.
+    /// Returns the animation count.
     int animationCount() const;
+
+    /// Returns the number of non editable animation.
+    int nonEditableCount() const;
 
     /// Returns the keyposes' timestamps.
     std::vector<double> keyposesTimes() const;

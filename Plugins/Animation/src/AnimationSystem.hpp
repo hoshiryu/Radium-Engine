@@ -84,7 +84,7 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     void setPlayzone( int i );
 
     /// Creates a new playzone for the current animation.
-    void newPlayzone(const std::string& name);
+    void newPlayzone( const std::string& name );
 
     /// Remove the i-th playzone for the current animation.
     void removePlayzone( int i );
@@ -128,11 +128,14 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Returns the animation count.
     int animationCount() const;
 
+    /// Returns the number of non editable animation.
+    int nonEditableCount() const;
+
     /// Returns the current animation time.
     double animationTime() const;
-    
+
     /// Returns a vector of the keyposes timestamps.
-    std::vector<double> keyposesTimes() const; 
+    std::vector<double> keyposesTimes() const;
 
     /// Returns the start of the current playzone.
     double getStart() const;
@@ -140,6 +143,8 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Returns the end of the current playzone.
     double getEnd() const;
 
+    /// Returns m_isPlaying.
+    bool isPlaying() const;
 
   private:
     /// Current frame
