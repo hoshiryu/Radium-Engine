@@ -64,8 +64,6 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::saveRDMA, this, &AnimationPluginC::saveRDMA );
 
     /// Timeline signals
-    // connect( m_widget, &AnimationUI::durationChanged, this,
-    //          &AnimationPluginC::???? );
     connect( m_widget, &AnimationUI::cursorChanged, this,
              &AnimationPluginC::setCurrentAnimationTime );
     connect( m_widget, &AnimationUI::startChanged, this, &AnimationPluginC::setStart );
@@ -109,12 +107,12 @@ QAction* AnimationPluginC::getAction( int id ) {
 
 void AnimationPluginC::setupUIAnimation() {
     m_widget->ui->groupBox_animation->setEnabled( true );
+    m_widget->ui->groupBox_playZone->setEnabled( true );
     m_widget->setAnimationComboBox( m_system->animationCount() );
     setupUIPlayzones();
 }
 
 void AnimationPluginC::setupUIPlayzones() {
-    m_widget->ui->groupBox_playZone->setEnabled( true );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
 
@@ -125,6 +123,13 @@ void AnimationPluginC::toggleXray( bool on ) {
 
 void AnimationPluginC::play() {
     CORE_ASSERT( m_system, "System should be there " );
+    const double animationTime = m_system->animationTime();
+    const double start = m_system->getStart();
+
+    if ( animationTime > m_system->getEnd() || animationTime < start )
+    {
+        m_system->setCurrentAnimationTime( start );
+    }
     m_system->play( true );
 }
 
@@ -151,6 +156,7 @@ void AnimationPluginC::toggleSkeleton( bool status ) {
 
 void AnimationPluginC::setAnimation( uint i ) {
     m_system->setAnimation( i );
+    m_system->setPlayzone( 0 );
     m_widget->setKeyposes( m_system->keyposesTimes() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
@@ -172,7 +178,7 @@ void AnimationPluginC::updateAnimTime() {
     m_widget->updateTime( m_system->getTime( m_selectionManager->currentItem() ) );
     m_widget->updateFrame( m_system->getAnimFrame() );
 
-    emit m_widget->setCursor( m_system->animationTime() );
+    emit m_widget->changeCursor( m_system->animationTime() );
 }
 
 void AnimationPluginC::cacheFrame() {

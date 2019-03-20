@@ -161,8 +161,6 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Returns the keyposes' timestamps.
     std::vector<double> keyposesTimes() const;
 
-    double getCurrentDuration() const;
-
     //
     // Editable interface
     //

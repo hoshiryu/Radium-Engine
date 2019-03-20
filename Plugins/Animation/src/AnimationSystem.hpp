@@ -140,8 +140,6 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Returns the end of the current playzone.
     double getEnd() const;
 
-    /// Return the duration of the current animation.
-    double getCurrentDuration() const;
 
   private:
     /// Current frame

@@ -366,10 +366,4 @@ double AnimationSystem::getEnd() const {
     return 5.0;
 }
 
-double AnimationSystem::getCurrentDuration() const {
-    if ( !m_components.empty() )
-        return static_cast<AnimationComponent*>( m_components.back().second )->getCurrentDuration();
-    return 10.0;
-}
-
 } // namespace AnimationPlugin

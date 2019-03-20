@@ -30,7 +30,7 @@ namespace AnimationPlugin {
 AnimationComponent::AnimationComponent( const std::string& name, Ra::Engine::Entity* entity ) :
     Component( name, entity ),
     m_animationID( 0 ),
-    m_playzoneID(0),
+    m_playzoneID( 0 ),
     m_animationTimeStep( true ),
     m_animationTime( 0.0 ),
     m_dt(),
@@ -59,6 +59,10 @@ void AnimationComponent::update( Scalar dt ) {
 
     // Compute the elapsed time
     m_animationTime += dt;
+    if ( m_animationTime > std::get<2>( m_animsPlayzones[m_animationID][m_playzoneID] ) )
+    {
+        m_animationTime = std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] );
+    }
 
     if ( m_wasReset )
     {
@@ -74,12 +78,13 @@ void AnimationComponent::update( Scalar dt ) {
     if ( dt > 0 && !m_animations.empty() )
     {
         setCurrentPose();
-    }
-
-    // update the render objects
-    for ( auto& bone : m_boneDrawables )
+    } else
     {
-        bone->update();
+        // update the render objects
+        for ( auto& bone : m_boneDrawables )
+        {
+            bone->update();
+        }
     }
 }
 
@@ -129,11 +134,7 @@ void AnimationComponent::printSkeleton( const Ra::Core::Animation::Skeleton& ske
 
 void AnimationComponent::reset() {
     m_animationTime = 0;
-    m_skel.setPose( m_refPose, Handle::SpaceType::MODEL );
-    for ( auto& bone : m_boneDrawables )
-    {
-        bone->update();
-    }
+    setCurrentPose();
     m_wasReset = true;
 }
 
@@ -200,10 +201,11 @@ void AnimationComponent::handleAnimationLoading(
 
         m_dt.push_back( data[n]->getTimeStep() );
     }
-    m_animationID = 0;
-    m_firstEditableID = m_animations.size();
-    m_playzoneID = 0;
     m_animationTime = 0.0;
+    m_firstEditableID = m_animations.size();
+    m_animsPlayzones.resize( m_firstEditableID );
+    setAnimation( 0 );
+    setPlayzone( 0 );
 }
 
 void AnimationComponent::setupIO( const std::string& id ) {
@@ -277,19 +279,18 @@ void AnimationComponent::setAnimation( const uint i ) {
     if ( i < m_animations.size() )
     {
         m_animationID = i;
-        if(m_animsPlayzones.empty()) {
+        if ( m_animsPlayzones.empty() )
+        {
             m_animsPlayzones.emplace_back();
         }
-        setPlayzone( 0 );
     }
 }
 
 void AnimationComponent::setPlayzone( const uint i ) {
     m_playzoneID = i;
-    
-    if ( i == 0 && m_animsPlayzones[m_animationID].empty() )
+    if ( m_animsPlayzones[m_animationID].empty() )
     {
-        newPlayzone("Default playzone");
+        newPlayzone( "Default playzone" );
     }
 }
 
@@ -551,7 +552,7 @@ void AnimationComponent::removePlayzone( int i ) {
     playzone.erase( playzone.begin() + i );
     if ( i <= m_playzoneID )
     {
-        setPlayzone(m_playzoneID - 1);
+        setPlayzone( m_playzoneID - 1 );
     }
 }
 
@@ -559,6 +560,7 @@ void AnimationComponent::removePlayzone( int i ) {
 void AnimationComponent::newAnimation() {
     m_animationID = m_animations.size();
     m_animations.emplace_back();
+    m_animsPlayzones.emplace_back();
 }
 
 /// Remove the i-th animation (and therefore its playzones).
@@ -586,24 +588,26 @@ inline void AnimationComponent::setCurrentPose() {
 void AnimationComponent::setCurrentAnimationTime( double timestamp ) {
     m_animationTime = static_cast<Scalar>( timestamp );
     setCurrentPose();
+
+    // update the render objects
+    for ( auto& bone : m_boneDrawables )
+    {
+        bone->update();
+    }
 }
 
 /// Returns the start of the current playzone.
 double AnimationComponent::getStart() const {
-    return std::get<1>(m_animsPlayzones[m_animationID][m_playzoneID]);
+    return std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] );
 }
 
 /// Returns the end of the current playzone.
 double AnimationComponent::getEnd() const {
-    return std::get<2>(m_animsPlayzones[m_animationID][m_playzoneID]);
+    return std::get<2>( m_animsPlayzones[m_animationID][m_playzoneID] );
 }
 
 /// Sets the current playzone start.
 void AnimationComponent::setStart( double timestamp ) {
-    if ( m_animsPlayzones.empty() )
-    {
-        newPlayzone( "New playzone" );
-    }
     std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] ) = static_cast<Scalar>( timestamp );
 }
 
@@ -671,10 +675,6 @@ std::vector<double> AnimationComponent::keyposesTimes() const {
     }
 
     return times;
-}
-
-double AnimationComponent::getCurrentDuration() const {
-    return std::get<2>( m_animsPlayzones[m_animationID][m_playzoneID] );
 }
 
 } // namespace AnimationPlugin

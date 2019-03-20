@@ -13,6 +13,7 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     ui->m_play->style()->unpolish( ui->m_play );
     ui->m_play->style()->polish( ui->m_play );
     ui->m_play->update();
+
     connect( ui->actionXray, &QAction::toggled, this, &AnimationUI::on_m_xray_clicked );
     connect( ui->actionXray, &QAction::toggled, this, &AnimationUI::on_m_showSkeleton_toggled );
     connect( ui->actionPlay, &QAction::toggled, this, &AnimationUI::on_m_play_clicked );
@@ -31,12 +32,14 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( animTimeline, &AnimTimeline::keyPoseChanged, this, &AnimationUI::keyPoseChanged );
     connect( animTimeline, &AnimTimeline::keyPosesChanged, this, &AnimationUI::keyPosesChanged );
 
-    connect( this, &AnimationUI::setCursor, animTimeline, &AnimTimeline::onChangeCursor );
+    connect( this, &AnimationUI::changeCursor, animTimeline, &AnimTimeline::onChangeCursor );
     connect( this, &AnimationUI::addKeypose, animTimeline, &AnimTimeline::onAddingKeyPose );
     connect( this, &AnimationUI::changeStart, animTimeline, &AnimTimeline::onChangeStart );
     connect( this, &AnimationUI::changeEnd, animTimeline, &AnimTimeline::onChangeEnd );
     connect( this, &AnimationUI::changeDuration, animTimeline,
              &AnimTimeline::onChangeAnimDuration );
+    connect( this, &AnimationUI::play, animTimeline, &AnimTimeline::onSetPlayMode );
+    connect( this, &AnimationUI::pause, animTimeline, &AnimTimeline::onSetPauseMode );
 }
 
 AnimationUI::~AnimationUI() {
@@ -65,7 +68,7 @@ void AnimationUI::setPlayzoneComboBox( const std::vector<std::string> labels ) {
 void AnimationUI::setKeyposes( std::vector<double> timestamps ) {
     for ( const auto& time : timestamps )
     {
-        emit( addKeypose( time ) );
+        emit addKeypose( time );
     }
 }
 
