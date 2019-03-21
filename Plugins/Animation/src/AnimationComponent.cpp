@@ -489,12 +489,12 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     output.write( reinterpret_cast<const char*>( &pose_size ), sizeof( pose_size ) );
     size_t size = m_animations.size() - m_firstEditableID;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
-    for ( size_t i = m_firstEditableID; i < m_animations.size(); ++i )
+    for ( int i = m_firstEditableID; i < m_animations.size(); ++i )
     {
         const auto& anim = m_animations[i];
         size = anim.size();
         output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
-        for ( size_t i = 0; i < size; ++i )
+        for ( int i = 0; i < size; ++i )
         {
             const auto& keypose = anim.keyPose( i );
             output.write( reinterpret_cast<const char*>( &keypose.first ),
