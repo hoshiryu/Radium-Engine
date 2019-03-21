@@ -223,6 +223,9 @@ void AnimationPluginC::setPlayzone( int i ) {
 
 void AnimationPluginC::newPlayzone( const std::string& name ) {
     m_system->newPlayzone( name );
+
+    m_widget->ui->comboBox_currentPlayZone->setCurrentIndex(
+        m_widget->ui->comboBox_currentPlayZone->count() - 1 );
 }
 
 void AnimationPluginC::removePlayzone( int i ) {
@@ -231,14 +234,21 @@ void AnimationPluginC::removePlayzone( int i ) {
 
 void AnimationPluginC::newAnimation() {
     m_system->newAnimation();
+    m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
+        m_widget->ui->comboBox_currentAnimation->count() - 1 );
 }
 
 void AnimationPluginC::removeAnimation( int i ) {
+    if ( i >= m_system->nonEditableCount() )
+    {
+        m_widget->removeAnimItem( i );
     m_system->removeAnimation( i );
+}
 }
 
 void AnimationPluginC::loadRDMA( std::string filename ) {
     m_system->loadRDMA( filename );
+    setupUI();
 }
 
 void AnimationPluginC::saveRDMA( std::string filename ) {
@@ -259,18 +269,47 @@ void AnimationPluginC::setEnd( double timestamp ) {
 
 void AnimationPluginC::addKeyPose( double timestamp ) {
     m_system->addKeyPose(static_cast<Scalar>(timestamp));
+
+    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    {
+        setupUI();
+        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
+            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+    }
 }
 
 void AnimationPluginC::removeKeyPose( int i ) {
     m_system->removeKeyPose(i);
+
+    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    {
+        setupUI();
+        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
+            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+    }
 }
 
 void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
     m_system->setKeyPoseTime( i, timestamp );
+
+    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    {
+        setupUI();
+        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
+            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+    }
 }
 
 void AnimationPluginC::offsetKeyPoses( double offset ) {
     m_system->offsetKeyPoses(static_cast<Scalar>(offset));
+
+    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() <
+         m_system->nonEditableCount() - 1 )
+    {
+        setupUI();
+        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
+            m_widget->ui->comboBox_currentAnimation->count() );
+    }
 }
 
 } // namespace AnimationPlugin

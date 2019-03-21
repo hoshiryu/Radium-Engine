@@ -434,7 +434,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
 
     // Importing animations
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
-    m_animations.resize( m_animations.size() + size );
+    m_animations.resize( m_firstEditableID + size );
     for ( size_t i = m_firstEditableID; i < m_animations.size(); ++i )
     {
         auto& anim = m_animations[i];
@@ -455,12 +455,13 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
 
     // Importing each animation playzones
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
-    m_animsPlayzones.resize( m_animsPlayzones.size() + size );
+    m_animsPlayzones.resize( m_firstEditableID + size );
     for ( size_t i = m_firstEditableID; i < m_animsPlayzones.size(); ++i )
     {
         auto& playzones = m_animsPlayzones[i];
         size_t playzoneSize;
         input.read( reinterpret_cast<char*>( &playzoneSize ), sizeof( playzoneSize ) );
+
         playzones.resize( playzoneSize );
         for ( auto& playzone : playzones )
         {
@@ -475,7 +476,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
 
     // Importing delta t's
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
-    m_dt.resize( m_dt.size() + size );
+    m_dt.resize( m_firstEditableID + size );
     input.read( reinterpret_cast<char*>( &m_dt[m_firstEditableID] ), size * sizeof( Scalar ) );
 }
 
@@ -486,12 +487,11 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     // Exporting animations
     const size_t pose_size = m_refPose.size();
     output.write( reinterpret_cast<const char*>( &pose_size ), sizeof( pose_size ) );
-    size_t size = m_animations.size() - m_firstEditableID + 1;
+    size_t size = m_animations.size() - m_firstEditableID;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
     for ( size_t i = m_firstEditableID; i < m_animations.size(); ++i )
     {
         const auto& anim = m_animations[i];
-        // anim.normalize();
         size = anim.size();
         output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
         for ( size_t i = 0; i < size; ++i )
@@ -510,8 +510,9 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     // Exporting each animation playzones
     size = m_animsPlayzones.size();
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
-    for ( const auto& playzones : m_animsPlayzones )
+    for ( int i = m_firstEditableID; i < m_animsPlayzones.size(); ++i )
     {
+        const auto& playzones = m_animsPlayzones[i];
         size = playzones.size();
         output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
         for ( const auto& playzone : playzones )
@@ -560,11 +561,14 @@ void AnimationComponent::newAnimation() {
     m_animationID = m_animations.size();
     m_animations.emplace_back();
     m_animsPlayzones.emplace_back();
+    m_dt.emplace_back( 1. / 60 );
 }
 
 /// Creates a new animation from the current one.
 void AnimationComponent::copyAnimation() {
-    // TODO
+    m_animations.emplace_back( m_animations[m_animationID] );
+    m_animsPlayzones.emplace_back( m_animsPlayzones[m_animationID] );
+    m_dt.emplace_back( m_dt[m_animationID] );
 }
 
 /// Remove the i-th animation (and therefore its playzones).
@@ -578,7 +582,7 @@ void AnimationComponent::removeAnimation( int i ) {
     m_animsPlayzones.erase(m_animsPlayzones.begin() + i - m_firstEditableID);
     if ( i <= m_animationID )
     {
-        --m_animationID;
+        setAnimation( m_animationID - 1 );
     }
     setPlayzone( 0 );
 }
@@ -629,6 +633,7 @@ void AnimationComponent::addKeyPose( double timestamp ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyAnimation();
+        setAnimation( m_animations.size() - 1 );
     }
     m_animations[m_animationID].addKeyPose( m_skel.getPose( Handle::SpaceType::LOCAL ),
                                             static_cast<Scalar>( timestamp ) );
@@ -639,6 +644,7 @@ void AnimationComponent::removeKeyPose( int i ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyAnimation();
+        setAnimation( m_animations.size() - 1 );
     }
         m_animations[m_animationID].removeKeyPose(i);
         setCurrentAnimationTime(m_animationTime);
@@ -649,6 +655,7 @@ void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyAnimation();
+        setAnimation( m_animations.size() - 1 );
     }
     m_animations[m_animationID].setKeyPoseTime( i, static_cast<Scalar>( timestamp ) );
 }
@@ -658,6 +665,7 @@ void AnimationComponent::offsetKeyPoses( double offset ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyAnimation();
+        setAnimation( m_animations.size() - 1 );
     }
         m_animations[m_animationID].offsetKeyPoses( static_cast<Scalar>( offset ) );
 }

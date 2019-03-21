@@ -30,6 +30,7 @@ class AnimationUI : public QFrame {
     void setKeyPoses( std::vector<double> timestamps );
     void switchToPlayButton();
     void switchToPauseButton();
+    void removeAnimItem( int index );
 
   protected:
     void showEvent( QShowEvent* event ) override;

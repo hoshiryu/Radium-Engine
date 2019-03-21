@@ -53,12 +53,12 @@ void AnimationUI::setAnimationComboBox( int count, int nonEditableCount ) {
 
     for ( int i = 0; i < nonEditableCount; ++i )
     {
-        ui->comboBox_currentAnimation->addItem( "Not editable #" + QString::number( i ) );
+        ui->comboBox_currentAnimation->addItem( "Not editable #" + QString::number( i + 1 ) );
     }
 
     for ( int i = nonEditableCount; i < count; ++i )
     {
-        ui->comboBox_currentAnimation->addItem( "#" + QString::number( i ) );
+        ui->comboBox_currentAnimation->addItem( "#" + QString::number( i + 1 ) );
     }
 }
 
@@ -110,6 +110,10 @@ void AnimationUI::switchToPlayButton() {
     ui->m_play->style()->unpolish( ui->m_play );
     ui->m_play->style()->polish( ui->m_play );
     ui->m_play->update();
+}
+
+void AnimationUI::removeAnimItem( int index ) {
+    ui->comboBox_currentAnimation->removeItem( index );
 }
 
 void AnimationUI::on_m_play_clicked() {
@@ -217,13 +221,12 @@ void AnimationUI::on_comboBox_currentAnimation_currentIndexChanged( int index ) 
 
 void AnimationUI::on_pushButton_newAnimation_clicked() {
     const int num = ui->comboBox_currentAnimation->count();
-    ui->comboBox_currentAnimation->addItem( QString::number( num ) );
+    ui->comboBox_currentAnimation->addItem( "#" + QString::number( num + 1 ) );
     emit newAnimation();
 }
 
 void AnimationUI::on_pushButton_removeAnimation_clicked() {
-    int removeIndex = ui->comboBox_currentAnimation->currentIndex();
-    ui->comboBox_currentAnimation->removeItem( removeIndex );
+    const int removeIndex = ui->comboBox_currentAnimation->currentIndex();
 
     emit removeAnimation( removeIndex );
 }
