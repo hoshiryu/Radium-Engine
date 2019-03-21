@@ -482,7 +482,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
 
 void AnimationComponent::saveRDMA( const std::string& filepath ) {
     CORE_ASSERT( m_skel.size() != 0, "No skeleton loaded." );
-    std::ofstream output{filepath, std::ios::binary};
+    std::ofstream output{filepath, std::ios::binary | std::ofstream::trunc};
 
     // Exporting animations
     const size_t pose_size = m_refPose.size();
@@ -508,7 +508,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     }
 
     // Exporting each animation playzones
-    size = m_animsPlayzones.size();
+    size = m_animsPlayzones.size() - m_firstEditableID;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
     for ( int i = m_firstEditableID; i < m_animsPlayzones.size(); ++i )
     {
@@ -529,7 +529,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     }
 
     // Exporting delta t's
-    size = m_dt.size() - m_firstEditableID + 1;
+    size = m_dt.size() - m_firstEditableID;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
     output.write( reinterpret_cast<const char*>( &m_dt[m_firstEditableID] ),
                   size * sizeof( Scalar ) );
