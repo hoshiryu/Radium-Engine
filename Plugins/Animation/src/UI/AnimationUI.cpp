@@ -24,6 +24,7 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     // or change constructor calling for AnimationUI
     // so first timeline pos is fixed at the bottom right of current screen
     animTimeline = new AnimTimeline( parent );
+
     connect( animTimeline, &AnimTimeline::playClicked, this, &AnimationUI::play );
     connect( animTimeline, &AnimTimeline::pauseClicked, this, &AnimationUI::pause );
     connect( animTimeline, &AnimTimeline::durationChanged, this, &AnimationUI::durationChanged );
@@ -82,7 +83,9 @@ void AnimationUI::setKeyPoses( std::vector<double> timestamps ) {
 }
 
 void AnimationUI::showEvent( QShowEvent* event ) {
-    animTimeline->show();
+    (void)event;
+    //if (ui->groupBox_animation->isEnabled())
+        animTimeline->show();
 }
 
 void AnimationUI::hideEvent( QHideEvent* event ) {

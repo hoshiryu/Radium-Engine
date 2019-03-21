@@ -143,7 +143,7 @@ void AnimationPluginC::step() {
 
 void AnimationPluginC::reset() {
     CORE_ASSERT( m_system, "System should be there " );
-    pause();
+    emit m_widget->pause();
     m_system->reset();
 }
 
@@ -256,6 +256,8 @@ void AnimationPluginC::saveRDMA( std::string filename ) {
 }
 
 void AnimationPluginC::setCurrentAnimationTime( double timestamp ) {
+    if(m_system->isPlaying())
+        emit m_widget->pause();
     m_system->setCurrentAnimationTime(static_cast<Scalar>(timestamp));
 }
 
