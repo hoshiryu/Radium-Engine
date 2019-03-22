@@ -119,7 +119,7 @@ void AnimationPluginC::toggleXray( bool on ) {
 void AnimationPluginC::showTimeline() {
     m_widget->showTimeline();
 }
- 
+
 void AnimationPluginC::play() {
     CORE_ASSERT( m_system, "System should be there " );
     const double animationTime = m_system->animationTime();
@@ -260,7 +260,7 @@ void AnimationPluginC::saveRDMA( std::string filename ) {
 }
 
 void AnimationPluginC::setCurrentAnimationTime( double timestamp ) {
-    if(m_system->isPlaying())
+    if ( m_system->isPlaying() )
         emit m_widget->pause();
     m_system->setCurrentAnimationTime(static_cast<Scalar>(timestamp));
 }

@@ -73,14 +73,15 @@ void AnimationComponent::update( Scalar dt ) {
     // get the current pose from the animation
     if ( dt > 0 && !m_animations.empty() )
     {
-        setCurrentPose();
-    } else
+        // Not calling setCurrentPose() to avoid unnecessary function calls
+        const auto& pose = m_animations[m_animationID].getPose( m_animationTime );
+        m_skel.setPose( pose, Handle::SpaceType::LOCAL );
+    }
+
+    // update the render objects
+    for ( auto& bone : m_boneDrawables )
     {
-        // update the render objects
-        for ( auto& bone : m_boneDrawables )
-        {
-            bone->update();
-        }
+        bone->update();
     }
 }
 

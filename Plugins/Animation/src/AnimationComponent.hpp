@@ -122,13 +122,13 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Save the created animations with their d_t and playzones
     void saveRDMA( const std::string& filepath );
 
-    /// Sets current pose according to the current m_animationTime.
+    /// Sets current pose: should not be used when playing.
     void setCurrentPose();
 
     /// Sets current playzoneID to i.
     void setPlayzoneID( int i );
 
-    /// Updates the current pose.
+    /// Sets the current animation time and updates the current pose.
     void setCurrentAnimationTime( double timestamp );
 
     /// Returns the start of the current playzone.
