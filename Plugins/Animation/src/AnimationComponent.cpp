@@ -594,7 +594,7 @@ inline void AnimationComponent::setCurrentPose() {
     m_skel.setPose(pose, Handle::SpaceType::LOCAL);
     } else if ( m_animations[m_animationID].size() == 0 ) {
         const auto& pose = m_animations[m_animationID].getPose( m_animationTime );
-        m_skel.setPose( pose, Handle::SpaceType::MODEL );
+        m_skel.setPose( m_refPose, Handle::SpaceType::MODEL );
     }
 
     // update the render objects
