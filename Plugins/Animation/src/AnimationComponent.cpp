@@ -592,8 +592,10 @@ inline void AnimationComponent::setCurrentPose() {
     {
     const auto& pose = m_animations[m_animationID].getPose(m_animationTime);
     m_skel.setPose(pose, Handle::SpaceType::LOCAL);
-    } else
-        m_skel.setPose( m_refPose, Handle::SpaceType::MODEL );
+    } else if ( m_animations[m_animationID].size() == 0 ) {
+        const auto& pose = m_animations[m_animationID].getPose( m_animationTime );
+        m_skel.setPose( pose, Handle::SpaceType::MODEL );
+    }
 
     // update the render objects
     for ( auto& bone : m_boneDrawables )
@@ -668,6 +670,8 @@ void AnimationComponent::offsetKeyPoses( double offset ) {
         setAnimation( m_animations.size() - 1 );
     }
         m_animations[m_animationID].offsetKeyPoses( static_cast<Scalar>( offset ) );
+    std::get<1>(m_animsPlayzones[m_animationID][m_playzoneID]) += offset;
+    std::get<2>(m_animsPlayzones[m_animationID][m_playzoneID]) += offset;
 }
 
 /// Getter for the playzones labels.

@@ -116,6 +116,10 @@ void AnimationPluginC::toggleXray( bool on ) {
     m_system->setXray( on );
 }
 
+void AnimationPluginC::showTimeline() {
+    m_widget->showTimeline();
+}
+ 
 void AnimationPluginC::play() {
     CORE_ASSERT( m_system, "System should be there " );
     const double animationTime = m_system->animationTime();
@@ -215,9 +219,9 @@ void AnimationPluginC::setPlayzone( int i ) {
         m_system->setPlayzone( i );
 
         const double end = m_system->getEnd();
+        emit m_widget->changeDuration( end * 1.25 );
         emit m_widget->changeStart( m_system->getStart() );
         emit m_widget->changeEnd( end );
-        emit m_widget->changeDuration( end * 1.25 );
     }
 }
 
@@ -305,12 +309,11 @@ void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
 void AnimationPluginC::offsetKeyPoses( double offset ) {
     m_system->offsetKeyPoses(static_cast<Scalar>(offset));
 
-    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() <
-         m_system->nonEditableCount() - 1 )
+    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
         setupUI();
         m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
-            m_widget->ui->comboBox_currentAnimation->count() );
+            m_widget->ui->comboBox_currentAnimation->count() - 1 );
     }
 }
 

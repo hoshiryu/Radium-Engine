@@ -132,6 +132,7 @@ void AnimationSystem::handleAssetLoading( Ra::Engine::Entity* entity,
 
     CoupledTimedSystem::handleAssetLoading( entity, fileData );
     m_plugin->setupUI();
+    m_plugin->showTimeline();
 }
 
 Scalar AnimationSystem::getTime( const Ra::Engine::ItemEntry& entry ) const {

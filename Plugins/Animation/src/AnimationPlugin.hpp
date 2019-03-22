@@ -51,6 +51,9 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// Slot for the user activating display of bones.
     void toggleSkeleton( bool on );
 
+    /// Display the timeline.
+    void showTimeline();
+
     /// Slot for the user asking to step the animation once.
     void step();
 

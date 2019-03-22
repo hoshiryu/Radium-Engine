@@ -82,10 +82,12 @@ void AnimationUI::setKeyPoses( std::vector<double> timestamps ) {
     }
 }
 
+void AnimationUI::showTimeline() {
+    animTimeline->show();
+}
+
 void AnimationUI::showEvent( QShowEvent* event ) {
     (void)event;
-    //if (ui->groupBox_animation->isEnabled())
-        animTimeline->show();
 }
 
 void AnimationUI::hideEvent( QHideEvent* event ) {

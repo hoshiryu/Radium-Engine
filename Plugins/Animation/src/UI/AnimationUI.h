@@ -31,6 +31,7 @@ class AnimationUI : public QFrame {
     void switchToPlayButton();
     void switchToPauseButton();
     void removeAnimItem( int index );
+    void showTimeline();
 
   protected:
     void showEvent( QShowEvent* event ) override;
