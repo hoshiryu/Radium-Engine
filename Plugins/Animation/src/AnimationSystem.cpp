@@ -271,18 +271,12 @@ void AnimationSystem::removeAnimation( int i ) {
 
 /// Load and .rdma file.
 void AnimationSystem::loadRDMA( const std::string& filename ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->loadRDMA( filename );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->loadRDMA( filename );
 }
 
 /// Save all the animation that were not loaded with the model file.
 void AnimationSystem::saveRDMA( const std::string& filename ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->saveRDMA( filename );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->saveRDMA( filename );
 }
 
 /// Updates the current pose.

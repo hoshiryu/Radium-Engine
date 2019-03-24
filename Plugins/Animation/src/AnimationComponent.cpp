@@ -569,7 +569,7 @@ void AnimationComponent::copyAnimation() {
 }
 
 void AnimationComponent::removeAnimation( int i ) {
-    if ( i < m_firstEditableID )
+    if ( i < m_firstEditableID || i >= m_animations.size() )
     {
         return;
     }
