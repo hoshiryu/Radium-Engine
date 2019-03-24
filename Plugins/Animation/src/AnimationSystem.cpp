@@ -317,6 +317,14 @@ void AnimationSystem::setKeyPoseTime( int i, double timestamp ) {
     }
 }
 
+void AnimationSystem::updateKeyPose(int id)
+{
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->updateKeyPose(id);
+    }
+}
+
 /// Add and offset to every key poses of the current animation.
 void AnimationSystem::offsetKeyPoses( double offset ) {
     for ( const auto& comp : m_components )

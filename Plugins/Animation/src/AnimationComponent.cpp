@@ -536,7 +536,6 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
                   size * sizeof( Scalar ) );
 }
 
-/// Creates a new playzone for the current animation.
 void AnimationComponent::newPlayzone( const std::string& name) {
     const auto& anim = m_animations[m_animationID];
     m_playzoneID = m_animsPlayzones.size();
@@ -547,7 +546,6 @@ void AnimationComponent::newPlayzone( const std::string& name) {
         m_animsPlayzones[m_animationID].emplace_back( name, 0.0, 20.0 );
 }
 
-/// Remove the i-th playzone for the current animation.
 void AnimationComponent::removePlayzone( int i ) {
     auto& playzone = m_animsPlayzones[m_animationID];
     playzone.erase( playzone.begin() + i );
@@ -557,7 +555,6 @@ void AnimationComponent::removePlayzone( int i ) {
     }
 }
 
-/// Creates a new animation.
 void AnimationComponent::newAnimation() {
     m_animationID = m_animations.size();
     m_animations.emplace_back();
@@ -565,14 +562,12 @@ void AnimationComponent::newAnimation() {
     m_dt.emplace_back( 1. / 60 );
 }
 
-/// Creates a new animation from the current one.
 void AnimationComponent::copyAnimation() {
     m_animations.emplace_back( m_animations[m_animationID] );
     m_animsPlayzones.emplace_back( m_animsPlayzones[m_animationID] );
     m_dt.emplace_back( m_dt[m_animationID] );
 }
 
-/// Remove the i-th animation (and therefore its playzones).
 void AnimationComponent::removeAnimation( int i ) {
     if ( i < m_firstEditableID )
     {
@@ -588,15 +583,28 @@ void AnimationComponent::removeAnimation( int i ) {
     setPlayzone( 0 );
 }
 
-inline void AnimationComponent::setCurrentPose() {
+void AnimationComponent::setCurrentPose() {
     if ( m_animations[m_animationID].size() >= 2 )
     {
-    const auto& pose = m_animations[m_animationID].getPose(m_animationTime);
-    m_skel.setPose(pose, Handle::SpaceType::LOCAL);
-    } else if ( m_animations[m_animationID].size() == 0 ) {
-        const auto& pose = m_animations[m_animationID].getPose( m_animationTime );
-        m_skel.setPose( m_refPose, Handle::SpaceType::MODEL );
-    }
+        if ( m_animationTime < m_animations[m_animationID].keyPose( 0 ).first )
+        {
+            m_skel.setPose( m_animations[m_animationID].keyPose( 0 ).second,
+                            Handle::SpaceType::LOCAL );
+        } else if ( m_animationTime > m_animations[m_animationID]
+                                          .keyPose( m_animations[m_animationID].size() - 1 )
+                                          .first )
+        {
+            m_skel.setPose( m_animations[m_animationID]
+                                .keyPose( m_animations[m_animationID].size() - 1 )
+                                .second,
+                            Handle::SpaceType::LOCAL );
+        } else
+        {
+        const auto& pose = m_animations[m_animationID].getPose(m_animationTime);
+        m_skel.setPose(pose, Handle::SpaceType::LOCAL);
+        }
+    } else if ( m_animations[m_animationID].size() == 0 )
+    { m_skel.setPose( m_refPose, Handle::SpaceType::MODEL ); }
 
     // update the render objects
     for ( auto& bone : m_boneDrawables )
@@ -605,33 +613,27 @@ inline void AnimationComponent::setCurrentPose() {
     }
 }
 
-/// Updates the current pose.
 void AnimationComponent::setCurrentAnimationTime( double timestamp ) {
     m_animationTime = static_cast<Scalar>( timestamp );
     setCurrentPose();
 }
 
-/// Returns the start of the current playzone.
 double AnimationComponent::getStart() const {
     return std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] );
 }
 
-/// Returns the end of the current playzone.
 double AnimationComponent::getEnd() const {
     return std::get<2>( m_animsPlayzones[m_animationID][m_playzoneID] );
 }
 
-/// Sets the current playzone start.
 void AnimationComponent::setStart( double timestamp ) {
     std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] ) = static_cast<Scalar>( timestamp );
 }
 
-/// Sets the current playzone end.
 void AnimationComponent::setEnd( double timestamp ) {
     std::get<2>( m_animsPlayzones[m_animationID][m_playzoneID] ) = static_cast<Scalar>( timestamp );
 }
 
-/// Add a keypose to the current animation at timestamp.
 void AnimationComponent::addKeyPose( double timestamp ) {
     if ( m_animationID < m_firstEditableID )
     {
@@ -642,7 +644,6 @@ void AnimationComponent::addKeyPose( double timestamp ) {
                                             static_cast<Scalar>( timestamp ) );
 }
 
-/// Remove the i-th keypose.
 void AnimationComponent::removeKeyPose( int i ) {
     if ( m_animationID < m_firstEditableID )
     {
@@ -653,7 +654,6 @@ void AnimationComponent::removeKeyPose( int i ) {
         setCurrentAnimationTime(m_animationTime);
     }
 
-/// Set the i-th keypose timestamp
 void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {
     if ( m_animationID < m_firstEditableID )
     {
@@ -663,7 +663,11 @@ void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {
     m_animations[m_animationID].setKeyPoseTime( i, static_cast<Scalar>( timestamp ) );
 }
 
-/// Add and offset to every key poses of the current animation.
+void AnimationComponent::updateKeyPose(int id)
+{
+    m_animations[m_animationID].replacePose(id, m_skel.getPose(Handle::SpaceType::LOCAL));
+}
+
 void AnimationComponent::offsetKeyPoses( double offset ) {
     if ( m_animationID < m_firstEditableID )
     {
@@ -675,7 +679,6 @@ void AnimationComponent::offsetKeyPoses( double offset ) {
     std::get<2>(m_animsPlayzones[m_animationID][m_playzoneID]) += offset;
 }
 
-/// Getter for the playzones labels.
 std::vector<std::string> AnimationComponent::playzonesLabels() const {
     std::vector<std::string> labels;
     labels.reserve( m_animsPlayzones[m_animationID].size() );
@@ -686,17 +689,14 @@ std::vector<std::string> AnimationComponent::playzonesLabels() const {
     return labels;
 }
 
-/// Getter for the animation count.
 int AnimationComponent::animationCount() const {
     return m_animations.size();
 }
 
-/// Returns the number of non editable animation.
 int AnimationComponent::nonEditableCount() const {
     return m_firstEditableID;
 }
 
-/// Returns the keyposes' timestamps.
 std::vector<double> AnimationComponent::keyposesTimes() const {
     std::vector<double> times;
     times.reserve( m_animations[m_animationID].size() );

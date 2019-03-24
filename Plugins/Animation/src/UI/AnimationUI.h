@@ -67,7 +67,7 @@ class AnimationUI : public QFrame {
     void endChanged( double );
     void keyPoseAdded( double );
     void keyPoseDeleted( int );
-    void keyPoseChanged( int, double );
+    void keyPoseChanged( int );
     void keyPosesChanged( double );
 
     void changeCursor( double );

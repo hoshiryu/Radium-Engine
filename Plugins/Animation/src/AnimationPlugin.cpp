@@ -70,7 +70,7 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::endChanged, this, &AnimationPluginC::setEnd );
     connect( m_widget, &AnimationUI::keyPoseAdded, this, &AnimationPluginC::addKeyPose );
     connect( m_widget, &AnimationUI::keyPoseDeleted, this, &AnimationPluginC::removeKeyPose );
-    connect( m_widget, &AnimationUI::keyPoseChanged, this, &AnimationPluginC::setKeyPoseTime );
+    connect( m_widget, &AnimationUI::keyPoseChanged, this, &AnimationPluginC::updateKeyPose );
     connect( m_widget, &AnimationUI::keyPosesChanged, this, &AnimationPluginC::offsetKeyPoses );
 
     return m_widget;
@@ -304,6 +304,12 @@ void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
         m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
             m_widget->ui->comboBox_currentAnimation->count() - 1 );
     }
+}
+
+void AnimationPluginC::updateKeyPose(int id)
+{
+    m_system->updateKeyPose(id);
+
 }
 
 void AnimationPluginC::offsetKeyPoses( double offset ) {

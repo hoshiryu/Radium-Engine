@@ -129,6 +129,9 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// Set the i-th keypose timestamp .
     void setKeyPoseTime( int i, double timestamp );
 
+    /// Update the i-th keypose by the current skeleton render.
+    void updateKeyPose( int id );
+
     /// Add and offset to every key poses of the current animation.
     void offsetKeyPoses( double offset );
 
