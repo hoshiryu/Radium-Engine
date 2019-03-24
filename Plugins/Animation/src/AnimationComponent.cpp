@@ -663,8 +663,7 @@ void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {
     m_animations[m_animationID].setKeyPoseTime( i, static_cast<Scalar>( timestamp ) );
 }
 
-void AnimationComponent::updateKeyPose(int id)
-{
+void AnimationComponent::updateKeyPose( int id ) {
     m_animations[m_animationID].replacePose(id, m_skel.getPose(Handle::SpaceType::LOCAL));
 }
 
@@ -675,8 +674,12 @@ void AnimationComponent::offsetKeyPoses( double offset ) {
         setAnimation( m_animations.size() - 1 );
     }
         m_animations[m_animationID].offsetKeyPoses( static_cast<Scalar>( offset ) );
-    std::get<1>(m_animsPlayzones[m_animationID][m_playzoneID]) += offset;
-    std::get<2>(m_animsPlayzones[m_animationID][m_playzoneID]) += offset;
+    
+    for ( int i = 0; i < m_animsPlayzones[m_animationID].size(); ++i )
+    {
+        std::get<1>( m_animsPlayzones[m_animationID][i] ) += offset;
+        std::get<2>( m_animsPlayzones[m_animationID][i] ) += offset;
+    }
 }
 
 std::vector<std::string> AnimationComponent::playzonesLabels() const {

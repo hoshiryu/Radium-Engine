@@ -119,7 +119,7 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Set the i-th keypose timestamp.
     void setKeyPoseTime( int i, double timestamp );
 
-    /// Update the i-th keypose by the current skeleton render.
+    /// Update the i-th keypose with the current skeleton pose.
     void updateKeyPose( int id );
 
     /// Add and offset to every key poses of the current animation.
