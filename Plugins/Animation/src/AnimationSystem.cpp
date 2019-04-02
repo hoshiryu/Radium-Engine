@@ -319,11 +319,11 @@ void AnimationSystem::updateKeyPose(int id)
     }
 }
 
-/// Add and offset to every key poses of the current animation.
-void AnimationSystem::offsetKeyPoses( double offset ) {
+/// Add and offset to every key poses timestamp after first (included) of the current animation.
+void AnimationSystem::offsetKeyPoses( double offset, int first ) {
     for ( const auto& comp : m_components )
     {
-        static_cast<AnimationComponent*>( comp.second )->offsetKeyPoses( offset );
+        static_cast<AnimationComponent*>( comp.second )->offsetKeyPoses( offset, first );
     }
 }
 

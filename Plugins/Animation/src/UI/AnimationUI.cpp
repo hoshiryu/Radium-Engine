@@ -34,7 +34,8 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( animTimeline, &AnimTimeline::keyPoseAdded, this, &AnimationUI::keyPoseAdded );
     connect( animTimeline, &AnimTimeline::keyPoseDeleted, this, &AnimationUI::keyPoseDeleted );
     connect( animTimeline, &AnimTimeline::keyPoseChanged, this, &AnimationUI::keyPoseChanged );
-    connect( animTimeline, &AnimTimeline::keyPosesChanged, this, &AnimationUI::keyPosesChanged );
+    connect( animTimeline, &AnimTimeline::keyPosesMoved, this, &AnimationUI::keyPosesMoved );
+    connect( animTimeline, &AnimTimeline::keyPoseMoved, this, &AnimationUI::keyPoseMoved );
 
     connect( this, &AnimationUI::changeCursor, animTimeline, &AnimTimeline::onChangeCursor );
     connect( this, &AnimationUI::addKeyPose, animTimeline, &AnimTimeline::onAddingKeyPose );
@@ -239,7 +240,11 @@ void AnimationUI::on_pushButton_newAnimation_clicked() {
 void AnimationUI::on_pushButton_removeAnimation_clicked() {
     const int removeIndex = ui->comboBox_currentAnimation->currentIndex();
 
-    emit removeAnimation( removeIndex );
+    if ( ui->comboBox_currentAnimation->count() > 1 )
+    {
+        ui->comboBox_currentAnimation->removeItem( removeIndex );
+        emit removeAnimation( removeIndex );
+    }
 }
 
 void AnimationUI::on_pushButton_loadRdmaFile_clicked() {

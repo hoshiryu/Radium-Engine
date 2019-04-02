@@ -74,34 +74,12 @@ void Animation::removeKeyPose( size_t i ) {
 void Animation::setKeyPoseTime( size_t i, Scalar timestamp ) {
     CORE_ASSERT( ( i < size() ), "Index greater than animation size" );
     m_keys[i].first = timestamp;
-
-    // Trying to avoid unecessary normalize calls
-    // Assumes that most of the times this function will be called to slightly adjust a timestamp
-    const auto size = m_keys.size();
-    if ( i > 0 && i < size - 1 )
-    {
-        if ( m_keys[i - 1].first > timestamp || m_keys[i + 1].first < timestamp )
-        {
-            normalize();
-        }
-    } else if ( i == size - 1 && size > 1 )
-    {
-        if ( timestamp < m_keys[i - 1].first )
-        {
-            normalize();
-        }
-    } else if ( size > 1 )
-    {
-        if ( timestamp > m_keys[1].first )
-        {
-            normalize();
-        }
-    }
+    normalize();
 }
    
-void Animation::offsetKeyPoses( Scalar offset ) {
-    for(auto& pose: m_keys) {
-        pose.first += offset;
+void Animation::offsetKeyPoses( Scalar offset, int first ) {
+    for(int i = first; i < m_keys.size(); ++i) {
+        m_keys[i].first += offset;
     }
 }
 

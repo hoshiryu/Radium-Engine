@@ -122,8 +122,8 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Update the i-th keypose with the current skeleton pose.
     void updateKeyPose( int id );
 
-    /// Add and offset to every key poses of the current animation.
-    void offsetKeyPoses( double offset );
+    /// Add and offset to every key poses timestamp after first (included) of the current animation.
+    void offsetKeyPoses( double offset, int first );
 
     /// Returns current animation playzones' labels.
     std::vector<std::string> playzonesLabels() const;

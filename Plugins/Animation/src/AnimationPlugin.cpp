@@ -71,7 +71,8 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::keyPoseAdded, this, &AnimationPluginC::addKeyPose );
     connect( m_widget, &AnimationUI::keyPoseDeleted, this, &AnimationPluginC::removeKeyPose );
     connect( m_widget, &AnimationUI::keyPoseChanged, this, &AnimationPluginC::updateKeyPose );
-    connect( m_widget, &AnimationUI::keyPosesChanged, this, &AnimationPluginC::offsetKeyPoses );
+    connect( m_widget, &AnimationUI::keyPosesMoved, this, &AnimationPluginC::offsetKeyPoses );
+    connect( m_widget, &AnimationUI::keyPoseMoved, this, &AnimationPluginC::setKeyPoseTime );
 
     return m_widget;
 }
@@ -237,6 +238,7 @@ void AnimationPluginC::removePlayzone( int i ) {
 }
 
 void AnimationPluginC::newAnimation() {
+    emit m_widget->pause();
     m_system->newAnimation();
     m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
         m_widget->ui->comboBox_currentAnimation->count() - 1 );
@@ -245,9 +247,8 @@ void AnimationPluginC::newAnimation() {
 void AnimationPluginC::removeAnimation( int i ) {
     if ( i >= m_system->nonEditableCount() )
     {
-        m_widget->removeAnimItem( i );
-    m_system->removeAnimation( i );
-}
+        m_system->removeAnimation( i );
+    }
 }
 
 void AnimationPluginC::loadRDMA( std::string filename ) {
@@ -295,7 +296,7 @@ void AnimationPluginC::removeKeyPose( int i ) {
     }
 }
 
-void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
+void AnimationPluginC::setKeyPoseTime( double timestamp, int i ) {
     m_system->setKeyPoseTime( i, timestamp );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
@@ -310,10 +311,16 @@ void AnimationPluginC::updateKeyPose(int id)
 {
     m_system->updateKeyPose(id);
 
+    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    {
+        setupUI();
+        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
+            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+    }
 }
 
-void AnimationPluginC::offsetKeyPoses( double offset ) {
-    m_system->offsetKeyPoses(static_cast<Scalar>(offset));
+void AnimationPluginC::offsetKeyPoses( double offset, int first ) {
+    m_system->offsetKeyPoses( static_cast<Scalar>( offset ), first );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {

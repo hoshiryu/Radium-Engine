@@ -44,7 +44,7 @@ class RA_CORE_API Animation
     void setKeyPoseTime( size_t i, Scalar timestamp );
 
     // Offset keyposes
-    void offsetKeyPoses( Scalar offset );
+    void offsetKeyPoses( Scalar offset, int first );
 
     // Replace the i-th key pose pose with pose.
     void replacePose( size_t i, const Pose& pose );

@@ -106,11 +106,11 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Remove the i-th playzone for the current animation.
     void removePlayzone( int i );
 
-    /// Creates a new animation.
+    /// Creates a new animation with a default playzone.
     void newAnimation();
 
     /// Creates a new animation from the current one.
-    void copyAnimation();
+    void copyCurrentAnimation();
 
     /// Remove the i-th animation (and therefore its playzones).
     void removeAnimation( int i );
@@ -155,8 +155,8 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Update the i-th keypose by the current skeleton render.
     void updateKeyPose( int id );
 
-    /// Add and offset to every key poses and playzones of the current animation.
-    void offsetKeyPoses( double offset );
+    /// Add and offset to every key poses and playzones timestamp after first (included) of the current animation.
+    void offsetKeyPoses( double offset, int first );
 
     /// Returns the playzones labels.
     std::vector<std::string> playzonesLabels() const;
