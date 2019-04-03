@@ -190,9 +190,8 @@ void AnimationPluginC::updateAnimTime() {
         {
             m_system->setCurrentAnimationTime( start );
         }
+        emit m_widget->changeCursor( animationTime );
     }
-
-    emit m_widget->changeCursor( animationTime );
 }
 
 void AnimationPluginC::cacheFrame() {
