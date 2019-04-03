@@ -296,7 +296,7 @@ void AnimationPluginC::removeKeyPose( int i ) {
     }
 }
 
-void AnimationPluginC::setKeyPoseTime( double timestamp, int i ) {
+void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
     m_system->setKeyPoseTime( i, timestamp );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
@@ -305,11 +305,11 @@ void AnimationPluginC::setKeyPoseTime( double timestamp, int i ) {
         m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
             m_widget->ui->comboBox_currentAnimation->count() - 1 );
     }
+    m_system->setCurrentAnimationTime( timestamp );
 }
 
-void AnimationPluginC::updateKeyPose(int id)
-{
-    m_system->updateKeyPose(id);
+void AnimationPluginC::updateKeyPose( int id ) {
+    m_system->updateKeyPose( id );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {

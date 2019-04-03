@@ -198,7 +198,7 @@ void AnimationComponent::handleAnimationLoading(
 
         m_dt.push_back( data[n]->getTimeStep() );
     }
-    setAnimation(0);
+    setAnimation( 0 );
     m_firstEditableID = data.empty() ? 0 : m_animations.size();
     m_animsPlayzones.resize( m_firstEditableID );
 }
@@ -278,7 +278,7 @@ void AnimationComponent::setAnimation( const uint i ) {
         {
             m_animsPlayzones.emplace_back();
         }
-        setPlayzone(0);
+        setPlayzone( 0 );
     }
 }
 
@@ -555,7 +555,7 @@ void AnimationComponent::newAnimation() {
     m_animationID = m_animations.size();
     m_animations.emplace_back();
     m_animsPlayzones.emplace_back();
-    newPlayzone("Default playzone");
+    newPlayzone( "Default playzone" );
     m_dt.emplace_back( 1. / 60 );
 }
 
@@ -581,9 +581,9 @@ void AnimationComponent::removeAnimation( int i ) {
 }
 
 void AnimationComponent::setCurrentPose() {
-    if ( m_animations[m_animationID].size() >= 2 )
+    if ( m_animations[m_animationID].size() >= 1 )
     {
-        if ( m_animationTime < m_animations[m_animationID].keyPose( 0 ).first )
+        if ( m_animationTime <= m_animations[m_animationID].keyPose( 0 ).first )
         {
             m_skel.setPose( m_animations[m_animationID].keyPose( 0 ).second,
                             Handle::SpaceType::LOCAL );
@@ -649,7 +649,7 @@ void AnimationComponent::removeKeyPose( int i ) {
         setAnimation( m_animations.size() - 1 );
     }
         m_animations[m_animationID].removeKeyPose(i);
-    setCurrentAnimationTime( m_animationTime ); // setCurrentPose
+    setCurrentPose();
     }
 
 void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {

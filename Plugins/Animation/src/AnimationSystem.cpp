@@ -281,50 +281,32 @@ void AnimationSystem::saveRDMA( const std::string& filename ) {
 
 /// Updates the current pose.
 void AnimationSystem::setCurrentAnimationTime( double timestamp ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->setCurrentAnimationTime( timestamp );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )
+        ->setCurrentAnimationTime( timestamp );
 }
 
 /// Add a keypose to the current animation at timestamp.
 void AnimationSystem::addKeyPose( double timestamp ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->addKeyPose( timestamp );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->addKeyPose( timestamp );
 }
 
 /// Remove the i-th keypose
 void AnimationSystem::removeKeyPose( int i ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->removeKeyPose( i );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->removeKeyPose( i );
 }
 
 /// Set the i-th keypose timestamp.
 void AnimationSystem::setKeyPoseTime( int i, double timestamp ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->setKeyPoseTime( i, timestamp );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->setKeyPoseTime( i, timestamp );
 }
 
-void AnimationSystem::updateKeyPose(int id)
-{
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->updateKeyPose(id);
-    }
+void AnimationSystem::updateKeyPose( int id ) {
+    static_cast<AnimationComponent*>( m_components.back().second )->updateKeyPose( id );
 }
 
 /// Add and offset to every key poses timestamp after first (included) of the current animation.
 void AnimationSystem::offsetKeyPoses( double offset, int first ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->offsetKeyPoses( offset, first );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->offsetKeyPoses( offset, first );
 }
 
 /// Getter for the playzones labels.

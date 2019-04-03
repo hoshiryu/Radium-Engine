@@ -127,7 +127,7 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     void removeKeyPose( int i );
 
     /// Set the i-th keypose timestamp .
-    void setKeyPoseTime( double timestamp, int i );
+    void setKeyPoseTime( int i, double timestamp );
 
     /// Update the i-th keypose by the current skeleton render.
     void updateKeyPose( int id );

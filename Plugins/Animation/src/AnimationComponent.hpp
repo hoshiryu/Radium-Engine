@@ -155,7 +155,8 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Update the i-th keypose by the current skeleton render.
     void updateKeyPose( int id );
 
-    /// Add and offset to every key poses and playzones timestamp after first (included) of the current animation.
+    /// Add and offset to every key poses and playzones timestamp after first (included) of the
+    /// current animation.
     void offsetKeyPoses( double offset, int first );
 
     /// Returns the playzones labels.
