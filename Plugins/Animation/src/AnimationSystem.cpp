@@ -215,58 +215,37 @@ bool AnimationSystem::restoreFrame( const std::string& dir, uint frameId ) {
 
 /// Sets playzone to i.
 void AnimationSystem::setPlayzone( int i ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->setPlayzone( i );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->setPlayzone( i );
 }
 
-/// Sets the current playzone start
+/// Sets the current playzone start.
 void AnimationSystem::setStart( double timestamp ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->setStart( timestamp );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->setStart( timestamp );
 }
 
-/// Sets the current playzone end
+/// Sets the current playzone end.
 void AnimationSystem::setEnd( double timestamp ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->setEnd( timestamp );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->setEnd( timestamp );
 }
 
 /// Creates a new playzone for the current animation.
 void AnimationSystem::newPlayzone( const std::string& name ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->newPlayzone( name );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->newPlayzone( name );
 }
 
 /// Remove the i-th playzone for the current animation.
 void AnimationSystem::removePlayzone( int i ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->removePlayzone( i );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->removePlayzone( i );
 }
 
 /// Creates a new animation.
 void AnimationSystem::newAnimation() {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->newAnimation();
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->newAnimation();
 }
 
 /// Remove the i-th animation (and therefore its playzones).
 void AnimationSystem::removeAnimation( int i ) {
-    for ( const auto& comp : m_components )
-    {
-        static_cast<AnimationComponent*>( comp.second )->removeAnimation( i );
-    }
+    static_cast<AnimationComponent*>( m_components.back().second )->removeAnimation( i );
 }
 
 /// Load and .rdma file.

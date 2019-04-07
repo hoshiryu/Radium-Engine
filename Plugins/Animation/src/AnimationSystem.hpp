@@ -80,73 +80,73 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// @returns the system frame.
     uint getMaxFrame() const;
 
-    /// Sets playzone to i.
+    /// Sets playzone to i. ONLY APPLY TO LAST COMPONENT.
     void setPlayzone( int i );
 
-    /// Creates a new playzone for the current animation.
+    /// Creates a new playzone for the current animation. ONLY APPLY TO LAST COMPONENT.
     void newPlayzone( const std::string& name );
 
-    /// Remove the i-th playzone for the current animation.
+    /// Remove the i-th playzone for the current animation. ONLY APPLY TO LAST COMPONENT.
     void removePlayzone( int i );
 
-    /// Creates a new animation.
+    /// Creates a new animation. ONLY APPLY TO LAST COMPONENT.
     void newAnimation();
 
-    /// Remove the i-th animation (and therefore its playzones).
+    /// Remove the i-th animation (and therefore its playzones). ONLY APPLY TO LAST COMPONENT.
     void removeAnimation( int i );
 
-    /// Load and .rdma file.
+    /// Load and .rdma file. ONLY APPLY TO LAST COMPONENT.
     void loadRDMA( const std::string& filename );
 
-    /// Save all the animation that were not loaded with the model file.
+    /// Save all the animation that were not loaded with the model file. ONLY APPLY TO LAST COMPONENT.
     void saveRDMA( const std::string& filename );
 
-    /// Updates the current pose.
+    /// Updates the current pose. ONLY APPLY TO LAST COMPONENT.
     void setCurrentAnimationTime( double timestamp );
 
-    /// Sets the current playzone start
+    /// Sets the current playzone start. ONLY APPLY TO LAST COMPONENT.
     void setStart( double timestamp );
 
-    /// Sets the current playzone end
+    /// Sets the current playzone end. ONLY APPLY TO LAST COMPONENT.
     void setEnd( double timestamp );
 
-    /// Add a keypose to the current animation at timestamp.
+    /// Add a keypose to the current animation at timestamp. ONLY APPLY TO LAST COMPONENT.
     void addKeyPose( double timestamp );
 
-    /// Remove the i-th keypose.
+    /// Remove the i-th keypose. ONLY APPLY TO LAST COMPONENT.
     void removeKeyPose( int i );
 
-    /// Set the i-th keypose timestamp.
+    /// Set the i-th keypose timestamp. ONLY APPLY TO LAST COMPONENT.
     void setKeyPoseTime( int i, double timestamp );
 
-    /// Update the i-th keypose with the current skeleton pose.
+    /// Update the i-th keypose with the current skeleton pose. ONLY APPLY TO LAST COMPONENT.
     void updateKeyPose( int id );
 
-    /// Add and offset to every key poses timestamp after first (included) of the current animation.
+    /// Add and offset to every key poses timestamp after first (included) of the current animation. ONLY APPLY TO LAST COMPONENT.
     void offsetKeyPoses( double offset, int first );
 
-    /// Returns current animation playzones' labels.
+    /// Returns current animation playzones' labels. ONLY APPLY TO LAST COMPONENT.
     std::vector<std::string> playzonesLabels() const;
 
-    /// Returns the animation count.
+    /// Returns the animation count. ONLY APPLY TO LAST COMPONENT.
     int animationCount() const;
 
-    /// Returns the number of non editable animation.
+    /// Returns the number of non editable animation. ONLY APPLY TO LAST COMPONENT.
     int nonEditableCount() const;
 
-    /// Returns the current animation time.
+    /// Returns the current animation time. ONLY APPLY TO LAST COMPONENT.
     double animationTime() const;
 
-    /// Returns a vector of the keyposes timestamps.
+    /// Returns a vector of the keyposes timestamps. ONLY APPLY TO LAST COMPONENT.
     std::vector<double> keyposesTimes() const;
 
-    /// Returns the start of the current playzone.
+    /// Returns the start of the current playzone. ONLY APPLY TO LAST COMPONENT.
     double getStart() const;
 
-    /// Returns the end of the current playzone.
+    /// Returns the end of the current playzone. ONLY APPLY TO LAST COMPONENT.
     double getEnd() const;
 
-    /// Returns m_isPlaying.
+    /// Returns m_isPlaying. ONLY APPLY TO LAST COMPONENT.
     bool isPlaying() const;
 
   private:
