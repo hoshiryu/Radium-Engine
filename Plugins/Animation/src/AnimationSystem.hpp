@@ -80,73 +80,73 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// @returns the system frame.
     uint getMaxFrame() const;
 
-    /// Sets playzone to i. ONLY APPLY TO LAST COMPONENT.
+    /// Sets playzone to i. Only apply to the last component.
     void setPlayzone( int i );
 
-    /// Creates a new playzone for the current animation. ONLY APPLY TO LAST COMPONENT.
+    /// Creates a new playzone for the current animation. Only apply to the last component.
     void newPlayzone( const std::string& name );
 
-    /// Remove the i-th playzone for the current animation. ONLY APPLY TO LAST COMPONENT.
+    /// Remove the i-th playzone for the current animation. Only apply to the last component.
     void removePlayzone( int i );
 
-    /// Creates a new animation. ONLY APPLY TO LAST COMPONENT.
+    /// Creates a new animation. Only apply to the last component.
     void newAnimation();
 
-    /// Remove the i-th animation (and therefore its playzones). ONLY APPLY TO LAST COMPONENT.
+    /// Remove the i-th animation (and therefore its playzones). Only apply to the last component.
     void removeAnimation( int i );
 
-    /// Load and .rdma file. ONLY APPLY TO LAST COMPONENT.
+    /// Load and .rdma file. Only apply to the last component.
     void loadRDMA( const std::string& filename );
 
-    /// Save all the animation that were not loaded with the model file. ONLY APPLY TO LAST COMPONENT.
+    /// Save all the animation that were not loaded with the model file. Only apply to the last component.
     void saveRDMA( const std::string& filename );
 
-    /// Updates the current pose. ONLY APPLY TO LAST COMPONENT.
+    /// Updates the current pose. Only apply to the last component.
     void setCurrentAnimationTime( double timestamp );
 
-    /// Sets the current playzone start. ONLY APPLY TO LAST COMPONENT.
+    /// Sets the current playzone start. Only apply to the last component.
     void setStart( double timestamp );
 
-    /// Sets the current playzone end. ONLY APPLY TO LAST COMPONENT.
+    /// Sets the current playzone end. Only apply to the last component.
     void setEnd( double timestamp );
 
-    /// Add a keypose to the current animation at timestamp. ONLY APPLY TO LAST COMPONENT.
+    /// Add a keypose to the current animation at timestamp. Only apply to the last component.
     void addKeyPose( double timestamp );
 
-    /// Remove the i-th keypose. ONLY APPLY TO LAST COMPONENT.
+    /// Remove the i-th keypose. Only apply to the last component.
     void removeKeyPose( int i );
 
-    /// Set the i-th keypose timestamp. ONLY APPLY TO LAST COMPONENT.
+    /// Set the i-th keypose timestamp. Only apply to the last component.
     void setKeyPoseTime( int i, double timestamp );
 
-    /// Update the i-th keypose with the current skeleton pose. ONLY APPLY TO LAST COMPONENT.
+    /// Update the i-th keypose with the current skeleton pose. Only apply to the last component.
     void updateKeyPose( int id );
 
-    /// Add and offset to every key poses timestamp after first (included) of the current animation. ONLY APPLY TO LAST COMPONENT.
+    /// Add and offset to every key poses timestamp after first (included) of the current animation. Only apply to the last component.
     void offsetKeyPoses( double offset, int first );
 
-    /// Returns current animation playzones' labels. ONLY APPLY TO LAST COMPONENT.
+    /// Returns current animation playzones' labels. Only apply to the last component.
     std::vector<std::string> playzonesLabels() const;
 
-    /// Returns the animation count. ONLY APPLY TO LAST COMPONENT.
+    /// Returns the animation count. Only apply to the last component.
     int animationCount() const;
 
-    /// Returns the number of non editable animation. ONLY APPLY TO LAST COMPONENT.
+    /// Returns the number of non editable animation. Only apply to the last component.
     int nonEditableCount() const;
 
-    /// Returns the current animation time. ONLY APPLY TO LAST COMPONENT.
+    /// Returns the current animation time. Only apply to the last component.
     double animationTime() const;
 
-    /// Returns a vector of the keyposes timestamps. ONLY APPLY TO LAST COMPONENT.
+    /// Returns a vector of the keyposes timestamps. Only apply to the last component.
     std::vector<double> keyposesTimes() const;
 
-    /// Returns the start of the current playzone. ONLY APPLY TO LAST COMPONENT.
+    /// Returns the start of the current playzone. Only apply to the last component.
     double getStart() const;
 
-    /// Returns the end of the current playzone. ONLY APPLY TO LAST COMPONENT.
+    /// Returns the end of the current playzone. Only apply to the last component.
     double getEnd() const;
 
-    /// Returns m_isPlaying. ONLY APPLY TO LAST COMPONENT.
+    /// Returns m_isPlaying. Only apply to the last component.
     bool isPlaying() const;
 
   private:

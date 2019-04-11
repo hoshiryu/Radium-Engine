@@ -37,23 +37,32 @@ class RA_CORE_API Animation
     // Get the animation last time.
     Scalar getDuration() const;
 
-    // Removes the i-th key pose from m_keys.
-    void removeKeyPose( size_t i );
+    /// \brief Remove the i-th key pose from m_keys.
+    /// \param i: the index of the key pose to remove.
+    void removeKeyPose( int i );
 
-    // Sets the i-th key pose time to timestamp.
-    void setKeyPoseTime( size_t i, Scalar timestamp );
+    /// \brief Set the i-th key pose time to timestamp.
+    /// \param i: the index of the key pose to remove.
+    /// \param timestamp: the timestamp to set the key pose at.
+    void setKeyPoseTime( int i, Scalar timestamp );
 
-    // Offset keyposes
+    /// \brief Move the keyposes after first (included).
+    /// \param offset: the offset to add to the key poses.
+    /// \param first: the index of the first key pose to move.
     void offsetKeyPoses( Scalar offset, int first );
 
-    // Replace the i-th key pose pose with pose.
-    void replacePose( size_t i, const Pose& pose );
+    /// \brief Replace the i-th key pose pose with pose.
+    /// \param i: the index of the pose to replace.
+    /// \param pose: the pose to replace the current one.
+    void replacePose( int i, const Pose& pose );
 
-    // Return the size of m_keys.
-    std::size_t size() const;
+    /// \brief Getter for the size of m_keys.
+    /// \return the size of m_keys.
+    int size() const;
 
-    // Return the i-th key pose.
-    const MyKeyPose& keyPose( std::size_t i ) const;
+    /// \brief Getter for the i-th key pose.
+    /// return the i-th key pose.
+    const MyKeyPose& keyPose( int i ) const;
 
 
   private:

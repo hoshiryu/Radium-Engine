@@ -25,12 +25,20 @@ class AnimationUI : public QFrame {
     explicit AnimationUI( QWidget* parent = 0 );
     ~AnimationUI();
 
+    /// Set the animation combo box with count elements and add a prefix to the nonEditableCount
+    /// firsts.
     void setAnimationComboBox( int count, int nonEditableCount );
+    /// Set the playzone combo box with the labels provided.
     void setPlayzoneComboBox( const std::vector<std::string> labels );
+    /// Add marks on the timeline at the given timestamps.
     void setKeyPoses( std::vector<double> timestamps );
+    /// Set the main button to the play button.
     void switchToPlayButton();
+    /// Set the main button to the pause button.
     void switchToPauseButton();
+    /// Remove an item from the animation combo box.
     void removeAnimItem( int index );
+    /// Show the timeline.
     void showTimeline();
 
   protected:
@@ -52,30 +60,86 @@ class AnimationUI : public QFrame {
     void restoreFrame( int );
     void changeDataDir();
 
-    void playZoneID( int );
+    /// \brief Emitted by the UI for the plugin when selecting a playzone.
+    /// \param the ID of the playzone selected.
+    void playzoneID( int );
+    /// \brief Emitted by the UI for the plugin when creating a playzone.
+    /// \param the label of the playzone.
     void newPlayzone( const std::string& );
+    /// \brief Emitted by the UI for the plugin when deleting a playzone.
+    /// \param the ID of the playzone removed.
     void removePlayzone( int );
+    /// \brief Emitted by the UI for the plugin when creating an animation.
     void newAnimation();
+    /// \brief Emitted by the UI for the plugin when selecting a playzone.
+    /// \param the ID of the playzone selected.
     void removeAnimation( int );
+    /// \brief Emitted by the UI for the plugin when loading an RDMA file.
+    /// \param filename: the name of the file to load from.
     void loadRDMA( const std::string& filename );
+    /// \brief Emitted by the UI for the plugin when saving to an RDMA file.
+    /// \param filename: the name of the file to write in.
     void saveRDMA( const std::string& filename );
 
-    /// Timeline signals
-    void durationChanged( double );
+    //// Timeline signals ////
+
+    /// \brief Forwarded from the timeline when the cursor is moved.
+    /// \param the timestamp of the cursor.
     void cursorChanged( double );
+
+    /// \brief Forwarded from the timeline when the start of the playzone is moved.
+    /// \param the timestamp of the playzone start.
     void startChanged( double );
+
+    /// \brief Forwarded from the timeline when the end of the playzone is moved.
+    /// \param the timestamp of the playzone end.
     void endChanged( double );
+
+    /// \brief Forwarded from the timeline when a key pose is added.
+    /// \param the index of the pose to delete.
     void keyPoseAdded( double );
+
+    /// \brief Forwarded from the timeline when a key pose is deleted.
+    /// \param the index of the pose to delete.
     void keyPoseDeleted( int );
+
+    /// \brief Forwarded from the timeline when a key pose is replaced.
+    /// \param the index of the pose to replace.
     void keyPoseChanged( int );
-    void keyPosesMoved( double, int );
+
+    /// \brief Forwarded from the timeline when an offset should be added to every pose after the index
+    /// specified (included).
+    /// \param offset: the offset to add to the poses.
+    /// \param index: the index of the first pose to offset.
+    void keyPosesMoved( double offset, int index );
+
+    /// \brief Forwarded from the timeline when an offset should be added to a pose.
+    /// \param the index of the pose to move.
+    /// \param the new timestamp of the pose.
     void keyPoseMoved( int, double );
 
+
+    /// \brief Forwarded from the plugin when the animation time change when playing.
+    /// \param the timestamp where to put the cursor.
     void changeCursor( double );
+
+    /// \brief Forwarded from the plugin when loading new poses.
+    /// \param the timestamp where to add the pose.
     void addKeyPose( double );
+
+    /// \brief Forwarded from the plugin when a new animation or playzone is selected.
     void clearKeyPoses();
+
+    /// \brief Forwarded from the plugin when loading new poses.
+    /// \param the timestamp where to add the pose.
     void changeStart( double );
+
+    /// \brief Forwarded from the plugin when selecting a playzone.
+    /// \param the timestamp where to set the end.
     void changeEnd( double );
+
+    /// \brief Forwarded from the plugin when selecting a playzone.
+    /// \param the duration to show on the timeline.
     void changeDuration( double );
 
   private slots:

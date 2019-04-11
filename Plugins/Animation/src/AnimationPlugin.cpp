@@ -55,7 +55,7 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::restoreFrame, this, &AnimationPluginC::restoreFrame );
     connect( m_widget, &AnimationUI::changeDataDir, this, &AnimationPluginC::changeDataDir );
 
-    connect( m_widget, &AnimationUI::playZoneID, this, &AnimationPluginC::setPlayzone );
+    connect( m_widget, &AnimationUI::playzoneID, this, &AnimationPluginC::setPlayzone );
     connect( m_widget, &AnimationUI::newPlayzone, this, &AnimationPluginC::newPlayzone );
     connect( m_widget, &AnimationUI::removePlayzone, this, &AnimationPluginC::removePlayzone );
     connect( m_widget, &AnimationUI::newAnimation, this, &AnimationPluginC::newAnimation );

@@ -544,6 +544,11 @@ void AnimationComponent::newPlayzone( const std::string& name) {
 
 void AnimationComponent::removePlayzone( int i ) {
     auto& playzone = m_animsPlayzones[m_animationID];
+    if ( playzone.size() <= i )
+    {
+        return;
+    }
+
     playzone.erase( playzone.begin() + i );
     if ( i <= m_playzoneID )
     {

@@ -66,12 +66,12 @@ Pose Animation::getPose( Scalar timestamp ) const {
     return m_keys.back().second;
 }
 
-void Animation::removeKeyPose( size_t i ) {
+void Animation::removeKeyPose( int i ) {
     CORE_ASSERT( ( i < size() ), "Index greater than animation size" );
     m_keys.erase( m_keys.begin() + i );
 }
 
-void Animation::setKeyPoseTime( size_t i, Scalar timestamp ) {
+void Animation::setKeyPoseTime( int i, Scalar timestamp ) {
     CORE_ASSERT( ( i < size() ), "Index greater than animation size" );
     m_keys[i].first = timestamp;
     normalize();
@@ -83,16 +83,16 @@ void Animation::offsetKeyPoses( Scalar offset, int first ) {
     }
 }
 
-void Animation::replacePose( size_t i, const Pose& pose ) {
+void Animation::replacePose( int i, const Pose& pose ) {
     CORE_ASSERT( ( m_keys[i].second.size() == pose.size() ), "Invalid pose size" );
     m_keys[i].second = pose;
 }
 
-std::size_t Animation::size() const {
+int Animation::size() const {
     return m_keys.size();
 }
 
-const Animation::MyKeyPose& Animation::keyPose( size_t i ) const {
+const Animation::MyKeyPose& Animation::keyPose( int i ) const {
     CORE_ASSERT( ( i < size() ), "Index greater than animation size" );
     return m_keys[i];
 }

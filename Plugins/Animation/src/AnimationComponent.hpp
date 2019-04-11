@@ -84,10 +84,10 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Set the playzone to use.
     void setPlayzone( const uint i );
 
-    /// @returns the current time of animation.
+    /// @returns the current animation time.
     Scalar getTime() const;
 
-    /// @returns the duration of the current animation.
+    /// @returns the duration of the current animation (which is the last key pose timestamp).
     Scalar getDuration() const;
 
     /// @returns the duration of the current animation.
@@ -100,7 +100,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Toggle skeleton bones display.
     void toggleSkeleton( const bool status );
 
-    /// Creates a new playzone for the current animation.
+    /// Creates a new playzone for the current animation with the given name.
     void newPlayzone( const std::string& name );
 
     /// Remove the i-th playzone for the current animation.
@@ -115,11 +115,10 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Remove the i-th animation (and therefore its playzones).
     void removeAnimation( int i );
 
-    /// Loads the animations contained in the file at filepath
-    /// Only loads animations and each animation d_t and playzones
+    /// Loads the animations and playzones in the file at filepath
     void loadRDMA( const std::string& filepath );
 
-    /// Save the created animations with their d_t and playzones
+    /// Save the created animations and every playzone at filepath.
     void saveRDMA( const std::string& filepath );
 
     /// Sets current pose: should not be used when playing.
@@ -155,7 +154,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Update the i-th keypose by the current skeleton render.
     void updateKeyPose( int id );
 
-    /// Add and offset to every key poses and playzones timestamp after first (included) of the
+    /// Add an offset to every key poses and playzones timestamp after first (included) of the
     /// current animation.
     void offsetKeyPoses( double offset, int first );
 

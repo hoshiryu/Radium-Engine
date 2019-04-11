@@ -42,6 +42,7 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     bool doAddAction( int& nb ) override;
     QAction* getAction( int id ) override;
 
+    /// \brief Enable the animation and the playzone groupboxex and set the combo boxes.
     void setupUI();
 
   public slots:
@@ -93,46 +94,61 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// Request changing the data file directory.
     void changeDataDir();
 
-    /// Creates a new playzone for the current animation.
+    /// \brief Creates a new playzone for the current animation.
+    /// \param name: the name of the playzone.
     void newPlayzone( const std::string& name );
 
-    /// Remove the i-th playzone for the current animation.
+    /// \brief Remove the i-th playzone for the current animation.
+    /// \param i: the index of the playzone to remove.
     void removePlayzone( int i );
 
-    /// Creates a new animation.
+    /// \brief Creates a new animation.
     void newAnimation();
 
-    /// Remove the i-th animation (and therefore its playzones).
+    /// \brief Remove the i-th animation (and therefore its playzones).
+    /// \param i: the index of the animation to remove.
     void removeAnimation( int i );
 
-    /// Load and .rdma file.
+    /// \brief Load an RDMA file.
+    /// \param filename: the name of the file to load from.
     void loadRDMA( std::string filename );
 
-    /// Save all the animation that were not loaded with the model file.
+    /// \brief Save all the animation that were not loaded with the model file.
+    /// \param filename: the name of the file to write in.
     void saveRDMA( std::string filename );
 
-    /// Updates the current pose.
-    void setCurrentAnimationTime( double timestamp );
+    /// \brief Updates the current pose.
+    /// \param time: the time to set the animation time.
+    void setCurrentAnimationTime( double time );
 
-    /// Sets the current playzone start
+    /// \brief Sets the current playzone start.
+    /// \param timestamp: the timestamp to set the start of the playzone.
     void setStart( double timestamp );
 
-    /// Sets the current playzone end
+    /// \brief Sets the current playzone end.
+    /// \param timestamp: the timestamp to set the end of the playzone.
     void setEnd( double timestamp );
 
-    /// Add a keypose to the current animation at timestamp.
+    /// \brief Add a keypose to the current animation at timestamp.
+    /// \param timestamp: the timestamp where to add the key pose.
     void addKeyPose( double timestamp );
 
-    /// Remove the i-th keypose.
+    /// \brief Remove the i-th key pose.
+    /// \param i: the index of the key pose to remove.
     void removeKeyPose( int i );
 
-    /// Set the i-th keypose timestamp .
+    /// \brief Set the i-th keypose timestamp.
+    /// \param i: the index of the key pose to change.
+    /// \param timestamp: the timestamp the keypose should be set at.
     void setKeyPoseTime( int i, double timestamp );
 
-    /// Update the i-th keypose by the current skeleton render.
-    void updateKeyPose( int id );
+    /// \brief Update the i-th key pose with the current pose.
+    /// \param id: the index of the pose to replace.
+    void updateKeyPose( int i );
 
-    /// Add an offset to every key poses timestamp after first (included) of the current animation.
+    /// \brief Add an offset to every key pose timestamp after first (included) in the current animation.
+    /// \param offset: the offset to add to the key poses.
+    /// \param first: the index of the first pose to move.
     void offsetKeyPoses( double offset, int first );
 
   private:

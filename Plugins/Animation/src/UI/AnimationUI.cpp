@@ -27,7 +27,6 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
 
     connect( animTimeline, &AnimTimeline::playClicked, this, &AnimationUI::play );
     connect( animTimeline, &AnimTimeline::pauseClicked, this, &AnimationUI::pause );
-    connect( animTimeline, &AnimTimeline::durationChanged, this, &AnimationUI::durationChanged );
     connect( animTimeline, &AnimTimeline::cursorChanged, this, &AnimationUI::cursorChanged );
     connect( animTimeline, &AnimTimeline::startChanged, this, &AnimationUI::startChanged );
     connect( animTimeline, &AnimTimeline::endChanged, this, &AnimationUI::endChanged );
@@ -124,10 +123,6 @@ void AnimationUI::switchToPlayButton() {
     ui->m_play->update();
 }
 
-void AnimationUI::removeAnimItem( int index ) {
-    ui->comboBox_currentAnimation->removeItem( index );
-}
-
 void AnimationUI::on_m_play_clicked() {
     if ( ui->m_play->isChecked() )
     {
@@ -203,7 +198,7 @@ void AnimationUI::updateFrame( int f ) {
 }
 
 void AnimationUI::on_comboBox_currentPlayZone_currentIndexChanged( int index ) {
-    emit playZoneID( index );
+    emit playzoneID( index );
 }
 
 void AnimationUI::on_pushButton_newPlayZone_clicked() {
