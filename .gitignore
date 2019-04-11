@@ -96,5 +96,3 @@ build*/
 
 #Auto-generated plugins registration file
 src/Core/Utils/Version.cpp
-
-Plugins/Animation/src/AnimTimeline
