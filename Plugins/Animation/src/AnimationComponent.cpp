@@ -159,8 +159,14 @@ void AnimationComponent::handleSkeletonLoading( const Ra::Core::Asset::HandleDat
 void AnimationComponent::handleAnimationLoading(
     const std::vector<Ra::Core::Asset::AnimationData*>& data ) {
     m_animations.clear();
+    m_animsPlayzones.clear();
     CORE_ASSERT( ( m_skel.size() != 0 ), "At least a skeleton should be loaded first." );
-    if ( data.empty() ) newAnimation();
+    if ( data.empty() )
+    {
+        newAnimation();
+        m_firstEditableID = 0;
+        setAnimation( 0 );
+    }
 
     for ( uint n = 0; n < data.size(); ++n )
     {
@@ -201,7 +207,7 @@ void AnimationComponent::handleAnimationLoading(
         m_dt.push_back( data[n]->getTimeStep() );
     }
     setAnimation( 0 );
-    m_firstEditableID = data.empty() ? 0 : m_animations.size();
+    m_firstEditableID = m_animations.size();
     m_animsPlayzones.resize( m_firstEditableID );
 }
 
