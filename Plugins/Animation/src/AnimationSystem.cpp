@@ -215,77 +215,94 @@ bool AnimationSystem::restoreFrame( const std::string& dir, uint frameId ) {
 
 /// Sets playzone to i.
 void AnimationSystem::setPlayzone( int i ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->setPlayzone( i );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->setPlayzone( i );
 }
 
 /// Sets the current playzone start.
 void AnimationSystem::setStart( double timestamp ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->setStart( timestamp );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->setStart( timestamp );
 }
 
 /// Sets the current playzone end.
 void AnimationSystem::setEnd( double timestamp ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->setEnd( timestamp );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->setEnd( timestamp );
 }
 
 /// Creates a new playzone for the current animation.
 void AnimationSystem::newPlayzone( const std::string& name ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->newPlayzone( name );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->newPlayzone( name );
 }
 
 /// Remove the i-th playzone for the current animation.
 void AnimationSystem::removePlayzone( int i ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->removePlayzone( i );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->removePlayzone( i );
 }
 
 /// Creates a new animation.
 void AnimationSystem::newAnimation() {
-    static_cast<AnimationComponent*>( m_components.back().second )->newAnimation();
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->newAnimation();
 }
 
 /// Remove the i-th animation (and therefore its playzones).
 void AnimationSystem::removeAnimation( int i ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->removeAnimation( i );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->removeAnimation( i );
 }
 
 /// Load and .rdma file.
 void AnimationSystem::loadRDMA( const std::string& filename ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->loadRDMA( filename );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->loadRDMA( filename );
 }
 
 /// Save all the animation that were not loaded with the model file.
 void AnimationSystem::saveRDMA( const std::string& filename ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->saveRDMA( filename );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->saveRDMA( filename );
 }
 
 /// Updates the current pose.
 void AnimationSystem::setCurrentAnimationTime( double timestamp ) {
-    static_cast<AnimationComponent*>( m_components.back().second )
-        ->setCurrentAnimationTime( timestamp );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )
+            ->setCurrentAnimationTime( timestamp );
 }
 
 /// Add a keypose to the current animation at timestamp.
 void AnimationSystem::addKeyPose( double timestamp ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->addKeyPose( timestamp );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->addKeyPose( timestamp );
 }
 
 /// Remove the i-th keypose
 void AnimationSystem::removeKeyPose( int i ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->removeKeyPose( i );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->removeKeyPose( i );
 }
 
 /// Set the i-th keypose timestamp.
 void AnimationSystem::setKeyPoseTime( int i, double timestamp ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->setKeyPoseTime( i, timestamp );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )
+            ->setKeyPoseTime( i, timestamp );
 }
 
 void AnimationSystem::updateKeyPose( int id ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->updateKeyPose( id );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->updateKeyPose( id );
 }
 
 /// Add and offset to every key poses timestamp after first (included) of the current animation.
 void AnimationSystem::offsetKeyPoses( double offset, int first ) {
-    static_cast<AnimationComponent*>( m_components.back().second )->offsetKeyPoses( offset, first );
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )
+            ->offsetKeyPoses( offset, first );
 }
 
 /// Getter for the playzones labels.

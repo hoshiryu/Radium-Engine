@@ -29,6 +29,8 @@ namespace AnimationPlugin {
 
 AnimationComponent::AnimationComponent( const std::string& name, Ra::Engine::Entity* entity ) :
     Component( name, entity ),
+    m_animations(),
+    m_animsPlayzones(),
     m_animationID( 0 ),
     m_playzoneID( 0 ),
     m_animationTimeStep( true ),
@@ -71,7 +73,7 @@ void AnimationComponent::update( Scalar dt ) {
     }
 
     // get the current pose from the animation
-    if ( dt > 0 && !m_animations.empty() )
+    if ( dt > 0 && !m_animations.empty() && m_animations[m_animationID].size() >= 2 )
     {
         // Not calling setCurrentPose() to avoid unnecessary function calls
         const auto& pose = m_animations[m_animationID].getPose( m_animationTime );

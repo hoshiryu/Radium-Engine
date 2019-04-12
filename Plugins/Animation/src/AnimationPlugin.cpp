@@ -144,12 +144,14 @@ void AnimationPluginC::step() {
     CORE_ASSERT( m_system, "System should be there " );
     pause();
     m_system->step();
+    emit m_widget->changeCursor( m_system->animationTime() );
 }
 
 void AnimationPluginC::reset() {
     CORE_ASSERT( m_system, "System should be there " );
     emit m_widget->pause();
     m_system->reset();
+    emit m_widget->changeCursor( m_system->animationTime() );
 }
 
 void AnimationPluginC::toggleSkeleton( bool status ) {
