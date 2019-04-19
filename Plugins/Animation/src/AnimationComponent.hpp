@@ -100,6 +100,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Toggle skeleton bones display.
     void toggleSkeleton( const bool status );
 
+    /// Enable the IK solver.
+    void enableIK( bool status );
+
     /// Creates a new playzone for the current animation with the given name.
     void newPlayzone( const std::string& name );
 
@@ -264,6 +267,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// Is the reset process done?
     bool m_resetDone;
+
+    /// Is the inverse kinematics solver enabled?
+    bool m_IKsolverEnabled;
 };
 
 } // namespace AnimationPlugin

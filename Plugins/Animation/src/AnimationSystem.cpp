@@ -85,6 +85,13 @@ void AnimationSystem::toggleSkeleton( const bool status ) {
     }
 }
 
+void AnimationSystem::enableIK( bool status ) {
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->enableIK( status );
+    }
+}
+
 void AnimationSystem::setAnimation( const uint i ) {
     for ( const auto& comp : m_components )
     {

@@ -266,6 +266,10 @@ void AnimationComponent::toggleSkeleton( const bool status ) {
     }
 }
 
+void AnimationComponent::enableIK( bool status ) {
+    m_IKsolverEnabled = status;
+}
+
 void AnimationComponent::toggleAnimationTimeStep( const bool status ) {
     m_animationTimeStep = status;
 }
@@ -332,10 +336,13 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
 
     // turn bone translation into rotation for parent
     const uint pBoneIdx = m_skel.m_graph.parents()[boneIdx];
-    if ( pBoneIdx != -1 && m_skel.m_graph.children()[pBoneIdx].size() == 1 )
+
+    if ( m_IKsolverEnabled && !transform.translation().isApprox( TBoneModel.translation() ) )
+    {
+        // TODO
+    } else if ( pBoneIdx != -1 && m_skel.m_graph.children()[pBoneIdx].size() == 1 )
     {
         const auto& pTBoneModel = m_skel.getTransform( pBoneIdx, Handle::SpaceType::MODEL );
-
         Ra::Core::Vector3 A;
         Ra::Core::Vector3 B;
         m_skel.getBonePoints( pBoneIdx, A, B );
@@ -345,11 +352,11 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
         R.pretranslate( A );
         R.translate( -A );
         m_skel.setTransform( pBoneIdx, R * pTBoneModel, Handle::SpaceType::MODEL );
-    }
 
-    // update bone local transform
-    m_skel.setTransform(
-        boneIdx, TBoneLocal * TBoneModel.inverse() * transform, Handle::SpaceType::LOCAL );
+        // update bone local transform
+        m_skel.setTransform(
+            boneIdx, TBoneLocal * TBoneModel.inverse() * transform, Handle::SpaceType::LOCAL );
+    }   
 }
 
 const Ra::Core::Animation::Animation* AnimationComponent::getAnimationOutput() const {

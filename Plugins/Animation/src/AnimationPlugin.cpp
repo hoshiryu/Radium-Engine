@@ -62,6 +62,7 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::removeAnimation, this, &AnimationPluginC::removeAnimation );
     connect( m_widget, &AnimationUI::loadRDMA, this, &AnimationPluginC::loadRDMA );
     connect( m_widget, &AnimationUI::saveRDMA, this, &AnimationPluginC::saveRDMA );
+    connect( m_widget, &AnimationUI::enableIK, this, &AnimationPluginC::enableIK );
 
     /// Timeline signals
     connect( m_widget, &AnimationUI::cursorChanged, this,
@@ -109,6 +110,7 @@ QAction* AnimationPluginC::getAction( int id ) {
 void AnimationPluginC::setupUI() {
     m_widget->ui->groupBox_animation->setEnabled( true );
     m_widget->ui->groupBox_playZone->setEnabled( true );
+    m_widget->ui->m_enableIK->setChecked( false ); 
     m_widget->setAnimationComboBox( m_system->animationCount(), m_system->nonEditableCount() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
@@ -156,6 +158,10 @@ void AnimationPluginC::reset() {
 
 void AnimationPluginC::toggleSkeleton( bool status ) {
     m_system->toggleSkeleton( status );
+}
+
+void AnimationPluginC::enableIK( bool status ) {
+    m_system->enableIK( status );
 }
 
 void AnimationPluginC::setAnimation( uint i ) {

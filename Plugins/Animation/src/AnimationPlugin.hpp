@@ -52,6 +52,9 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// Slot for the user activating display of bones.
     void toggleSkeleton( bool on );
 
+    /// Enable the IK.
+    void enableIK( bool status );
+
     /// Display the timeline.
     void showTimeline();
 

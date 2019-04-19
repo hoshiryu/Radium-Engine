@@ -58,6 +58,9 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Display the skeleton.
     void toggleSkeleton( const bool status );
 
+    /// Enable the inverse kinematics solver.
+    void enableIK( bool status );
+
     /// Set the animation to play.
     void setAnimation( const uint i );
 

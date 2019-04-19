@@ -48,6 +48,7 @@ class AnimationUI : public QFrame {
   signals:
     void toggleXray( bool );
     void showSkeleton( bool );
+    void enableIK( bool );
     void play();
     void pause();
     void step();
@@ -145,6 +146,7 @@ class AnimationUI : public QFrame {
   private slots:
     void on_m_xray_clicked( bool checked );
     void on_m_showSkeleton_toggled( bool checked );
+    void on_m_enableIK_toggled( bool checked );
     void on_m_play_clicked();
     void on_m_step_clicked();
     void on_m_reset_clicked();

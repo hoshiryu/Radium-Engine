@@ -105,6 +105,10 @@ void AnimationUI::on_m_showSkeleton_toggled( bool checked ) {
     emit showSkeleton( checked );
 }
 
+void AnimationUI::on_m_enableIK_toggled( bool checked ) {
+    emit enableIK( checked );
+}
+
 void AnimationUI::switchToPauseButton() {
     ui->m_play->setChecked( true );
 
