@@ -321,6 +321,7 @@ Ra::Core::Transform AnimationComponent::getTransform( const Ra::Core::Utils::Ind
     return m_skel.getPose( Handle::SpaceType::MODEL )[boneIdx];
 }
 
+/// Reference: http://www.andreasaristidou.com/publications/papers/FABRIK.pdf
 void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
                                        const Ra::Core::Transform& transform ) {
     CORE_ASSERT( canEdit( roIdx ), "Transform is not editable" );
@@ -331,16 +332,89 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
 
     // get bone data
     const uint boneIdx = ( *bonePos )->getBoneIndex();
-    const auto& TBoneModel = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
-    const auto& TBoneLocal = m_skel.getTransform( boneIdx, Handle::SpaceType::LOCAL );
-
-    // turn bone translation into rotation for parent
     const uint pBoneIdx = m_skel.m_graph.parents()[boneIdx];
+    const auto& TBoneModel = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
+    // auto trf = transform;
 
-    if ( m_IKsolverEnabled && !transform.translation().isApprox( TBoneModel.translation() ) )
+    /// if IK solver is on, the transform is a translation, and the selected bone isn't the root
+    if ( m_IKsolverEnabled && !transform.translation().isApprox( TBoneModel.translation() ) &&
+         pBoneIdx != -1 )
     {
-        // TODO
-    } else if ( pBoneIdx != -1 && m_skel.m_graph.children()[pBoneIdx].size() == 1 )
+        Scalar maxLength = 0.0;
+        std::vector<uint> chainJoints;
+        std::vector<Scalar> lengths;
+        Ra::Core::Transform joint, pJoint;
+        uint jointIdx = m_skel.m_graph.parents()[boneIdx];
+        joint = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
+
+        chainJoints.emplace_back( boneIdx );
+        while ( jointIdx != -1 )
+        {
+            pJoint = m_skel.getTransform( jointIdx, Handle::SpaceType::MODEL );
+            Scalar length = ( joint.translation() - pJoint.translation() ).norm();
+            maxLength += length;
+
+            chainJoints.emplace_back( jointIdx );
+            lengths.emplace_back( length );
+
+            joint = std::move( pJoint );
+            jointIdx = m_skel.m_graph.parents()[jointIdx];
+        }
+        const auto rootInit = m_skel.getTransform( chainJoints.back(), Handle::SpaceType::MODEL );
+        const auto endEffectorInit = TBoneModel;
+
+        // if target is unreachable
+        if ( maxLength < ( m_skel.getTransform( chainJoints.back(), Handle::SpaceType::MODEL ).translation() -
+                           transform.translation() )
+                             .norm() )
+        {
+            // trf.translation() -= rootInit.translation();
+            // trf.translation().normalize();
+            // trf.translation() = 0.96 * maxLength * trf.translation() + rootInit.translation();
+            return;
+        }
+
+        if ( chainJoints.size() > 2 )
+        {
+            while ( !transform.translation().isApprox( TBoneModel.translation() ) )
+            {
+                // Forward
+                m_skel.setTransform( boneIdx, transform, Handle::SpaceType::MODEL );
+                joint = transform;
+                for ( int i = 1; i < chainJoints.size(); ++i )
+                {
+                    pJoint = m_skel.getTransform( chainJoints[i], Handle::SpaceType::MODEL );
+                    Scalar u =
+                        lengths[i - 1] / ( joint.translation() - pJoint.translation() ).norm();
+                    pJoint.translation() =
+                        ( 1 - u ) * joint.translation() + u * pJoint.translation();
+                    m_skel.setTransform( chainJoints[i], pJoint, Handle::SpaceType::MODEL );
+
+                    joint = std::move( pJoint );
+                }
+
+                // Backward
+                pJoint = rootInit;
+                m_skel.setTransform( chainJoints.back(), pJoint, Handle::SpaceType::MODEL );
+                for ( int i = chainJoints.size() - 2; i >= 0; --i )
+                {
+                    joint = m_skel.getTransform( chainJoints[i], Handle::SpaceType::MODEL );
+                    Scalar u = lengths[i] / ( joint.translation() - pJoint.translation() ).norm();
+                    joint.translation() =
+                        ( 1 - u ) * pJoint.translation() + u * joint.translation();
+                    m_skel.setTransform( chainJoints[i], joint, Handle::SpaceType::MODEL );
+
+                    pJoint = std::move( joint );
+                }
+            }
+
+            m_skel.setTransform( boneIdx, endEffectorInit, Handle::SpaceType::MODEL );
+        }
+    }
+
+    const auto& TBoneLocal = m_skel.getTransform( boneIdx, Handle::SpaceType::LOCAL );
+    // turn bone translation into rotation for parent
+    if ( pBoneIdx != -1 && m_skel.m_graph.children()[pBoneIdx].size() == 1 )
     {
         const auto& pTBoneModel = m_skel.getTransform( pBoneIdx, Handle::SpaceType::MODEL );
         Ra::Core::Vector3 A;
@@ -352,12 +426,12 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
         R.pretranslate( A );
         R.translate( -A );
         m_skel.setTransform( pBoneIdx, R * pTBoneModel, Handle::SpaceType::MODEL );
+    }
 
-        // update bone local transform
-        m_skel.setTransform(
-            boneIdx, TBoneLocal * TBoneModel.inverse() * transform, Handle::SpaceType::LOCAL );
-    }   
-}
+    // update bone local transform
+    m_skel.setTransform(
+        boneIdx, TBoneLocal * TBoneModel.inverse() * transform, Handle::SpaceType::LOCAL );
+} 
 
 const Ra::Core::Animation::Animation* AnimationComponent::getAnimationOutput() const {
     if ( m_animations.empty() ) { return nullptr; }
