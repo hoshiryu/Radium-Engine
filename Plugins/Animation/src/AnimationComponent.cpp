@@ -333,10 +333,11 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
     // get bone data
     const uint boneIdx = ( *bonePos )->getBoneIndex();
     const uint pBoneIdx = m_skel.m_graph.parents()[boneIdx];
-    const auto& TBoneModel = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
 
     /// if IK solver is on, the transform is a translation, and the selected bone isn't the root
-    if ( m_IKsolverEnabled && !transform.translation().isApprox( TBoneModel.translation() ) &&
+    if ( m_IKsolverEnabled &&
+         !transform.translation().isApprox(
+             m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL ).translation() ) &&
          pBoneIdx != -1 )
     {
         // reserve a few elements to avoid too much reallocations ?
@@ -380,6 +381,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
             auto trf = TBoneModel;
             trf.translation() = p[i];
 
+            // turn bone translation into rotation for parent
             if ( m_skel.m_graph.children()[jointsIndices[i + 1]].size() == 1 )
             {
                 const Ra::Core::Vector3& A = p[i + 1];
@@ -397,9 +399,9 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
             m_skel.setTransform( chainJoints[i], TBoneLocal * TBoneModel.inverse() * trf,
                                  Handle::SpaceType::LOCAL );
         }
-        // }
     } else
     {
+        const auto& TBoneModel = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
         const auto& TBoneLocal = m_skel.getTransform( boneIdx, Handle::SpaceType::LOCAL );
         // turn bone translation into rotation for parent
         if ( pBoneIdx != -1 && m_skel.m_graph.children()[pBoneIdx].size() == 1 )
