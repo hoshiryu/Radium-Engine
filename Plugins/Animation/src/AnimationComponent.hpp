@@ -173,13 +173,6 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Returns the keyposes' timestamps.
     std::vector<double> keyposesTimes() const;
 
-    /// \brief Solve the inverse kinematics problem.
-    /// \param lengths: the lengths to maintain on the bones.
-    /// \param p: the initial positions of the bone, also used to return the new positions.
-    /// \param target: the target to reach.
-    void IKsolver( const std::vector<Scalar>& lengths, std::vector<Ra::Core::Vector3>& p,
-                   const Ra::Core::Vector3& target ) const;
-
     //
     // Editable interface
     //
@@ -197,6 +190,15 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     // debug function to display the hierarchy
     void printSkeleton( const Ra::Core::Animation::Skeleton& skeleton );
+
+    /// \brief Solve the inverse kinematics problem.
+    /// \param lengths: the lengths to maintain on the bones.
+    /// \param p: the initial positions of the bone, also used to return the new positions.
+    /// \param target: the target to reach.
+    /// \param max_length: the sum of the lengths of the bones.
+    void IKsolver( const std::vector<Scalar>& lengths, std::vector<Ra::Core::Vector3>& p,
+                   const Ra::Core::Vector3& target, const Scalar max_length ) const;
+
 
     //
     // Component Communication (CC)
