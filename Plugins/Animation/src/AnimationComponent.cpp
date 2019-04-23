@@ -338,7 +338,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
     if ( m_IKsolverEnabled && !transform.translation().isApprox( TBoneModel.translation() ) &&
          pBoneIdx != -1 )
     {
-        // reserve boneIdx elements to avoid reallocations ? (boneIdx + 1 for chainJoints)
+        // reserve a few elements to avoid too much reallocations ?
         std::vector<uint> chainJoints;
         std::vector<Scalar> lengths;
         std::vector<Ra::Core::Vector3> p;
@@ -363,8 +363,6 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
             joint = std::move( pJoint );
             pJointIdx = m_skel.m_graph.parents()[pJointIdx];
         }
-        // const auto rootInit = m_skel.getTransform( chainJoints.back(), Handle::SpaceType::MODEL
-        // ); const auto endEffectorInit = TBoneModel;
 
         // if target is reachable
         if ( maxLength >=
@@ -374,13 +372,35 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
         {
             IKsolver( lengths, p, transform.translation() );
 
-            // Compute the angles to set all the transforms
-            for ( int i = 0; i < chainJoints.size(); ++i )
-        {
-                auto trf = m_skel.getTransform( chainJoints[i], Handle::SpaceType::MODEL );
+            // Turning every rotation into a translation for the father
+            for ( int i = chainJoints.size() - 2; i >= 0; --i )
+            {
+                const auto& TBoneModel =
+                    m_skel.getTransform( chainJoints[i], Handle::SpaceType::MODEL );
+                const auto& pTBoneModel =
+                    m_skel.getTransform( chainJoints[i + 1], Handle::SpaceType::MODEL );
+                const auto& TBoneLocal =
+                    m_skel.getTransform( chainJoints[i], Handle::SpaceType::LOCAL );
+                auto trf = TBoneModel;
                 trf.translation() = p[i];
-                m_skel.setTransform( chainJoints[i], trf, Handle::SpaceType::MODEL );
+
+                if ( m_skel.m_graph.children()[chainJoints[i + 1]].size() == 1 )
+                {
+                    const Ra::Core::Vector3& A = p[i + 1];
+                    const Ra::Core::Vector3& B = TBoneModel.translation();
+                    const Ra::Core::Vector3& B_ = p[i];
+                    auto q = Ra::Core::Quaternion::FromTwoVectors( ( B - A ), ( B_ - A ) );
+                    Ra::Core::Transform R( q );
+                    R.pretranslate( A );
+                    R.translate( -A );
+                    m_skel.setTransform( chainJoints[i + 1], R * pTBoneModel,
+                                         Handle::SpaceType::MODEL );
                 }
+
+                // update bone local transform
+                m_skel.setTransform( chainJoints[i], TBoneLocal * TBoneModel.inverse() * trf,
+                                     Handle::SpaceType::LOCAL );
+            }
         }
     } else
     {
@@ -407,6 +427,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
 }
 
 /// Reference: http://www.andreasaristidou.com/publications/papers/FABRIK.pdf
+/// the solver tend to be really slow when getting close to max length
 void AnimationComponent::IKsolver( const std::vector<Scalar>& lengths,
                                    std::vector<Ra::Core::Vector3>& p,
                                    const Ra::Core::Vector3& target ) const {
