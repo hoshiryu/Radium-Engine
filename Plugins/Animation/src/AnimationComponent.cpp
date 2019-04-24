@@ -62,6 +62,11 @@ void AnimationComponent::update( Scalar dt ) {
     // Compute the elapsed time
     m_animationTime += dt;
 
+    const auto& playzone = m_animsPlayzones[m_animationID][m_playzoneID];
+    if ( m_playing && ( m_animationTime < std::get<1>( playzone ) ||
+                        m_animationTime > std::get<2>( playzone ) ) )
+        m_animationTime = std::get<1>( playzone );
+
     if ( m_wasReset )
     {
         if ( !m_resetDone ) { m_resetDone = true; }
@@ -135,6 +140,11 @@ void AnimationComponent::reset() {
     m_animationTime = std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] );
     setCurrentPose();
     m_wasReset = true;
+    m_playing = false;
+}
+
+void AnimationComponent::setPlaying( bool playing ) {
+    m_playing = playing;
 }
 
 void AnimationComponent::handleSkeletonLoading( const Ra::Core::Asset::HandleData* data ) {
@@ -386,6 +396,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
             {
                 const Ra::Core::Vector3& A = p[i + 1];
                 const Ra::Core::Vector3& B = TBoneModel.translation();
+                // m_skel.getBonePoints( jointsIndices[i + 1], A, B ); // apparently equivalent
                 const Ra::Core::Vector3& B_ = p[i];
                 auto q = Ra::Core::Quaternion::FromTwoVectors( ( B - A ), ( B_ - A ) );
                 Ra::Core::Transform R( q );
@@ -396,7 +407,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
             }
 
             // update bone local transform
-            m_skel.setTransform( chainJoints[i], TBoneLocal * TBoneModel.inverse() * trf,
+            m_skel.setTransform( jointsIndices[i], TBoneLocal * TBoneModel.inverse() * trf,
                                  Handle::SpaceType::LOCAL );
         }
     } else
@@ -410,7 +421,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
             Ra::Core::Vector3 A;
             Ra::Core::Vector3 B;
             m_skel.getBonePoints( pBoneIdx, A, B );
-            Ra::Core::Vector3 B_ = transform.translation();
+            const Ra::Core::Vector3 B_ = transform.translation();
             auto q = Ra::Core::Quaternion::FromTwoVectors( ( B - A ), ( B_ - A ) );
             Ra::Core::Transform R( q );
             R.pretranslate( A );
@@ -430,9 +441,13 @@ void AnimationComponent::IKsolver( const std::vector<Scalar>& lengths,
                                    std::vector<Ra::Core::Vector3>& p,
                                    const Ra::Core::Vector3& target,
                                    const Scalar max_length ) const {
+    // We could multiply max_length by something slightly smaller than 1.0 to limit the execution
+    // time for the edge case, while still having a similar result (like 0.98)
     if ( ( p.back() - target ).norm() <= max_length && lengths.size() > 1 )
     {
         const auto rootInitPos = p.back();
+        // The precision in isApprox() can be tweaked to favor speed, this could help when close to
+        // max_length
         while ( !target.isApprox( p.front() ) )
         {
             // Forward
@@ -591,7 +606,7 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
         }
     }
 
-    // Importing delta t's
+    // Importing dts
     input.read( reinterpret_cast<char*>( &size ), sizeof( size ) );
     m_dt.resize( m_firstEditableID + size );
     input.read( reinterpret_cast<char*>( &m_dt[m_firstEditableID] ), size * sizeof( Scalar ) );
@@ -643,7 +658,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
         }
     }
 
-    // Exporting delta t's
+    // Exporting dts
     size = m_dt.size() - m_firstEditableID;
     output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
     output.write( reinterpret_cast<const char*>( &m_dt[m_firstEditableID] ),
@@ -704,27 +719,28 @@ void AnimationComponent::removeAnimation( int i ) {
 }
 
 void AnimationComponent::setCurrentPose() {
-    if ( m_animations[m_animationID].size() >= 1 )
+    const auto& animation = m_animations[m_animationID];
+    if ( animation.size() >= 1 )
     {
-        if ( m_animationTime <= m_animations[m_animationID].keyPose( 0 ).first )
+        // If before/after the first/last pose, fix the displayed pose to the first/last
+        if ( m_animationTime <= animation.keyPose( 0 ).first )
         {
-            m_skel.setPose( m_animations[m_animationID].keyPose( 0 ).second,
-                            Handle::SpaceType::LOCAL );
-        } else if ( m_animationTime > m_animations[m_animationID]
-                                          .keyPose( m_animations[m_animationID].size() - 1 )
-                                          .first )
+            m_skel.setPose( animation.keyPose( 0 ).second, Handle::SpaceType::LOCAL );
+        } else if ( m_animationTime > animation.keyPose( animation.size() - 1 ).first )
         {
-            m_skel.setPose( m_animations[m_animationID]
-                                .keyPose( m_animations[m_animationID].size() - 1 )
-                                .second,
+            m_skel.setPose( animation.keyPose( animation.size() - 1 ).second,
                             Handle::SpaceType::LOCAL );
         } else
         {
-        const auto& pose = m_animations[m_animationID].getPose(m_animationTime);
+            // else interpolate
+            const auto& pose = animation.getPose( m_animationTime );
         m_skel.setPose(pose, Handle::SpaceType::LOCAL);
         }
-    } else if ( m_animations[m_animationID].size() == 0 )
-    { m_skel.setPose( m_refPose, Handle::SpaceType::MODEL ); }
+    } else if ( animation.size() == 0 )
+    {
+        // The animation is empty, display the reference pose
+        m_skel.setPose( m_refPose, Handle::SpaceType::MODEL );
+    }
 
     // update the render objects
     for ( auto& bone : m_boneDrawables )

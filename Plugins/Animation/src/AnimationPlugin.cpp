@@ -110,10 +110,14 @@ QAction* AnimationPluginC::getAction( int id ) {
 void AnimationPluginC::setupUI() {
     m_widget->ui->groupBox_animation->setEnabled( true );
     m_widget->ui->groupBox_playZone->setEnabled( true );
-    m_widget->ui->m_enableIK->setChecked( false ); 
     m_widget->setAnimationComboBox( m_system->animationCount(), m_system->nonEditableCount() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
 }
+
+bool AnimationPluginC::isIKEnabled() {
+    return m_widget->ui->m_enableIK->isChecked();
+}
+
 void AnimationPluginC::toggleXray( bool on ) {
     CORE_ASSERT( m_system, "System should be there " );
     m_system->setXray( on );
@@ -125,13 +129,6 @@ void AnimationPluginC::showTimeline() {
 
 void AnimationPluginC::play() {
     CORE_ASSERT( m_system, "System should be there " );
-    const double animationTime = m_system->animationTime();
-    const double start = m_system->getStart();
-
-    if ( animationTime > m_system->getEnd() || animationTime < start )
-    {
-        m_system->setCurrentAnimationTime( start );
-    }
     m_widget->switchToPauseButton();
     m_system->play( true );
 }
@@ -193,11 +190,6 @@ void AnimationPluginC::updateAnimTime() {
     const double animationTime = m_system->animationTime();
     if ( m_system->isPlaying() )
     {
-        const double start = m_system->getStart();
-        if ( animationTime > m_system->getEnd() || animationTime < start )
-        {
-            m_system->setCurrentAnimationTime( start );
-        }
         emit m_widget->changeCursor( animationTime );
     }
 }

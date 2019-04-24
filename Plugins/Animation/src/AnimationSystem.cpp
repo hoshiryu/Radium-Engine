@@ -46,6 +46,11 @@ void AnimationSystem::generateTasks( Ra::Core::TaskQueue* taskQueue,
 
 void AnimationSystem::play( bool isPlaying ) {
     m_isPlaying = isPlaying;
+
+    for ( const auto& comp : m_components )
+    {
+        static_cast<AnimationComponent*>( comp.second )->setPlaying( isPlaying );
+    }
     CoupledTimedSystem::play( isPlaying );
 }
 
@@ -57,11 +62,9 @@ void AnimationSystem::step() {
 void AnimationSystem::reset() {
     m_animFrame = 0;
 
-    // deal with AnimationComponents
-    for ( auto compEntry : m_components )
+    for ( const auto& comp : m_components )
     {
-        AnimationComponent* component = static_cast<AnimationComponent*>( compEntry.second );
-        { component->reset(); }
+        static_cast<AnimationComponent*>( comp.second )->reset();
     }
     CoupledTimedSystem::reset();
 }
@@ -140,6 +143,7 @@ void AnimationSystem::handleAssetLoading( Ra::Engine::Entity* entity,
     CoupledTimedSystem::handleAssetLoading( entity, fileData );
     m_plugin->setupUI();
     m_plugin->showTimeline();
+    enableIK( m_plugin->isIKEnabled() );
 }
 
 Scalar AnimationSystem::getTime( const Ra::Engine::ItemEntry& entry ) const {

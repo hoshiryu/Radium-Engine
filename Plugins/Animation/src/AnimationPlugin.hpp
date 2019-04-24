@@ -45,6 +45,9 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// \brief Enable the animation and the playzone groupboxex and set the combo boxes.
     void setupUI();
 
+    /// \returns true if the IK solver is enabled, false otherwise.
+    bool isIKEnabled();
+
   public slots:
     /// Slot for the user activating xray display of bones.
     void toggleXray( bool on );

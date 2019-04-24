@@ -173,6 +173,10 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Returns the keyposes' timestamps.
     std::vector<double> keyposesTimes() const;
 
+    /// \brief Set m_playing to playing.
+    /// \param playing: boolean to set m_playing to.
+    void setPlaying( bool playing );
+
     //
     // Editable interface
     //
@@ -198,7 +202,6 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// \param max_length: the sum of the lengths of the bones.
     void IKsolver( const std::vector<Scalar>& lengths, std::vector<Ra::Core::Vector3>& p,
                    const Ra::Core::Vector3& target, const Scalar max_length ) const;
-
 
     //
     // Component Communication (CC)
@@ -276,6 +279,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// Is the reset process done?
     bool m_resetDone;
+
+    /// Is the current animation playing?
+    bool m_playing;
 
     /// Is the inverse kinematics solver enabled?
     bool m_IKsolverEnabled;
