@@ -75,6 +75,11 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::keyPosesMoved, this, &AnimationPluginC::offsetKeyPoses );
     connect( m_widget, &AnimationUI::keyPoseMoved, this, &AnimationPluginC::setKeyPoseTime );
 
+    connect( m_widget, &AnimationUI::envSaved, this, &AnimationPluginC::saveEnv);
+    connect( m_widget, &AnimationUI::rendered, this, &AnimationPluginC::rendering);
+    connect( m_widget, &AnimationUI::renderDeleted, this, &AnimationPluginC::deleteRender);
+
+
     return m_widget;
 }
 
@@ -284,7 +289,7 @@ void AnimationPluginC::addKeyPose( double timestamp ) {
     }
 }
 
-void AnimationPluginC::removeKeyPose( int i ) {
+void AnimationPluginC::removeKeyPose( size_t i ) {
     m_system->removeKeyPose(i);
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
@@ -295,7 +300,7 @@ void AnimationPluginC::removeKeyPose( int i ) {
     }
 }
 
-void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
+void AnimationPluginC::setKeyPoseTime( size_t i, double timestamp ) {
     m_system->setKeyPoseTime( i, timestamp );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
@@ -307,7 +312,7 @@ void AnimationPluginC::setKeyPoseTime( int i, double timestamp ) {
     m_system->setCurrentAnimationTime( timestamp );
 }
 
-void AnimationPluginC::updateKeyPose( int id ) {
+void AnimationPluginC::updateKeyPose( size_t id ) {
     m_system->updateKeyPose( id );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
@@ -318,7 +323,7 @@ void AnimationPluginC::updateKeyPose( int id ) {
     }
 }
 
-void AnimationPluginC::offsetKeyPoses( double offset, int first ) {
+void AnimationPluginC::offsetKeyPoses( double offset, size_t first ) {
     m_system->offsetKeyPoses( static_cast<Scalar>( offset ), first );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
@@ -327,6 +332,20 @@ void AnimationPluginC::offsetKeyPoses( double offset, int first ) {
         m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
             m_widget->ui->comboBox_currentAnimation->count() - 1 );
     }
+}
+
+void AnimationPluginC::saveEnv() {
+    std::pair<void *, size_t> env = m_system->saveEnv();
+
+    m_widget->on_saveRendering(env.first, env.second);
+}
+
+void AnimationPluginC::rendering( void * anim ) {
+    m_system->rendering(anim);
+}
+
+void AnimationPluginC::deleteRender( void * anim ) {
+    m_system->deleteRender(anim);
 }
 
 } // namespace AnimationPlugin

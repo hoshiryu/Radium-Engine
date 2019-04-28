@@ -1,5 +1,7 @@
-#include "qtoolbuttonplaypause.h"
+//#include "qtoolbuttonplaypause.h"
+#include <AnimTimeline/qtoolbuttonplaypause.h>
 
+#include <QDebug>
 #include <QMouseEvent>
 
 QToolButtonPlayPause::QToolButtonPlayPause(QWidget* parent)
@@ -23,26 +25,41 @@ QToolButtonPlayPause::~QToolButtonPlayPause()
 void QToolButtonPlayPause::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
-        if (play) {
-            this->setIcon(*playIcon);
-            play = false;
-            emit pauseClicked();
-        } else {
-            this->setIcon(*pauseIcon);
-            play = true;
-            emit playClicked();
-        }
+        //        if (play) {
+        //            this->setIcon(*playIcon);
+        //            play = false;
+        //            emit pauseClicked();
+
+        //        } else {
+        //            this->setIcon(*pauseIcon);
+        //            play = true;
+        //            emit playClicked();
+        //        }
+        onChangeMode();
+        event->accept();
     }
 }
 
+// EXTERNAL SLOT
 void QToolButtonPlayPause::onPlayMode()
 {
+    if (play) {
+        qDebug() << "\033[31mQToolButtonPlayPause::onPlayMode() : already on play mode\033[0m";
+        return;
+    }
+
     this->setIcon(*pauseIcon);
     play = true;
 }
 
+// EXTERNAL SLOT
 void QToolButtonPlayPause::onPauseMode()
 {
+    if (!play) {
+        qDebug() << "\033[31mQToolButtonPlayPause::onPauseMode() : already on pause mode\033[0m";
+        return;
+    }
+
     this->setIcon(*playIcon);
     play = false;
 }
@@ -52,8 +69,15 @@ void QToolButtonPlayPause::onChangeMode()
     if (play) {
         onPauseMode();
         emit pauseClicked();
+        qDebug() << "\033[35mpauseClicked()\033[0m";
     } else {
         onPlayMode();
         emit playClicked();
+        qDebug() << "\033[35mplayClicked()\033[0m";
     }
+}
+
+bool* QToolButtonPlayPause::getPlay()
+{
+    return &play;
 }

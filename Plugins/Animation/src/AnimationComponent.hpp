@@ -29,7 +29,8 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     AnimationComponent( const AnimationComponent& ) = delete;
     AnimationComponent& operator=( const AnimationComponent& ) = delete;
 
-    using Playzones = std::vector<std::tuple<std::string, Scalar, Scalar>>;
+    using Playzone = std::tuple<std::string, Scalar, Scalar>;
+    using Playzones = std::vector<Playzone>;
 
     virtual void initialize() override {}
 
@@ -149,17 +150,30 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     void addKeyPose( double timestamp );
 
     /// Remove the i-th keypose
-    void removeKeyPose( int i );
+    void removeKeyPose( size_t i );
 
     /// Set the i-th keypose timestamp
-    void setKeyPoseTime( int i, double timestamp );
+    void setKeyPoseTime( size_t i, double timestamp );
 
     /// Update the i-th keypose by the current skeleton render.
-    void updateKeyPose( int id );
+    void updateKeyPose( size_t id );
 
     /// Add an offset to every key poses and playzones timestamp after first (included) of the
     /// current animation.
-    void offsetKeyPoses( double offset, int first );
+    void offsetKeyPoses( double offset, size_t first );
+
+    /// \brief Save current environment (minimal just Animation and Playzone)
+    /// allow future rendering when signals session comming (undo/redo)
+    /// use void * because Q_OBJECT unauthorize template class
+    std::pair<void *, size_t> saveEnv();
+
+    /// \brief Render previous saved environment
+    /// \param generic parameter to rendering
+    void rendering(void * anim);
+
+    /// \brief Delete previous instance of environment
+    /// \param generic parameter to delete
+    void deleteRender(void * anim);
 
     /// Returns the playzones labels.
     std::vector<std::string> playzonesLabels() const;

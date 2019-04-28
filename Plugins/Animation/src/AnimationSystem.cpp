@@ -292,28 +292,49 @@ void AnimationSystem::addKeyPose( double timestamp ) {
 }
 
 /// Remove the i-th keypose
-void AnimationSystem::removeKeyPose( int i ) {
+void AnimationSystem::removeKeyPose( size_t i ) {
     if ( !m_components.empty() )
         static_cast<AnimationComponent*>( m_components.back().second )->removeKeyPose( i );
 }
 
 /// Set the i-th keypose timestamp.
-void AnimationSystem::setKeyPoseTime( int i, double timestamp ) {
+void AnimationSystem::setKeyPoseTime( size_t i, double timestamp ) {
     if ( !m_components.empty() )
         static_cast<AnimationComponent*>( m_components.back().second )
             ->setKeyPoseTime( i, timestamp );
 }
 
-void AnimationSystem::updateKeyPose( int id ) {
+void AnimationSystem::updateKeyPose( size_t id ) {
     if ( !m_components.empty() )
         static_cast<AnimationComponent*>( m_components.back().second )->updateKeyPose( id );
 }
 
 /// Add and offset to every key poses timestamp after first (included) of the current animation.
-void AnimationSystem::offsetKeyPoses( double offset, int first ) {
+void AnimationSystem::offsetKeyPoses( double offset, size_t first ) {
     if ( !m_components.empty() )
         static_cast<AnimationComponent*>( m_components.back().second )
             ->offsetKeyPoses( offset, first );
+}
+
+std::pair<void *, size_t> AnimationSystem::saveEnv()
+{
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->saveEnv();
+
+}
+
+void AnimationSystem::rendering(void *anim)
+{
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->rendering(anim);
+
+}
+
+void AnimationSystem::deleteRender(void *anim)
+{
+    if ( !m_components.empty() )
+        return static_cast<AnimationComponent*>( m_components.back().second )->deleteRender(anim);
+
 }
 
 /// Getter for the playzones labels.

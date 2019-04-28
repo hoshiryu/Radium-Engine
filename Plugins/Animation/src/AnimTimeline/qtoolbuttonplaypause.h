@@ -10,16 +10,19 @@ public:
     explicit QToolButtonPlayPause(QWidget* parent = nullptr);
     ~QToolButtonPlayPause() override;
 
+    bool * getPlay();
+
 protected:
     void mousePressEvent(QMouseEvent* event) override;
 
 signals:
-    void playClicked();
-    void pauseClicked();
+    void playClicked(); // EXTERNAL SIGNAL
+    void pauseClicked(); // EXTERNAL SIGNAL
 
 public slots:
-    void onPlayMode();
-    void onPauseMode();
+    void onPlayMode(); // EXTERNAL SLOT
+    void onPauseMode(); // EXTERNAL SLOT
+
     void onChangeMode();
 
 private:

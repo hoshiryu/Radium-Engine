@@ -141,21 +141,34 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
 
     /// \brief Remove the i-th key pose.
     /// \param i: the index of the key pose to remove.
-    void removeKeyPose( int i );
+    void removeKeyPose( size_t i );
 
     /// \brief Set the i-th keypose timestamp.
     /// \param i: the index of the key pose to change.
     /// \param timestamp: the timestamp the keypose should be set at.
-    void setKeyPoseTime( int i, double timestamp );
+    void setKeyPoseTime( size_t i, double timestamp );
 
     /// \brief Update the i-th key pose with the current pose.
     /// \param id: the index of the pose to replace.
-    void updateKeyPose( int i );
+    void updateKeyPose( size_t i );
 
     /// \brief Add an offset to every key pose timestamp after first (included) in the current animation.
     /// \param offset: the offset to add to the key poses.
     /// \param first: the index of the first pose to move.
-    void offsetKeyPoses( double offset, int first );
+    void offsetKeyPoses( double offset, size_t first );
+
+    /// \brief Save current environment (minimal just Animation and Playzone)
+    /// allow future rendering when signals session comming (undo/redo)
+    /// use void * because Q_OBJECT unauthorize template class
+    void saveEnv();
+
+    /// \brief Render previous saved environment
+    /// \param generic parameter to rendering
+    void rendering( void * anim );
+
+    /// \brief Delete previous instance of environment
+    /// \param generic parameter to delete
+    void deleteRender( void * anim );
 
   private:
     /// The data directory.

@@ -23,33 +23,40 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     // parent is null, can't access Ra::Gui::MainWindow so change Animation CMakeLists.txt
     // or change constructor calling for AnimationUI
     // so first timeline pos is fixed at the bottom right of current screen
-    animTimeline = new AnimTimeline( parent );
+    timeline = new AnimTimelineWithSession( parent );
 
-    connect( animTimeline, &AnimTimeline::playClicked, this, &AnimationUI::play );
-    connect( animTimeline, &AnimTimeline::pauseClicked, this, &AnimationUI::pause );
-    connect( animTimeline, &AnimTimeline::cursorChanged, this, &AnimationUI::cursorChanged );
-    connect( animTimeline, &AnimTimeline::startChanged, this, &AnimationUI::startChanged );
-    connect( animTimeline, &AnimTimeline::endChanged, this, &AnimationUI::endChanged );
-    connect( animTimeline, &AnimTimeline::keyPoseAdded, this, &AnimationUI::keyPoseAdded );
-    connect( animTimeline, &AnimTimeline::keyPoseDeleted, this, &AnimationUI::keyPoseDeleted );
-    connect( animTimeline, &AnimTimeline::keyPoseChanged, this, &AnimationUI::keyPoseChanged );
-    connect( animTimeline, &AnimTimeline::keyPosesMoved, this, &AnimationUI::keyPosesMoved );
-    connect( animTimeline, &AnimTimeline::keyPoseMoved, this, &AnimationUI::keyPoseMoved );
+    connect( timeline, &AnimTimelineWithSession::playClicked, this, &AnimationUI::play );
+    connect( timeline, &AnimTimelineWithSession::pauseClicked, this, &AnimationUI::pause );
+    connect( timeline, &AnimTimelineWithSession::cursorChanged, this, &AnimationUI::cursorChanged );
+    connect( timeline, &AnimTimelineWithSession::startChanged, this, &AnimationUI::startChanged );
+    connect( timeline, &AnimTimelineWithSession::endChanged, this, &AnimationUI::endChanged );
+    connect( timeline, &AnimTimelineWithSession::keyPoseAdded, this, &AnimationUI::keyPoseAdded );
+    connect( timeline, &AnimTimelineWithSession::keyPoseDeleted, this, &AnimationUI::keyPoseDeleted );
+    connect( timeline, &AnimTimelineWithSession::keyPoseChanged, this, &AnimationUI::keyPoseChanged );
+    connect( timeline, &AnimTimelineWithSession::keyPosesMoved, this, &AnimationUI::keyPosesMoved );
+    connect( timeline, &AnimTimelineWithSession::keyPoseMoved, this, &AnimationUI::keyPoseMoved );
 
-    connect( this, &AnimationUI::changeCursor, animTimeline, &AnimTimeline::onChangeCursor );
-    connect( this, &AnimationUI::addKeyPose, animTimeline, &AnimTimeline::onAddingKeyPose );
-    connect( this, &AnimationUI::changeStart, animTimeline, &AnimTimeline::onChangeStart );
-    connect( this, &AnimationUI::changeEnd, animTimeline, &AnimTimeline::onChangeEnd );
-    connect( this, &AnimationUI::changeDuration, animTimeline,
-             &AnimTimeline::onChangeAnimDuration );
-    connect( this, &AnimationUI::play, animTimeline, &AnimTimeline::onSetPlayMode );
-    connect( this, &AnimationUI::pause, animTimeline, &AnimTimeline::onSetPauseMode );
-    connect( this, &AnimationUI::clearKeyPoses, animTimeline, &AnimTimeline::onClearKeyPoses );
+    // session (undo/redo)
+    connect( timeline, &AnimTimelineWithSession::envSaved, this, &AnimationUI::envSaved);
+    connect( timeline, &AnimTimelineWithSession::rendered, this, &AnimationUI::rendered);
+    connect( timeline, &AnimTimelineWithSession::renderDeleted, this, &AnimationUI::renderDeleted);
+
+
+    connect( this, &AnimationUI::changeCursor, timeline, &AnimTimelineWithSession::onChangeCursor );
+    connect( this, &AnimationUI::addKeyPose, timeline, &AnimTimelineWithSession::onAddingKeyPose );
+    connect( this, &AnimationUI::changeStart, timeline, &AnimTimelineWithSession::onChangeStart );
+    connect( this, &AnimationUI::changeEnd, timeline, &AnimTimelineWithSession::onChangeEnd );
+    connect( this, &AnimationUI::changeDuration, timeline,
+             &AnimTimelineWithSession::onChangeDuration );
+    connect( this, &AnimationUI::play, timeline, &AnimTimelineWithSession::onSetPlayMode );
+    connect( this, &AnimationUI::pause, timeline, &AnimTimelineWithSession::onSetPauseMode );
+    connect( this, &AnimationUI::clearKeyPoses, timeline, &AnimTimelineWithSession::onClearKeyPoses );
+
 }
 
 AnimationUI::~AnimationUI() {
     delete ui;
-    delete animTimeline;
+    delete timeline;
 }
 
 void AnimationUI::setAnimationComboBox( int count, int nonEditableCount ) {
@@ -83,18 +90,18 @@ void AnimationUI::setKeyPoses( std::vector<double> timestamps ) {
 }
 
 void AnimationUI::showTimeline() {
-    animTimeline->show();
+    timeline->show();
 }
 
 void AnimationUI::showEvent( QShowEvent* event ) {
     (void)event;
     if(ui->comboBox_currentAnimation->isEnabled()) {
-        animTimeline->show();
+        timeline->show();
     }
 }
 
 void AnimationUI::hideEvent( QHideEvent* event ) {
-    animTimeline->hide();
+    timeline->hide();
 }
 
 void AnimationUI::on_m_xray_clicked( bool checked ) {
@@ -276,4 +283,8 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
         ui->pushButton_saveRdmaFile->setEnabled( true );
         emit saveRDMA( filename.toStdString() );
     }
+}
+
+void AnimationUI::on_saveRendering(void * anim, size_t bytes) {
+    timeline->onSaveRendering(anim, bytes);
 }

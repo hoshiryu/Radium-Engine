@@ -781,7 +781,7 @@ void AnimationComponent::addKeyPose( double timestamp ) {
     m_animations[m_animationID].normalize();
 }
 
-void AnimationComponent::removeKeyPose( int i ) {
+void AnimationComponent::removeKeyPose( size_t i ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyCurrentAnimation();
@@ -791,7 +791,7 @@ void AnimationComponent::removeKeyPose( int i ) {
     setCurrentPose();
     }
 
-void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {
+void AnimationComponent::setKeyPoseTime( size_t i, double timestamp ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyCurrentAnimation();
@@ -800,7 +800,7 @@ void AnimationComponent::setKeyPoseTime( int i, double timestamp ) {
     m_animations[m_animationID].setKeyPoseTime( i, static_cast<Scalar>( timestamp ) );
 }
 
-void AnimationComponent::updateKeyPose( int id ) {
+void AnimationComponent::updateKeyPose( size_t id ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyCurrentAnimation();
@@ -809,7 +809,7 @@ void AnimationComponent::updateKeyPose( int id ) {
     m_animations[m_animationID].replacePose(id, m_skel.getPose(Handle::SpaceType::LOCAL));
 }
 
-void AnimationComponent::offsetKeyPoses( double offset, int first ) {
+void AnimationComponent::offsetKeyPoses( double offset, size_t first ) {
     if ( m_animationID < m_firstEditableID )
     {
         copyCurrentAnimation();
@@ -822,6 +822,31 @@ void AnimationComponent::offsetKeyPoses( double offset, int first ) {
         std::get<1>( m_animsPlayzones[m_animationID][i] ) += offset;
         std::get<2>( m_animsPlayzones[m_animationID][i] ) += offset;
     }
+}
+
+std::pair<void *, size_t> AnimationComponent::saveEnv()
+{
+    auto env = new std::pair<Animation, Playzone>{m_animations[m_animationID], m_animsPlayzones[m_animationID][m_playzoneID]};
+
+    Animation animation = env->first;
+    size_t bytes = sizeof(Animation) + static_cast<size_t>(animation.size()) * sizeof(Animation::MyKeyPose) + sizeof (Playzone);
+    return std::pair<void *, size_t>(env, bytes);
+}
+
+void AnimationComponent::rendering(void *anim)
+{
+    auto env = static_cast<std::pair<Animation, Playzone>*>(anim);
+
+    m_animations[m_animationID] = env->first;
+    m_animsPlayzones[m_animationID][m_playzoneID] = env->second;
+    setCurrentPose();
+}
+
+void AnimationComponent::deleteRender(void *anim)
+{
+    auto env = static_cast<std::pair<Animation, Playzone>*>(anim);
+
+    delete env;
 }
 
 std::vector<std::string> AnimationComponent::playzonesLabels() const {

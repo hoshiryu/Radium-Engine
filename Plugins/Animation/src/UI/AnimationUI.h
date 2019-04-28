@@ -102,22 +102,35 @@ class AnimationUI : public QFrame {
 
     /// \brief Forwarded from the timeline when a key pose is deleted.
     /// \param the index of the pose to delete.
-    void keyPoseDeleted( int );
+    void keyPoseDeleted( size_t );
 
     /// \brief Forwarded from the timeline when a key pose is replaced.
     /// \param the index of the pose to replace.
-    void keyPoseChanged( int );
+    void keyPoseChanged( size_t );
 
     /// \brief Forwarded from the timeline when an offset should be added to every pose after the index
     /// specified (included).
     /// \param offset: the offset to add to the poses.
     /// \param index: the index of the first pose to offset.
-    void keyPosesMoved( double offset, int index );
+    void keyPosesMoved( double offset, size_t index );
 
     /// \brief Forwarded from the timeline when an offset should be added to a pose.
     /// \param the index of the pose to move.
     /// \param the new timestamp of the pose.
-    void keyPoseMoved( int, double );
+    void keyPoseMoved( size_t, double );
+
+    /// \brief Save current environment (minimal just Animation and Playzone)
+    /// allow future rendering when signals session comming (undo/redo)
+    /// use void * because Q_OBJECT unauthorize template class
+    void envSaved();
+
+    /// \brief Render previous saved environment
+    /// \param generic parameter to rendering
+    void rendered(void * anim);
+
+    /// \brief Delete previous instance of environment
+    /// \param generic parameter to delete
+    void renderDeleted(void * anim);
 
 
     /// \brief Forwarded from the plugin when the animation time change when playing.
@@ -169,9 +182,11 @@ class AnimationUI : public QFrame {
     void on_pushButton_saveRdmaFile_clicked();
     void on_pushButton_newRdmaFile_clicked();
 
+    void on_saveRendering(void * anim, size_t bytes);
+
   private:
     Ui::AnimationUI* ui;
-    AnimTimeline* animTimeline;
+    AnimTimelineWithSession* timeline;
 
     void updateTime( float t );
     void updateFrame( int f );

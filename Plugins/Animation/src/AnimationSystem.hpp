@@ -117,16 +117,22 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     void addKeyPose( double timestamp );
 
     /// Remove the i-th keypose. Only apply to the last component.
-    void removeKeyPose( int i );
+    void removeKeyPose( size_t i );
 
     /// Set the i-th keypose timestamp. Only apply to the last component.
-    void setKeyPoseTime( int i, double timestamp );
+    void setKeyPoseTime( size_t i, double timestamp );
 
     /// Update the i-th keypose with the current skeleton pose. Only apply to the last component.
-    void updateKeyPose( int id );
+    void updateKeyPose( size_t id );
 
     /// Add and offset to every key poses timestamp after first (included) of the current animation. Only apply to the last component.
-    void offsetKeyPoses( double offset, int first );
+    void offsetKeyPoses( double offset, size_t first );
+
+    std::pair<void *, size_t> saveEnv();
+
+    void rendering(void * anim);
+
+    void deleteRender(void * anim);
 
     /// Returns current animation playzones' labels. Only apply to the last component.
     std::vector<std::string> playzonesLabels() const;
