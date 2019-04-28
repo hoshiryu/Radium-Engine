@@ -69,3 +69,9 @@ target_link_libraries( Animation
                        ${RADIUM_LIBRARIES}
                        ${GLBINDING_LIBRARIES}           # Radium dep
                      )
+
+
+# avoid : qDebug() (Qt) with macro on Release mode
+if(CMAKE_BUILD_TYPE MATCHES "Release")
+        add_definitions(-DQT_NO_DEBUG_OUTPUT)
+endif()
