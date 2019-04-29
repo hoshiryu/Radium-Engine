@@ -828,8 +828,7 @@ std::pair<void *, size_t> AnimationComponent::saveEnv()
 {
     auto env = new std::pair<Animation, Playzone>{m_animations[m_animationID], m_animsPlayzones[m_animationID][m_playzoneID]};
 
-    Animation animation = env->first;
-    size_t bytes = sizeof(Animation) + static_cast<size_t>(animation.size()) * sizeof(Animation::MyKeyPose) + sizeof (Playzone);
+    size_t bytes = sizeof(Animation) + static_cast<size_t>(env->first.size()) * sizeof(Animation::MyKeyPose) + sizeof (Playzone);
     return std::pair<void *, size_t>(env, bytes);
 }
 
