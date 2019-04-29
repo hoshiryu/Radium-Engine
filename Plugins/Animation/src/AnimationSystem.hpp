@@ -133,7 +133,7 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Only apply to the last component.
     void offsetKeyPoses( double offset, size_t first );
 
-    void saveEnv( void ** anim, size_t * bytes );
+    void saveEnv( void** anim, size_t* bytes );
 
     void rendering( void* anim );
 

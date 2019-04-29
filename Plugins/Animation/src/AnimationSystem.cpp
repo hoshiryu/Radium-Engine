@@ -322,11 +322,9 @@ void AnimationSystem::offsetKeyPoses( double offset, size_t first ) {
             ->offsetKeyPoses( offset, first );
 }
 
-void AnimationSystem::saveEnv( void ** anim, size_t * bytes)
-{
+void AnimationSystem::saveEnv( void** anim, size_t* bytes ) {
     if ( !m_components.empty() )
-        static_cast<AnimationComponent*>( m_components.back().second )->saveEnv(anim, bytes);
-
+        static_cast<AnimationComponent*>( m_components.back().second )->saveEnv( anim, bytes );
 }
 
 void AnimationSystem::rendering( void* anim ) {

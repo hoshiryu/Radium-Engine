@@ -125,8 +125,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Save the created animations and every playzone at filepath.
     void saveRDMA( const std::string& filepath );
 
-    /// \brief Set the pose to the current animation time. Should NOT be used when playing. Used to avoid
-    /// interpolation when adding poses before the first or after the last pose of an animation.
+    /// \brief Set the pose to the current animation time. Should NOT be used when playing. Used to
+    /// avoid interpolation when adding poses before the first or after the last pose of an
+    /// animation.
     void updateCurrentPose();
 
     /// Sets current playzoneID to i.
@@ -166,7 +167,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// \brief Save current environment (minimal just Animation and Playzone)
     /// allow future rendering when signals session comming (undo/redo)
     /// use void * because Q_OBJECT unauthorize template class
-    void saveEnv( void ** anim, size_t * bytes );
+    void saveEnv( void** anim, size_t* bytes );
 
     /// \brief Render previous saved environment
     /// \param generic parameter to rendering
