@@ -75,10 +75,9 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::keyPosesMoved, this, &AnimationPluginC::offsetKeyPoses );
     connect( m_widget, &AnimationUI::keyPoseMoved, this, &AnimationPluginC::setKeyPoseTime );
 
-    connect( m_widget, &AnimationUI::envSaved, this, &AnimationPluginC::saveEnv);
-    connect( m_widget, &AnimationUI::rendered, this, &AnimationPluginC::rendering);
-    connect( m_widget, &AnimationUI::renderDeleted, this, &AnimationPluginC::deleteRender);
-
+    connect( m_widget, &AnimationUI::envSaved, this, &AnimationPluginC::saveEnv );
+    connect( m_widget, &AnimationUI::rendered, this, &AnimationPluginC::rendering );
+    connect( m_widget, &AnimationUI::renderDeleted, this, &AnimationPluginC::deleteRender );
 
     return m_widget;
 }
@@ -117,6 +116,8 @@ void AnimationPluginC::setupUI() {
     m_widget->ui->groupBox_playZone->setEnabled( true );
     m_widget->setAnimationComboBox( m_system->animationCount(), m_system->nonEditableCount() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
+
+    emit m_widget->changeCursor( m_system->animationTime() );
 }
 
 bool AnimationPluginC::isIKEnabled() {
@@ -173,6 +174,8 @@ void AnimationPluginC::setAnimation( uint i ) {
     m_system->setPlayzone( 0 );
     m_widget->setKeyPoses( m_system->keyposesTimes() );
     m_widget->setPlayzoneComboBox( m_system->playzonesLabels() );
+
+    m_system->updateCurrentPose();
 }
 
 void AnimationPluginC::toggleAnimationTimeStep( bool status ) {
@@ -335,21 +338,21 @@ void AnimationPluginC::offsetKeyPoses( double offset, size_t first ) {
 }
 
 void AnimationPluginC::saveEnv() {
-    void * anim {nullptr};
-    size_t bytes {0};
+    void* anim{nullptr};
+    size_t bytes{0};
 
-    m_system->saveEnv(&anim, &bytes);
+    m_system->saveEnv( &anim, &bytes );
 
-    if (anim)
-        m_widget->on_saveRendering(anim, bytes);
+    if ( anim )
+        m_widget->on_saveRendering( anim, bytes );
 }
 
-void AnimationPluginC::rendering( void * anim ) {
-    m_system->rendering(anim);
+void AnimationPluginC::rendering( void* anim ) {
+    m_system->rendering( anim );
 }
 
-void AnimationPluginC::deleteRender( void * anim ) {
-    m_system->deleteRender(anim);
+void AnimationPluginC::deleteRender( void* anim ) {
+    m_system->deleteRender( anim );
 }
 
 } // namespace AnimationPlugin

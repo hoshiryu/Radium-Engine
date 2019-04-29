@@ -125,8 +125,9 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// Save the created animations and every playzone at filepath.
     void saveRDMA( const std::string& filepath );
 
-    /// Sets current pose: should not be used when playing.
-    void setCurrentPose();
+    /// \brief Set the pose to the current animation time. Should NOT be used when playing. Used to avoid
+    /// interpolation when adding poses before the first or after the last pose of an animation.
+    void updateCurrentPose();
 
     /// Sets current playzoneID to i.
     void setPlayzoneID( int i );
@@ -169,11 +170,11 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// \brief Render previous saved environment
     /// \param generic parameter to rendering
-    void rendering(void * anim);
+    void rendering( void * anim );
 
     /// \brief Delete previous instance of environment
     /// \param generic parameter to delete
-    void deleteRender(void * anim);
+    void deleteRender( void * anim );
 
     /// Returns the playzones labels.
     std::vector<std::string> playzonesLabels() const;

@@ -101,7 +101,8 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Load and .rdma file. Only apply to the last component.
     void loadRDMA( const std::string& filename );
 
-    /// Save all the animation that were not loaded with the model file. Only apply to the last component.
+    /// Save all the animation that were not loaded with the model file. Only apply to the last
+    /// component.
     void saveRDMA( const std::string& filename );
 
     /// Updates the current pose. Only apply to the last component.
@@ -122,17 +123,21 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Set the i-th keypose timestamp. Only apply to the last component.
     void setKeyPoseTime( size_t i, double timestamp );
 
+    /// Update the skeleton.
+    void updateCurrentPose();
+
     /// Update the i-th keypose with the current skeleton pose. Only apply to the last component.
     void updateKeyPose( size_t id );
 
-    /// Add and offset to every key poses timestamp after first (included) of the current animation. Only apply to the last component.
+    /// Add and offset to every key poses timestamp after first (included) of the current animation.
+    /// Only apply to the last component.
     void offsetKeyPoses( double offset, size_t first );
 
     void saveEnv( void ** anim, size_t * bytes );
 
-    void rendering(void * anim);
+    void rendering( void* anim );
 
-    void deleteRender(void * anim);
+    void deleteRender( void* anim );
 
     /// Returns current animation playzones' labels. Only apply to the last component.
     std::vector<std::string> playzonesLabels() const;

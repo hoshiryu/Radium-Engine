@@ -152,9 +152,9 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     /// \param id: the index of the pose to replace.
     void updateKeyPose( size_t i );
 
-    /// \brief Add an offset to every key pose timestamp after first (included) in the current animation.
-    /// \param offset: the offset to add to the key poses.
-    /// \param first: the index of the first pose to move.
+    /// \brief Add an offset to every key pose timestamp after first (included) in the current
+    /// animation. \param offset: the offset to add to the key poses. \param first: the index of the
+    /// first pose to move.
     void offsetKeyPoses( double offset, size_t first );
 
     /// \brief Save current environment (minimal just Animation and Playzone)
@@ -164,11 +164,11 @@ class AnimationPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
 
     /// \brief Render previous saved environment
     /// \param generic parameter to rendering
-    void rendering( void * anim );
+    void rendering( void* anim );
 
     /// \brief Delete previous instance of environment
     /// \param generic parameter to delete
-    void deleteRender( void * anim );
+    void deleteRender( void* anim );
 
   private:
     /// The data directory.

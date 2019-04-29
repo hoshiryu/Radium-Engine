@@ -304,6 +304,12 @@ void AnimationSystem::setKeyPoseTime( size_t i, double timestamp ) {
             ->setKeyPoseTime( i, timestamp );
 }
 
+/// Update the skeleton.
+void AnimationSystem::updateCurrentPose() {
+    if ( !m_components.empty() )
+        static_cast<AnimationComponent*>( m_components.back().second )->updateCurrentPose();
+}
+
 void AnimationSystem::updateKeyPose( size_t id ) {
     if ( !m_components.empty() )
         static_cast<AnimationComponent*>( m_components.back().second )->updateKeyPose( id );
@@ -323,18 +329,14 @@ void AnimationSystem::saveEnv( void ** anim, size_t * bytes)
 
 }
 
-void AnimationSystem::rendering(void *anim)
-{
+void AnimationSystem::rendering( void* anim ) {
     if ( !m_components.empty() )
-        return static_cast<AnimationComponent*>( m_components.back().second )->rendering(anim);
-
+        return static_cast<AnimationComponent*>( m_components.back().second )->rendering( anim );
 }
 
-void AnimationSystem::deleteRender(void *anim)
-{
+void AnimationSystem::deleteRender( void* anim ) {
     if ( !m_components.empty() )
-        return static_cast<AnimationComponent*>( m_components.back().second )->deleteRender(anim);
-
+        return static_cast<AnimationComponent*>( m_components.back().second )->deleteRender( anim );
 }
 
 /// Getter for the playzones labels.

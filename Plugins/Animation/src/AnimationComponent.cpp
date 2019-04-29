@@ -39,7 +39,8 @@ AnimationComponent::AnimationComponent( const std::string& name, Ra::Engine::Ent
     m_speed( 1.0 ),
     m_slowMo( false ),
     m_wasReset( false ),
-    m_resetDone( false ) {}
+    m_resetDone( false ),
+    m_playing( false ) {}
 
 AnimationComponent::~AnimationComponent() {}
 
@@ -80,7 +81,7 @@ void AnimationComponent::update( Scalar dt ) {
     // get the current pose from the animation
     if ( dt > 0 && !m_animations.empty() && m_animations[m_animationID].size() >= 2 )
     {
-        // Not calling setCurrentPose() to avoid unnecessary function calls
+        // Not calling updateCurrentPose() to avoid unnecessary function calls
         const auto& pose = m_animations[m_animationID].getPose( m_animationTime );
         m_skel.setPose( pose, Handle::SpaceType::LOCAL );
     }
@@ -138,7 +139,7 @@ void AnimationComponent::printSkeleton( const Ra::Core::Animation::Skeleton& ske
 
 void AnimationComponent::reset() {
     m_animationTime = std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] );
-    setCurrentPose();
+    updateCurrentPose();
     m_wasReset = true;
     m_playing = false;
 }
@@ -593,7 +594,6 @@ void AnimationComponent::loadRDMA( const std::string& filepath ) {
     {
         size_t playzoneSize;
         input.read( reinterpret_cast<char*>( &playzoneSize ), sizeof( playzoneSize ) );
-
         playzones.resize( playzoneSize );
         for ( auto& playzone : playzones )
         {
@@ -718,7 +718,7 @@ void AnimationComponent::removeAnimation( int i ) {
     setPlayzone( 0 );
 }
 
-void AnimationComponent::setCurrentPose() {
+void AnimationComponent::updateCurrentPose() {
     const auto& animation = m_animations[m_animationID];
     if ( animation.size() >= 1 )
     {
@@ -751,7 +751,7 @@ void AnimationComponent::setCurrentPose() {
 
 void AnimationComponent::setCurrentAnimationTime( double timestamp ) {
     m_animationTime = static_cast<Scalar>( timestamp );
-    setCurrentPose();
+    updateCurrentPose();
 }
 
 double AnimationComponent::getStart() const {
@@ -788,7 +788,7 @@ void AnimationComponent::removeKeyPose( size_t i ) {
         setAnimation( m_animations.size() - 1 );
     }
         m_animations[m_animationID].removeKeyPose(i);
-    setCurrentPose();
+    updateCurrentPose();
     }
 
 void AnimationComponent::setKeyPoseTime( size_t i, double timestamp ) {
@@ -834,17 +834,15 @@ void AnimationComponent::saveEnv( void ** anim, size_t * bytes )
     *anim = env;
 }
 
-void AnimationComponent::rendering(void *anim)
-{
+void AnimationComponent::rendering( void* anim ) {
     auto env = static_cast<std::pair<Animation, Playzone>*>(anim);
 
     m_animations[m_animationID] = env->first;
     m_animsPlayzones[m_animationID][m_playzoneID] = env->second;
-    setCurrentPose();
+    updateCurrentPose();
 }
 
-void AnimationComponent::deleteRender(void *anim)
-{
+void AnimationComponent::deleteRender( void* anim ) {
     auto env = static_cast<std::pair<Animation, Playzone>*>(anim);
 
     delete env;
