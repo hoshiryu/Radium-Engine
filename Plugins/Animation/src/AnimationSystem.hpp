@@ -128,7 +128,7 @@ class ANIM_PLUGIN_API AnimationSystem : public Ra::Engine::CoupledTimedSystem
     /// Add and offset to every key poses timestamp after first (included) of the current animation. Only apply to the last component.
     void offsetKeyPoses( double offset, size_t first );
 
-    std::pair<void *, size_t> saveEnv();
+    void saveEnv( void ** anim, size_t * bytes );
 
     void rendering(void * anim);
 

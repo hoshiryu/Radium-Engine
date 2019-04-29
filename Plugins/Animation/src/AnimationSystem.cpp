@@ -316,10 +316,10 @@ void AnimationSystem::offsetKeyPoses( double offset, size_t first ) {
             ->offsetKeyPoses( offset, first );
 }
 
-std::pair<void *, size_t> AnimationSystem::saveEnv()
+void AnimationSystem::saveEnv( void ** anim, size_t * bytes)
 {
     if ( !m_components.empty() )
-        return static_cast<AnimationComponent*>( m_components.back().second )->saveEnv();
+        static_cast<AnimationComponent*>( m_components.back().second )->saveEnv(anim, bytes);
 
 }
 

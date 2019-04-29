@@ -165,7 +165,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// \brief Save current environment (minimal just Animation and Playzone)
     /// allow future rendering when signals session comming (undo/redo)
     /// use void * because Q_OBJECT unauthorize template class
-    std::pair<void *, size_t> saveEnv();
+    void saveEnv( void ** anim, size_t * bytes );
 
     /// \brief Render previous saved environment
     /// \param generic parameter to rendering

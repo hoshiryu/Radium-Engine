@@ -335,9 +335,13 @@ void AnimationPluginC::offsetKeyPoses( double offset, size_t first ) {
 }
 
 void AnimationPluginC::saveEnv() {
-    std::pair<void *, size_t> env = m_system->saveEnv();
+    void * anim {nullptr};
+    size_t bytes {0};
 
-    m_widget->on_saveRendering(env.first, env.second);
+    m_system->saveEnv(&anim, &bytes);
+
+    if (anim)
+        m_widget->on_saveRendering(anim, bytes);
 }
 
 void AnimationPluginC::rendering( void * anim ) {

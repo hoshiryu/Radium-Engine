@@ -824,14 +824,14 @@ void AnimationComponent::offsetKeyPoses( double offset, size_t first ) {
     }
 }
 
-std::pair<void *, size_t> AnimationComponent::saveEnv()
+void AnimationComponent::saveEnv( void ** anim, size_t * bytes )
 {
     auto env = new std::pair<Animation, Playzone>{m_animations[m_animationID], m_animsPlayzones[m_animationID][m_playzoneID]};
     size_t nbPoses =static_cast<size_t>(env->first.size()); // number of poses in current animation
     size_t nbBytesPerPose = m_refPose.size() * sizeof(Eigen::Transform<Scalar, 3, Eigen::Affine>); // consider skeleton do not change, no loosing bones
-    size_t bytes = sizeof(Animation) + nbPoses * (sizeof(Animation::MyKeyPose) + nbBytesPerPose) + sizeof (Playzone); // save just current playzone
 
-    return std::pair<void *, size_t>(env, bytes);
+    *bytes = sizeof(Animation) + nbPoses * (sizeof(Animation::MyKeyPose) + nbBytesPerPose) + sizeof (Playzone); // save just current playzone
+    *anim = env;
 }
 
 void AnimationComponent::rendering(void *anim)
