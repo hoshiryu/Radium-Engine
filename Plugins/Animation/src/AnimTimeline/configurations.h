@@ -1,7 +1,6 @@
 #ifndef CONFIGURATIONS_H
 #define CONFIGURATIONS_H
 
-
 // fixed startup width of timeline
 //  ---------------------------------
 // |                                 |
@@ -17,7 +16,6 @@
 //  ---------------------------------
 //#define STARTUP_WIDTH 700
 // now fix timeline's width directly in animtimeline.ui
-
 
 // first timeline position is fixed at startup with these margins (right/bottom)
 // parent area :
@@ -47,7 +45,6 @@
 // |                  v              |
 //  ---------------------------------
 #define MARGIN_DOWN 40 // unit : pixel
-
 
 // timeline :
 //  -----------------------     -----------------------

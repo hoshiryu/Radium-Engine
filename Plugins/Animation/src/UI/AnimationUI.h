@@ -121,17 +121,15 @@ class AnimationUI : public QFrame {
 
     /// \brief Save current environment (minimal just Animation and Playzone)
     /// allow future rendering when signals session comming (undo/redo)
-    /// use void * because Q_OBJECT unauthorize template class
     void envSaved();
 
     /// \brief Render previous saved environment
-    /// \param generic parameter to rendering
+    /// \param generic parameter to rendering (use void * because Q_OBJECT unauthorize template class)
     void rendered(void * anim);
 
     /// \brief Delete previous instance of environment
     /// \param generic parameter to delete
     void renderDeleted(void * anim);
-
 
     /// \brief Forwarded from the plugin when the animation time change when playing.
     /// \param the timestamp where to put the cursor.
