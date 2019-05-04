@@ -27,7 +27,6 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
 
-
 signals:
     void cursorChanged(double time); // EXTERNAL SIGNAL
     void startChanged(double time); // EXTERNAL SIGNAL
@@ -56,7 +55,6 @@ public slots:
     void onSlideRightSlider(int deltaX);
     void onLeftSlideRelease();
     void onRightSlideRelease();
-
 
     void onDeleteKeyPose();
 
@@ -142,12 +140,10 @@ public:
     std::set<double> getKeyPoses() const;
     std::set<double>* getKeyPoses();
 
-    //
     // --------------------------- SETTERS ------------------------------------
     void setCursor(double time);
     void setKeyPoses(const std::set<double>& value);
     void setShiftDown(bool* value);
-    //    void setDrawLock(bool *value);
     void setStart(double value);
     void setEnd(double value);
     void setDuration(double time);

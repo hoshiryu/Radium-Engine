@@ -180,11 +180,12 @@ class AnimationUI : public QFrame {
     void on_pushButton_saveRdmaFile_clicked();
     void on_pushButton_newRdmaFile_clicked();
 
-    void on_saveRendering(void * anim, size_t bytes);
+    void on_saveRendering(void * anim, size_t bytes); // undo/redo session
 
   private:
     Ui::AnimationUI* ui;
-    AnimTimelineWithSession* timeline;
+//    AnimTimeline * timeline;
+    AnimTimelineWithSession* timeline; // for undo/redo
 
     void updateTime( float t );
     void updateFrame( int f );

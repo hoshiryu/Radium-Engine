@@ -4,9 +4,9 @@
 #include <AnimTimeline/animtimeline.h>
 
 #include <AnimTimeline/animtimeline.h>
-#include <AnimTimeline/qwidgetruler.h>
 #include <AnimTimeline/qdoublespinboxsmart.h>
 #include <AnimTimeline/qframeselector.h>
+#include <AnimTimeline/qwidgetruler.h>
 
 #include <QObject>
 #include <QScrollArea>
@@ -53,11 +53,6 @@ public slots:
     void onKeyRelease(QKeyEvent* event);
 
 private:
-    bool ctrlDown = false;
-    bool shiftDown = false;
-    bool midMouseDown = false;
-    bool align[5];
-
     int mousePosX;
     int sliderPos;
 
@@ -69,6 +64,11 @@ private:
     QDoubleSpinBoxSmart* cursorSpin;
 
     QFrameSelector* selector;
+
+    bool ctrlDown = false;
+    bool shiftDown = false;
+    bool midMouseDown = false;
+    bool align[5];
 };
 
 #endif // QSCROLLAREARULER_H

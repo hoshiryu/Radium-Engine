@@ -7,7 +7,6 @@
 #include <set>
 //#include <boost/circular_buffer.hpp> // need boost lib
 
-
 Session::Session(QObject* parent)
     : QObject(parent)
 {
@@ -17,7 +16,6 @@ Session::Session(QObject* parent)
     connect(this, &Session::envSaved, this, &Session::envSavedTrace);
 #endif
     saveDelay->setSingleShot(true);
-
 }
 
 Session::~Session()
@@ -123,7 +121,6 @@ void Session::setEnv(Env env)
     *duration = env.duration;
     selector->updateDurationSpin();
 
-
     selector->redrawPlayZone();
     ruler->onDrawRuler(ruler->width());
 
@@ -137,7 +134,6 @@ void Session::envSavedTrace()
     qDebug() << "\033[35menvSaved()\033[0m";
 }
 #endif
-
 
 void Session::setKeyPoses(std::set<double>* value)
 {

@@ -93,14 +93,13 @@ void AnimationUI::showTimeline() {
     timeline->show();
 }
 
-void AnimationUI::showEvent( QShowEvent* event ) {
-    (void)event;
+void AnimationUI::showEvent( QShowEvent* ) {
     if(ui->comboBox_currentAnimation->isEnabled()) {
         timeline->show();
     }
 }
 
-void AnimationUI::hideEvent( QHideEvent* event ) {
+void AnimationUI::hideEvent( QHideEvent* ) {
     timeline->hide();
 }
 
@@ -285,6 +284,7 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
     }
 }
 
+// undo/redo session
 void AnimationUI::on_saveRendering(void * anim, size_t bytes) {
     timeline->onSaveRendering(anim, bytes);
 }

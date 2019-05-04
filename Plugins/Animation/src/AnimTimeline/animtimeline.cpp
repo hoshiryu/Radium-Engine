@@ -119,7 +119,7 @@ AnimTimeline::AnimTimeline(QWidget* parent)
     int timelineTop = bottomBorder - this->height() - MARGIN_DOWN;
     move(timelineLeft, timelineTop);
 
-    // set sizePolicy to set, to allow zoom in scrollArea
+    // set sizePolicy to allow zoom in scrollArea
     ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     // first draw of ruler with current width (default in animtimeline.ui) of dialog
     ui->scrollAreaWidgetContents->onDrawRuler(width() - 2); // left/right border width = 2 *1 pixel
@@ -127,6 +127,7 @@ AnimTimeline::AnimTimeline(QWidget* parent)
 
 AnimTimeline::~AnimTimeline() { delete ui; }
 
+// todo : ctrlDown = shiftDown = false, on focus event (initialize state)
 void AnimTimeline::resizeEvent(QResizeEvent* event)
 {
     qDebug() << "AnimTimeline::resizeEvent(" << event->size() << ")";

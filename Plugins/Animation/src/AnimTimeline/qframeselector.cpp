@@ -234,7 +234,7 @@ void QFrameSelector::mousePressEvent(QMouseEvent* event)
                 // ---------------- MOVE LEFT KEYPOSE TO THE RIGHT -----------
             } else {
                 auto it = keyPoses.rbegin();
-                int iLeft = static_cast<int>(keyPoses.size() - 1);
+                size_t iLeft = keyPoses.size() - 1;
                 while (it != keyPoses.rend() && *it > newPose) {
                     ++it;
                     --iLeft;
@@ -295,7 +295,6 @@ void QFrameSelector::onAddingKeyPose(double time, bool internal /* = true */)
         updateCursorSpin();
         update();
 
-        //        emit nbKeyPosesChanged(static_cast<int>(keyPoses.size()));
         if (internal) {
             emit keyPoseAdded(time); // EXTERNAL SIGNAL
             qDebug() << "\033[35mkeyPoseAdded(" << time << ")\033[0m";

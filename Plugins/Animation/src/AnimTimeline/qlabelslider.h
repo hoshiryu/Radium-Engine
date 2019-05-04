@@ -20,9 +20,10 @@ signals:
 public slots:
 
 private:
-    bool clicked = false;
-    bool align[3];
     int x;
+    bool clicked = false;
+
+    bool align[3];
 };
 
 #endif // QLABELSLIDER_H

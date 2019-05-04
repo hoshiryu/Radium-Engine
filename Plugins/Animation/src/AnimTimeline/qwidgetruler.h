@@ -26,11 +26,9 @@ public:
     void setSpinCursor(QDoubleSpinBoxSmart* value);
     void setSpinDuration(QDoubleSpinBoxSmart* value);
 
-
     void setShiftDown(bool* value);
 
     void setCtrlDown(bool* value);
-
 
 signals:
     void rulerZoomed(QWheelEvent* event, double xr);
@@ -49,7 +47,6 @@ private:
     double pixPerSec;
     double zero;
     double maxDuration;
-
 
     QDoubleSpinBoxSmart* spinStart;
     QDoubleSpinBoxSmart* spinEnd;
