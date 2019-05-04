@@ -52,7 +52,7 @@
 // frame per second to draw position of each frame in ruler
 #define FPS 24
 
-#define BUFFER_SESSION_MAX_SIZE 500'000'000 // 500M bytes in RAM, max bytes for saving user anim for undo/redo stack
+#define BUFFER_SESSION_MAX_SIZE 500000000 // 500M bytes in RAM, max bytes for saving user anim for undo/redo stack
 
 #define DELAY_AUTO_SAVE 100 // millisecond, auto save environment after delay
 
