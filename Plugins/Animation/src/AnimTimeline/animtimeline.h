@@ -5,7 +5,7 @@
  *
  * For question send me mail or add issue to initial
  * github repo : https://github.com/hiergaut/AnimTimeline.git
- * current commit id : 93854c5c91578430aa6efb665b7b63773ade4619
+ * current commit id : aaa363ee8ec0247e9299a8949e5bd334b10dc413
  */
 
 #ifndef ANIMTIMELINE_H

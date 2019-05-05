@@ -182,7 +182,8 @@ class AnimationUI : public QFrame {
 
     void on_saveRendering(void * anim, size_t bytes); // undo/redo session
 
-  private:
+
+private:
     Ui::AnimationUI* ui;
 //    AnimTimeline * timeline;
     AnimTimelineWithSession* timeline; // for undo/redo
