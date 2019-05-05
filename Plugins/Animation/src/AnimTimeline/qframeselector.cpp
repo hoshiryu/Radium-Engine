@@ -658,7 +658,7 @@ void QFrameSelector::deleteZone(double time, double time2)
         double keyPose = *it;
 
         if (keyPose >= left) {
-            keyPoses.erase(it++);
+            it = keyPoses.erase(it);
 
             if (keyPose > right) {
                 if (first) {
