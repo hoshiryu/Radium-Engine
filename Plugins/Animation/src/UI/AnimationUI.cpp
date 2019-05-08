@@ -4,9 +4,9 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QMessageBox>
 #include <QSettings>
 #include <iostream>
-#include <QMessageBox>
 
 AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::AnimationUI ) {
     ui->setupUi( this );
@@ -38,21 +38,18 @@ AnimationUI::AnimationUI( QWidget* parent ) : QFrame( parent ), ui( new Ui::Anim
     connect( timeline, &AnimTimeline::keyPoseMoved, this, &AnimationUI::keyPoseMoved );
 
     // AnimTimelineSession for (undo/redo)
-    connect( timeline, &AnimTimelineWithSession::envSaved, this, &AnimationUI::envSaved);
-    connect( timeline, &AnimTimelineWithSession::rendered, this, &AnimationUI::rendered);
-    connect( timeline, &AnimTimelineWithSession::renderDeleted, this, &AnimationUI::renderDeleted);
-
+    connect( timeline, &AnimTimelineWithSession::envSaved, this, &AnimationUI::envSaved );
+    connect( timeline, &AnimTimelineWithSession::rendered, this, &AnimationUI::rendered );
+    connect( timeline, &AnimTimelineWithSession::renderDeleted, this, &AnimationUI::renderDeleted );
 
     connect( this, &AnimationUI::changeCursor, timeline, &AnimTimeline::onChangeCursor );
     connect( this, &AnimationUI::addKeyPose, timeline, &AnimTimeline::onAddingKeyPose );
     connect( this, &AnimationUI::changeStart, timeline, &AnimTimeline::onChangeStart );
     connect( this, &AnimationUI::changeEnd, timeline, &AnimTimeline::onChangeEnd );
-    connect( this, &AnimationUI::changeDuration, timeline,
-             &AnimTimeline::onChangeDuration );
+    connect( this, &AnimationUI::changeDuration, timeline, &AnimTimeline::onChangeDuration );
     connect( this, &AnimationUI::play, timeline, &AnimTimeline::onSetPlayMode );
     connect( this, &AnimationUI::pause, timeline, &AnimTimeline::onSetPauseMode );
     connect( this, &AnimationUI::clearKeyPoses, timeline, &AnimTimeline::onClearKeyPoses );
-
 }
 
 AnimationUI::~AnimationUI() {
@@ -91,11 +88,15 @@ void AnimationUI::setKeyPoses( std::vector<double> timestamps ) {
 }
 
 void AnimationUI::showTimeline() {
-    timeline->show();
+    if ( this->isVisible() && ui->comboBox_currentAnimation->isEnabled() )
+    {
+        timeline->show();
+    }
 }
 
 void AnimationUI::showEvent( QShowEvent* ) {
-    if(ui->comboBox_currentAnimation->isEnabled()) {
+    if ( this->isVisible() && ui->comboBox_currentAnimation->isEnabled() )
+    {
         timeline->show();
     }
 }
@@ -255,21 +256,23 @@ void AnimationUI::on_pushButton_removeAnimation_clicked() {
 
 void AnimationUI::on_pushButton_loadRdmaFile_clicked() {
     QSettings settings;
-    QFileInfo previousOpenFile(settings.value( "files/load", QDir::homePath() ).toString());
+    QFileInfo previousOpenFile( settings.value( "files/load", QDir::homePath() ).toString() );
     QString dir = previousOpenFile.dir().absolutePath();
     QString basename = previousOpenFile.baseName();
     QString suggestFile = dir + "/" + basename + ".rdma";
 
     QString filename = QFileDialog::getOpenFileName( this, "Load RDMA file", suggestFile,
-                                                     tr("Radium Animation File (*.rdma)"));
-    if (! filename.isEmpty()) {
-        if (! filename.endsWith(".rdma")) {
+                                                     tr( "Radium Animation File (*.rdma)" ) );
+    if ( !filename.isEmpty() )
+    {
+        if ( !filename.endsWith( ".rdma" ) )
+        {
             QMessageBox msgBox;
-            QFileInfo file(filename);
-            msgBox.setText("This file '" + file.fileName() + "' is not a rdma file !");
+            QFileInfo file( filename );
+            msgBox.setText( "This file '" + file.fileName() + "' is not a rdma file !" );
             msgBox.exec();
-        }
-        else {
+        } else
+        {
             ui->label_currentRDMA->setText( filename );
             ui->pushButton_saveRdmaFile->setEnabled( true );
             emit loadRDMA( filename.toStdString() );
@@ -283,7 +286,7 @@ void AnimationUI::on_pushButton_saveRdmaFile_clicked() {
 
 void AnimationUI::on_pushButton_newRdmaFile_clicked() {
     QSettings settings;
-    QFileInfo previousOpenFile(settings.value( "files/load", QDir::homePath() ).toString());
+    QFileInfo previousOpenFile( settings.value( "files/load", QDir::homePath() ).toString() );
     QString dir = previousOpenFile.dir().absolutePath();
     QString basename = previousOpenFile.baseName();
     QString suggestFile = dir + "/" + basename + ".rdma";
@@ -291,14 +294,15 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
     QString filename = QFileDialog::getSaveFileName( this, "Save new RDMA file", suggestFile,
                                                      "Radium Animation File (*.rdma)" );
 
-    if (! filename.isEmpty()) {
-        if (! filename.endsWith(".rdma")) {
+    if ( !filename.isEmpty() )
+    {
+        if ( !filename.endsWith( ".rdma" ) )
+        {
             QMessageBox msgBox;
-            QFileInfo file(filename);
-            msgBox.setText("This file '" + file.fileName() + "' has not rdma file extension !");
+            QFileInfo file( filename );
+            msgBox.setText( "This file '" + file.fileName() + "' has not rdma file extension !" );
             msgBox.exec();
-        }
-        else
+        } else
         {
             ui->label_currentRDMA->setText( filename );
             ui->pushButton_saveRdmaFile->setEnabled( true );
@@ -308,6 +312,6 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
 }
 
 // undo/redo session
-void AnimationUI::on_saveRendering(void * anim, size_t bytes) {
-    timeline->onSaveRendering(anim, bytes);
+void AnimationUI::on_saveRendering( void* anim, size_t bytes ) {
+    timeline->onSaveRendering( anim, bytes );
 }
