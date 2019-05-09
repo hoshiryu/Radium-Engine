@@ -95,10 +95,7 @@ void AnimationUI::showTimeline() {
 }
 
 void AnimationUI::showEvent( QShowEvent* ) {
-    if ( this->isVisible() && ui->comboBox_currentAnimation->isEnabled() )
-    {
-        timeline->show();
-    }
+    showTimeline();
 }
 
 void AnimationUI::hideEvent( QHideEvent* ) {
