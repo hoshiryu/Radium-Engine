@@ -58,8 +58,8 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
 
     /// Loads the skinning weights from the given Handledata.
     // TODO: for now, weights are stored in the AnimationComponent.
-    virtual void handleWeightsLoading( const Ra::Core::Asset::HandleData* data,
-                                       const std::string& meshName );
+    void handleSkinDataLoading( const Ra::Core::Asset::HandleData* data,
+                                const std::string& meshName );
 
     /// @returns the reference skinning data.
     const Ra::Core::Skinning::RefData* getRefData() const { return &m_refData; }
@@ -102,6 +102,9 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// Skinning Weight Matrix getter for CC.
     const Ra::Core::Animation::WeightMatrix* getWeightsOutput() const;
 
+    /// Applies the bones bindMatrices to the given skeleton pose.
+    void applyBindMatrices( Ra::Core::Animation::Pose& pose );
+
   private:
     /// The mesh name for Component communication.
     std::string m_meshName;
@@ -135,9 +138,6 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// The Skinning Method.
     SkinningType m_skinningType;
 
-    /// The Skinning Weight Matrix.
-    Ra::Core::Animation::WeightMatrix m_weights;
-
     /// Are all the required data available.
     bool m_isReady;
 
@@ -153,6 +153,9 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
 
     /// The skinning weights, stored per bone.
     std::map<std::string, std::vector<std::pair<uint, Scalar>>> m_loadedWeights;
+    /// The bind matrices, stored per bone.
+    std::map<std::string, Ra::Core::Transform> m_loadedBindMatrices;
+    bool hasBindPose;
 
     /// The STBS weights.
     Ra::Core::Animation::WeightMatrix m_weightSTBS;

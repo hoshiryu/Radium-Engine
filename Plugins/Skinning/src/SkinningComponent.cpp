@@ -111,45 +111,37 @@ void SkinningComponent::initialize() {
             compMsg->rwCallback<Ra::Core::Vector3Array>( getEntity(), m_meshName + "n" );
         m_meshWritter = compMsg->rwCallback<TriangleMesh>( getEntity(), m_meshName );
 
+        // fill RefData
         // copy mesh triangles and find duplicates for normal computation.
         TriangleMesh* mesh = const_cast<TriangleMesh*>( m_meshWritter() );
         m_refData.m_referenceMesh.copyBaseGeometry( *mesh );
         findDuplicates( *mesh, m_duplicatesMap );
 
         // get other data
-        m_refData.m_skeleton       = compMsg->get<Skeleton>( getEntity(), m_contentsName );
-        m_refData.m_refPose        = compMsg->get<RefPose>( getEntity(), m_contentsName );
-        m_frameData.m_previousPose = m_refData.m_refPose;
+        m_refData.m_skeleton = compMsg->get<Skeleton>( getEntity(), m_contentsName );
+        createWeightMatrix();
+        m_refData.m_refPose = compMsg->get<RefPose>( getEntity(), m_contentsName );
+        applyBindMatrices( m_refData.m_refPose );
+
+        // initialize frame data
         m_frameData.m_frameCounter = 0;
-        m_frameData.m_doSkinning   = false;
+        m_frameData.m_doSkinning   = true;
         m_frameData.m_doReset      = false;
-        m_frameData.m_previousPose = m_refData.m_refPose;
-        m_frameData.m_currentPose  = m_refData.m_refPose;
 
         m_frameData.m_previousPos   = m_refData.m_referenceMesh.vertices();
         m_frameData.m_currentPos    = m_refData.m_referenceMesh.vertices();
         m_frameData.m_currentNormal = m_refData.m_referenceMesh.normals();
 
+        m_frameData.m_previousPose = m_refData.m_refPose;
+        m_frameData.m_currentPose  = m_refData.m_refPose;
         m_frameData.m_refToCurrentRelPose =
             Ra::Core::Animation::relativePose( m_frameData.m_currentPose, m_refData.m_refPose );
         m_frameData.m_prevToCurrentRelPose = Ra::Core::Animation::relativePose(
             m_frameData.m_currentPose, m_frameData.m_previousPose );
 
-        createWeightMatrix();
-
-        // Do some debug checks:  Attempt to write to the mesh and check the weights match skeleton
-        // and mesh.
-        ON_ASSERT( bool skinnable = compMsg->canRw<Ra::Core::Geometry::TriangleMesh>(
-                       getEntity(), m_meshName ) );
-        CORE_ASSERT(
-            skinnable,
-            "Mesh cannot be skinned. It could be because the mesh is set to nondeformable" );
-        CORE_ASSERT( m_refData.m_skeleton.size() == m_refData.m_weights.cols(),
-                     "Weights are incompatible with bones" );
-        CORE_ASSERT( m_refData.m_referenceMesh.vertices().size() == m_refData.m_weights.rows(),
-                     "Weights are incompatible with Mesh" );
-
-        m_isReady = true;
+        // setup comp data
+        m_isReady     = true;
+        m_forceUpdate = true;
         setupSkinningType( m_skinningType );
         setupSkinningType( STBS_LBS ); // ensure weights are present for display
 
@@ -200,6 +192,7 @@ void SkinningComponent::skin() {
     else
     {
         m_frameData.m_currentPose = skel->getPose( SpaceType::MODEL );
+        applyBindMatrices( m_frameData.m_currentPose );
         if ( !Ra::Core::Animation::areEqual( m_frameData.m_currentPose,
                                              m_frameData.m_previousPose ) ||
              m_forceUpdate )
@@ -342,40 +335,65 @@ void SkinningComponent::endSkinning() {
     }
 }
 
-void SkinningComponent::handleWeightsLoading( const Ra::Core::Asset::HandleData* data,
-                                              const std::string& meshName ) {
+void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData* data,
+                                               const std::string& meshName ) {
     m_contentsName = data->getName();
     m_meshName     = meshName;
     setupIO( meshName );
+    hasBindPose = true;
     for ( const auto& bone : data->getComponentData() )
     {
-        auto it = bone.m_weight.find( meshName );
-        if ( it != bone.m_weight.end() ) { m_loadedWeights[bone.m_name] = it->second; }
+        auto it_w = bone.m_weights.find( meshName );
+        if ( it_w != bone.m_weights.end() )
+        {
+            m_loadedWeights[bone.m_name] = it_w->second;
+            auto it_b                    = bone.m_bindMatrices.find( meshName );
+            if ( it_b != bone.m_bindMatrices.end() )
+            { m_loadedBindMatrices[bone.m_name] = it_b->second; } else
+            {
+                hasBindPose = false;
+                LOG( logWARNING ) << "Bone " << bone.m_name
+                                  << " has skinning weights but no bind matrix. Using Identity.";
+                m_loadedBindMatrices[bone.m_name] = Ra::Core::Transform::Identity();
+            }
+        }
     }
-}
+    if ( !hasBindPose )
+    { LOG( logWARNING ) << "Model " << meshName << " does not provide bind pose."; } }
 
 void SkinningComponent::createWeightMatrix() {
-    m_refData.m_weights.resize( m_refData.m_referenceMesh.vertices().size(),
+    m_refData.m_weights.resize( int( m_refData.m_referenceMesh.vertices().size() ),
                                 m_refData.m_skeleton.size() );
-    for ( int col = 0; col < m_refData.m_skeleton.size(); ++col )
+    for ( uint col = 0; col < m_refData.m_skeleton.size(); ++col )
     {
-        auto it = m_loadedWeights.find( m_refData.m_skeleton.getLabel( col ) );
+        std::string boneName = m_refData.m_skeleton.getLabel( col );
+        auto it              = m_loadedWeights.find( boneName );
         if ( it != m_loadedWeights.end() )
         {
             const auto& W   = it->second;
-            const uint size = W.size();
+            const uint size = uint( W.size() );
             for ( uint i = 0; i < size; ++i )
             {
-                const uint row                           = W[i].first;
-                const Scalar w                           = W[i].second;
+                const uint row = W[i].first;
+                const Scalar w = W[i].second;
+                CORE_ASSERT( row < m_refData.m_weights.rows(),
+                             "Weights are incompatible with mesh." );
                 m_refData.m_weights.coeffRef( row, col ) = w;
             }
+            m_refData.m_bindMatrices[col] = m_loadedBindMatrices[boneName];
         }
     }
     Ra::Core::Animation::checkWeightMatrix( m_refData.m_weights, false, true );
 
     if ( Ra::Core::Animation::normalizeWeights( m_refData.m_weights, true ) )
     { LOG( logINFO ) << "Skinning weights have been normalized"; }
+}
+
+void SkinningComponent::applyBindMatrices( Ra::Core::Animation::Pose& pose ) {
+    for ( auto bM : m_refData.m_bindMatrices )
+    {
+        pose[bM.first] = pose[bM.first] * bM.second;
+    }
 }
 
 void SkinningComponent::setupIO( const std::string& id ) {
