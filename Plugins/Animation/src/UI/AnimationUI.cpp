@@ -58,25 +58,25 @@ AnimationUI::~AnimationUI() {
 }
 
 void AnimationUI::setAnimationComboBox( int count, int nonEditableCount ) {
-    ui->comboBox_currentAnimation->clear();
+    ui->m_currentAnimation->clear();
 
     for ( int i = 0; i < nonEditableCount; ++i )
     {
-        ui->comboBox_currentAnimation->addItem( "Not editable #" + QString::number( i + 1 ) );
+        ui->m_currentAnimation->addItem( "Not editable #" + QString::number( i + 1 ) );
     }
 
     for ( int i = nonEditableCount; i < count; ++i )
     {
-        ui->comboBox_currentAnimation->addItem( "#" + QString::number( i + 1 ) );
+        ui->m_currentAnimation->addItem( "#" + QString::number( i + 1 ) );
     }
 }
 
 void AnimationUI::setPlayzoneComboBox( const std::vector<std::string> labels ) {
-    ui->comboBox_currentPlayZone->clear();
+    ui->m_currentPlayZone->clear();
 
     for ( const auto& label : labels )
     {
-        ui->comboBox_currentPlayZone->addItem( label.c_str() );
+        ui->m_currentPlayZone->addItem( label.c_str() );
     }
 }
 
@@ -88,7 +88,7 @@ void AnimationUI::setKeyPoses( std::vector<double> timestamps ) {
 }
 
 void AnimationUI::showTimeline() {
-    if ( this->isVisible() && ui->comboBox_currentAnimation->isEnabled() ) { timeline->show(); }
+    if ( this->isVisible() && ui->m_currentAnimation->isEnabled() ) { timeline->show(); }
 }
 
 void AnimationUI::showEvent( QShowEvent* ) {
@@ -204,52 +204,52 @@ void AnimationUI::updateFrame( int f ) {
     ui->m_currentFrame->setText( QString::number( f ) );
 }
 
-void AnimationUI::on_comboBox_currentPlayZone_currentIndexChanged( int index ) {
+void AnimationUI::on_m_currentPlayZone_currentIndexChanged( int index ) {
     emit playzoneID( index );
 }
 
-void AnimationUI::on_pushButton_newPlayZone_clicked() {
+void AnimationUI::on_m_newPlayZone_clicked() {
     bool ok;
     QString text = QInputDialog::getText(
         this, tr( "Adding PlayZone" ), tr( "PlayZone name :" ), QLineEdit::Normal, "", &ok );
 
     if ( ok && !text.isEmpty() )
     {
-        ui->comboBox_currentPlayZone->addItem( text );
+        ui->m_currentPlayZone->addItem( text );
         emit newPlayzone( text.toStdString() );
     }
 }
 
-void AnimationUI::on_pushButton_removePlayZone_clicked() {
-    int removeIndex = ui->comboBox_currentPlayZone->currentIndex();
-    if ( ui->comboBox_currentPlayZone->count() > 1 )
+void AnimationUI::on_m_removePlayZone_clicked() {
+    int removeIndex = ui->m_currentPlayZone->currentIndex();
+    if ( ui->m_currentPlayZone->count() > 1 )
     {
-        ui->comboBox_currentPlayZone->removeItem( removeIndex );
+        ui->m_currentPlayZone->removeItem( removeIndex );
         emit removePlayzone( removeIndex );
     }
 }
 
-void AnimationUI::on_comboBox_currentAnimation_currentIndexChanged( int index ) {
+void AnimationUI::on_m_currentAnimation_currentIndexChanged( int index ) {
     emit animationID( index );
 }
 
-void AnimationUI::on_pushButton_newAnimation_clicked() {
-    const int num = ui->comboBox_currentAnimation->count();
-    ui->comboBox_currentAnimation->addItem( "#" + QString::number( num + 1 ) );
+void AnimationUI::on_m_newAnimation_clicked() {
+    const int num = ui->m_currentAnimation->count();
+    ui->m_currentAnimation->addItem( "#" + QString::number( num + 1 ) );
     emit newAnimation();
 }
 
-void AnimationUI::on_pushButton_removeAnimation_clicked() {
-    const int removeIndex = ui->comboBox_currentAnimation->currentIndex();
+void AnimationUI::on_m_removeAnimation_clicked() {
+    const int removeIndex = ui->m_currentAnimation->currentIndex();
 
-    if ( ui->comboBox_currentAnimation->count() > 1 )
+    if ( ui->m_currentAnimation->count() > 1 )
     {
-        ui->comboBox_currentAnimation->removeItem( removeIndex );
+        ui->m_currentAnimation->removeItem( removeIndex );
         emit removeAnimation( removeIndex );
     }
 }
 
-void AnimationUI::on_pushButton_loadRdmaFile_clicked() {
+void AnimationUI::on_m_loadRdmaFile_clicked() {
     QSettings settings;
     QFileInfo previousOpenFile( settings.value( "files/load", QDir::homePath() ).toString() );
     QString dir         = previousOpenFile.dir().absolutePath();
@@ -270,17 +270,17 @@ void AnimationUI::on_pushButton_loadRdmaFile_clicked() {
         else
         {
             ui->label_currentRDMA->setText( filename );
-            ui->pushButton_saveRdmaFile->setEnabled( true );
+            ui->m_saveRdmaFile->setEnabled( true );
             emit loadRDMA( filename.toStdString() );
         }
     }
 }
 
-void AnimationUI::on_pushButton_saveRdmaFile_clicked() {
+void AnimationUI::on_m_saveRdmaFile_clicked() {
     emit saveRDMA( ui->label_currentRDMA->text().toStdString() );
 }
 
-void AnimationUI::on_pushButton_newRdmaFile_clicked() {
+void AnimationUI::on_m_newRdmaFile_clicked() {
     QSettings settings;
     QFileInfo previousOpenFile( settings.value( "files/load", QDir::homePath() ).toString() );
     QString dir         = previousOpenFile.dir().absolutePath();
@@ -302,7 +302,7 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
         else
         {
             ui->label_currentRDMA->setText( filename );
-            ui->pushButton_saveRdmaFile->setEnabled( true );
+            ui->m_saveRdmaFile->setEnabled( true );
             emit saveRDMA( filename.toStdString() );
         }
     }
@@ -311,4 +311,8 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
 // undo/redo session
 void AnimationUI::on_saveRendering( void* anim, size_t bytes ) {
     timeline->onSaveRendering( anim, bytes );
+}
+
+void AnimationUI::on_m_showTimeLine_clicked() {
+    timeline->show();
 }

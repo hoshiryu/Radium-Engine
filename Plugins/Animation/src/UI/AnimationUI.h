@@ -16,13 +16,14 @@ namespace Ui {
 class AnimationUI;
 }
 
-class AnimationUI : public QFrame {
+class AnimationUI : public QFrame
+{
     Q_OBJECT
 
     friend class AnimationPlugin::AnimationPluginC;
 
   public:
-    explicit AnimationUI( QWidget* parent = 0 );
+    explicit AnimationUI( QWidget* parent = nullptr );
     ~AnimationUI();
 
     /// Set the animation combo box with count elements and add a prefix to the nonEditableCount
@@ -108,10 +109,9 @@ class AnimationUI : public QFrame {
     /// \param the index of the pose to replace.
     void keyPoseChanged( size_t );
 
-    /// \brief Forwarded from the timeline when an offset should be added to every pose after the index
-    /// specified (included).
-    /// \param offset: the offset to add to the poses.
-    /// \param index: the index of the first pose to offset.
+    /// \brief Forwarded from the timeline when an offset should be added to every pose after the
+    /// index specified (included). \param offset: the offset to add to the poses. \param index: the
+    /// index of the first pose to offset.
     void keyPosesMoved( double offset, size_t index );
 
     /// \brief Forwarded from the timeline when an offset should be added to a pose.
@@ -124,12 +124,13 @@ class AnimationUI : public QFrame {
     void envSaved();
 
     /// \brief Render previous saved environment
-    /// \param generic parameter to rendering (use void * because Q_OBJECT unauthorize template class)
-    void rendered(void * anim);
+    /// \param generic parameter to rendering (use void * because Q_OBJECT unauthorize template
+    /// class)
+    void rendered( void* anim );
 
     /// \brief Delete previous instance of environment
     /// \param generic parameter to delete
-    void renderDeleted(void * anim);
+    void renderDeleted( void* anim );
 
     /// \brief Forwarded from the plugin when the animation time change when playing.
     /// \param the timestamp where to put the cursor.
@@ -155,9 +156,12 @@ class AnimationUI : public QFrame {
     void changeDuration( double );
 
   private slots:
+    // Rig
     void on_m_xray_clicked( bool checked );
     void on_m_showSkeleton_toggled( bool checked );
     void on_m_enableIK_toggled( bool checked );
+
+    // Player
     void on_m_play_clicked();
     void on_m_step_clicked();
     void on_m_reset_clicked();
@@ -170,22 +174,23 @@ class AnimationUI : public QFrame {
     void setMaxFrame( int f );
     void on_m_saveDir_clicked();
 
-    void on_comboBox_currentPlayZone_currentIndexChanged( int index );
-    void on_pushButton_newPlayZone_clicked();
-    void on_pushButton_removePlayZone_clicked();
-    void on_comboBox_currentAnimation_currentIndexChanged( int index );
-    void on_pushButton_newAnimation_clicked();
-    void on_pushButton_removeAnimation_clicked();
-    void on_pushButton_loadRdmaFile_clicked();
-    void on_pushButton_saveRdmaFile_clicked();
-    void on_pushButton_newRdmaFile_clicked();
+    // edition
+    void on_m_showTimeLine_clicked();
+    void on_m_currentAnimation_currentIndexChanged( int index );
+    void on_m_newAnimation_clicked();
+    void on_m_removeAnimation_clicked();
+    void on_m_currentPlayZone_currentIndexChanged( int index );
+    void on_m_newPlayZone_clicked();
+    void on_m_removePlayZone_clicked();
+    void on_m_loadRdmaFile_clicked();
+    void on_m_saveRdmaFile_clicked();
+    void on_m_newRdmaFile_clicked();
 
-    void on_saveRendering(void * anim, size_t bytes); // undo/redo session
+    // timeline
+    void on_saveRendering( void* anim, size_t bytes ); // undo/redo session
 
-
-private:
+  private:
     Ui::AnimationUI* ui;
-//    AnimTimeline * timeline;
     AnimTimelineWithSession* timeline; // for undo/redo
 
     void updateTime( float t );

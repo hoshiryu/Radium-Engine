@@ -233,8 +233,8 @@ void AnimationPluginC::setPlayzone( int i ) {
 void AnimationPluginC::newPlayzone( const std::string& name ) {
     m_system->newPlayzone( name );
 
-    m_widget->ui->comboBox_currentPlayZone->setCurrentIndex(
-        m_widget->ui->comboBox_currentPlayZone->count() - 1 );
+    m_widget->ui->m_currentPlayZone->setCurrentIndex( m_widget->ui->m_currentPlayZone->count() -
+                                                      1 );
 }
 
 void AnimationPluginC::removePlayzone( int i ) {
@@ -244,8 +244,8 @@ void AnimationPluginC::removePlayzone( int i ) {
 void AnimationPluginC::newAnimation() {
     emit m_widget->pause();
     m_system->newAnimation();
-    m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
-        m_widget->ui->comboBox_currentAnimation->count() - 1 );
+    m_widget->ui->m_currentAnimation->setCurrentIndex( m_widget->ui->m_currentAnimation->count() -
+                                                       1 );
 }
 
 void AnimationPluginC::removeAnimation( int i ) {
@@ -277,33 +277,33 @@ void AnimationPluginC::setEnd( double timestamp ) {
 void AnimationPluginC::addKeyPose( double timestamp ) {
     m_system->addKeyPose( static_cast<Scalar>( timestamp ) );
 
-    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    if ( m_widget->ui->m_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
         setupUI();
-        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
-            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+        m_widget->ui->m_currentAnimation->setCurrentIndex(
+            m_widget->ui->m_currentAnimation->count() - 1 );
     }
 }
 
 void AnimationPluginC::removeKeyPose( size_t i ) {
     m_system->removeKeyPose( i );
 
-    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    if ( m_widget->ui->m_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
         setupUI();
-        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
-            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+        m_widget->ui->m_currentAnimation->setCurrentIndex(
+            m_widget->ui->m_currentAnimation->count() - 1 );
     }
 }
 
 void AnimationPluginC::setKeyPoseTime( size_t i, double timestamp ) {
     m_system->setKeyPoseTime( i, timestamp );
 
-    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    if ( m_widget->ui->m_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
         setupUI();
-        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
-            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+        m_widget->ui->m_currentAnimation->setCurrentIndex(
+            m_widget->ui->m_currentAnimation->count() - 1 );
     }
     m_system->setCurrentAnimationTime( timestamp );
 }
@@ -311,22 +311,22 @@ void AnimationPluginC::setKeyPoseTime( size_t i, double timestamp ) {
 void AnimationPluginC::updateKeyPose( size_t id ) {
     m_system->updateKeyPose( id );
 
-    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    if ( m_widget->ui->m_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
         setupUI();
-        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
-            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+        m_widget->ui->m_currentAnimation->setCurrentIndex(
+            m_widget->ui->m_currentAnimation->count() - 1 );
     }
 }
 
 void AnimationPluginC::offsetKeyPoses( double offset, size_t first ) {
     m_system->offsetKeyPoses( static_cast<Scalar>( offset ), first );
 
-    if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
+    if ( m_widget->ui->m_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
         setupUI();
-        m_widget->ui->comboBox_currentAnimation->setCurrentIndex(
-            m_widget->ui->comboBox_currentAnimation->count() - 1 );
+        m_widget->ui->m_currentAnimation->setCurrentIndex(
+            m_widget->ui->m_currentAnimation->count() - 1 );
     }
 }
 
