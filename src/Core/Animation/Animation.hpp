@@ -64,7 +64,6 @@ class RA_CORE_API Animation
     /// return the i-th key pose.
     const MyKeyPose& keyPose( int i ) const;
 
-
   private:
     std::vector<MyKeyPose> m_keys;
 };

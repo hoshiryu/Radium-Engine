@@ -20,7 +20,7 @@ AnimationSystem::AnimationSystem( AnimationPluginC* plugin ) {
     m_oneStep   = false;
     m_xrayOn    = false;
     m_animFrame = 0;
-    m_plugin = plugin;
+    m_plugin    = plugin;
 }
 
 void AnimationSystem::generateTasks( Ra::Core::TaskQueue* taskQueue,

@@ -76,9 +76,10 @@ void Animation::setKeyPoseTime( int i, Scalar timestamp ) {
     m_keys[i].first = timestamp;
     normalize();
 }
-   
+
 void Animation::offsetKeyPoses( Scalar offset, int first ) {
-    for(int i = first; i < m_keys.size(); ++i) {
+    for ( int i = first; i < m_keys.size(); ++i )
+    {
         m_keys[i].first += offset;
     }
 }

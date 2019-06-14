@@ -65,8 +65,8 @@ QWidget* AnimationPluginC::getWidget() {
     connect( m_widget, &AnimationUI::enableIK, this, &AnimationPluginC::enableIK );
 
     /// Timeline signals
-    connect( m_widget, &AnimationUI::cursorChanged, this,
-             &AnimationPluginC::setCurrentAnimationTime );
+    connect(
+        m_widget, &AnimationUI::cursorChanged, this, &AnimationPluginC::setCurrentAnimationTime );
     connect( m_widget, &AnimationUI::startChanged, this, &AnimationPluginC::setStart );
     connect( m_widget, &AnimationUI::endChanged, this, &AnimationPluginC::setEnd );
     connect( m_widget, &AnimationUI::keyPoseAdded, this, &AnimationPluginC::addKeyPose );
@@ -196,10 +196,7 @@ void AnimationPluginC::updateAnimTime() {
     m_widget->updateFrame( m_system->getAnimFrame() );
 
     const double animationTime = m_system->animationTime();
-    if ( m_system->isPlaying() )
-    {
-        emit m_widget->changeCursor( animationTime );
-    }
+    if ( m_system->isPlaying() ) { emit m_widget->changeCursor( animationTime ); }
 }
 
 void AnimationPluginC::cacheFrame() {
@@ -213,7 +210,7 @@ void AnimationPluginC::restoreFrame( int frame ) {
 void AnimationPluginC::changeDataDir() {
     QSettings settings;
     QString path = settings.value( "AnimDataDir", QDir::homePath() ).toString();
-    path = QFileDialog::getExistingDirectory( nullptr, "Animation Data Dir", path );
+    path         = QFileDialog::getExistingDirectory( nullptr, "Animation Data Dir", path );
     if ( !path.isEmpty() )
     {
         settings.setValue( "AnimDataDir", path );
@@ -252,10 +249,7 @@ void AnimationPluginC::newAnimation() {
 }
 
 void AnimationPluginC::removeAnimation( int i ) {
-    if ( i >= m_system->nonEditableCount() )
-    {
-        m_system->removeAnimation( i );
-    }
+    if ( i >= m_system->nonEditableCount() ) { m_system->removeAnimation( i ); }
 }
 
 void AnimationPluginC::loadRDMA( std::string filename ) {
@@ -268,9 +262,8 @@ void AnimationPluginC::saveRDMA( std::string filename ) {
 }
 
 void AnimationPluginC::setCurrentAnimationTime( double timestamp ) {
-    if ( m_system->isPlaying() )
-        emit m_widget->pause();
-    m_system->setCurrentAnimationTime(static_cast<Scalar>(timestamp));
+    if ( m_system->isPlaying() ) emit m_widget->pause();
+    m_system->setCurrentAnimationTime( static_cast<Scalar>( timestamp ) );
 }
 
 void AnimationPluginC::setStart( double timestamp ) {
@@ -282,7 +275,7 @@ void AnimationPluginC::setEnd( double timestamp ) {
 }
 
 void AnimationPluginC::addKeyPose( double timestamp ) {
-    m_system->addKeyPose(static_cast<Scalar>(timestamp));
+    m_system->addKeyPose( static_cast<Scalar>( timestamp ) );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
@@ -293,7 +286,7 @@ void AnimationPluginC::addKeyPose( double timestamp ) {
 }
 
 void AnimationPluginC::removeKeyPose( size_t i ) {
-    m_system->removeKeyPose(i);
+    m_system->removeKeyPose( i );
 
     if ( m_widget->ui->comboBox_currentAnimation->currentIndex() < m_system->nonEditableCount() )
     {
@@ -343,8 +336,7 @@ void AnimationPluginC::saveEnv() {
 
     m_system->saveEnv( &anim, &bytes );
 
-    if ( anim )
-        m_widget->on_saveRendering( anim, bytes );
+    if ( anim ) m_widget->on_saveRendering( anim, bytes );
 }
 
 void AnimationPluginC::rendering( void* anim ) {

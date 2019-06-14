@@ -29,7 +29,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     AnimationComponent( const AnimationComponent& ) = delete;
     AnimationComponent& operator=( const AnimationComponent& ) = delete;
 
-    using Playzone = std::tuple<std::string, Scalar, Scalar>;
+    using Playzone  = std::tuple<std::string, Scalar, Scalar>;
     using Playzones = std::vector<Playzone>;
 
     virtual void initialize() override {}
@@ -171,11 +171,11 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// \brief Render previous saved environment
     /// \param generic parameter to rendering
-    void rendering( void * anim );
+    void rendering( void* anim );
 
     /// \brief Delete previous instance of environment
     /// \param generic parameter to delete
-    void deleteRender( void * anim );
+    void deleteRender( void* anim );
 
     /// Returns the playzones labels.
     std::vector<std::string> playzonesLabels() const;
@@ -216,8 +216,10 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
     /// \param p: the initial positions of the bone, also used to return the new positions.
     /// \param target: the target to reach.
     /// \param max_length: the sum of the lengths of the bones.
-    void IKsolver( const std::vector<Scalar>& lengths, std::vector<Ra::Core::Vector3>& p,
-                   const Ra::Core::Vector3& target, const Scalar max_length ) const;
+    void IKsolver( const std::vector<Scalar>& lengths,
+                   std::vector<Ra::Core::Vector3>& p,
+                   const Ra::Core::Vector3& target,
+                   const Scalar max_length ) const;
 
     //
     // Component Communication (CC)
@@ -268,7 +270,7 @@ class ANIM_PLUGIN_API AnimationComponent : public Ra::Engine::Component
 
     /// Current animation ID.
     uint m_animationID;
-    
+
     /// First editable animation index.
     uint m_firstEditableID;
 

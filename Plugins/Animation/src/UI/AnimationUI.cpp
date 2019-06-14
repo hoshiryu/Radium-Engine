@@ -88,10 +88,7 @@ void AnimationUI::setKeyPoses( std::vector<double> timestamps ) {
 }
 
 void AnimationUI::showTimeline() {
-    if ( this->isVisible() && ui->comboBox_currentAnimation->isEnabled() )
-    {
-        timeline->show();
-    }
+    if ( this->isVisible() && ui->comboBox_currentAnimation->isEnabled() ) { timeline->show(); }
 }
 
 void AnimationUI::showEvent( QShowEvent* ) {
@@ -137,7 +134,8 @@ void AnimationUI::on_m_play_clicked() {
     {
         switchToPauseButton();
         emit play();
-    } else
+    }
+    else
     {
         switchToPlayButton();
         emit pause();
@@ -212,8 +210,8 @@ void AnimationUI::on_comboBox_currentPlayZone_currentIndexChanged( int index ) {
 
 void AnimationUI::on_pushButton_newPlayZone_clicked() {
     bool ok;
-    QString text = QInputDialog::getText( this, tr( "Adding PlayZone" ), tr( "PlayZone name :" ),
-                                          QLineEdit::Normal, "", &ok );
+    QString text = QInputDialog::getText(
+        this, tr( "Adding PlayZone" ), tr( "PlayZone name :" ), QLineEdit::Normal, "", &ok );
 
     if ( ok && !text.isEmpty() )
     {
@@ -254,12 +252,12 @@ void AnimationUI::on_pushButton_removeAnimation_clicked() {
 void AnimationUI::on_pushButton_loadRdmaFile_clicked() {
     QSettings settings;
     QFileInfo previousOpenFile( settings.value( "files/load", QDir::homePath() ).toString() );
-    QString dir = previousOpenFile.dir().absolutePath();
-    QString basename = previousOpenFile.baseName();
+    QString dir         = previousOpenFile.dir().absolutePath();
+    QString basename    = previousOpenFile.baseName();
     QString suggestFile = dir + "/" + basename + ".rdma";
 
-    QString filename = QFileDialog::getOpenFileName( this, "Load RDMA file", suggestFile,
-                                                     tr( "Radium Animation File (*.rdma)" ) );
+    QString filename = QFileDialog::getOpenFileName(
+        this, "Load RDMA file", suggestFile, tr( "Radium Animation File (*.rdma)" ) );
     if ( !filename.isEmpty() )
     {
         if ( !filename.endsWith( ".rdma" ) )
@@ -268,7 +266,8 @@ void AnimationUI::on_pushButton_loadRdmaFile_clicked() {
             QFileInfo file( filename );
             msgBox.setText( "This file '" + file.fileName() + "' is not a rdma file !" );
             msgBox.exec();
-        } else
+        }
+        else
         {
             ui->label_currentRDMA->setText( filename );
             ui->pushButton_saveRdmaFile->setEnabled( true );
@@ -284,12 +283,12 @@ void AnimationUI::on_pushButton_saveRdmaFile_clicked() {
 void AnimationUI::on_pushButton_newRdmaFile_clicked() {
     QSettings settings;
     QFileInfo previousOpenFile( settings.value( "files/load", QDir::homePath() ).toString() );
-    QString dir = previousOpenFile.dir().absolutePath();
-    QString basename = previousOpenFile.baseName();
+    QString dir         = previousOpenFile.dir().absolutePath();
+    QString basename    = previousOpenFile.baseName();
     QString suggestFile = dir + "/" + basename + ".rdma";
 
-    QString filename = QFileDialog::getSaveFileName( this, "Save new RDMA file", suggestFile,
-                                                     "Radium Animation File (*.rdma)" );
+    QString filename = QFileDialog::getSaveFileName(
+        this, "Save new RDMA file", suggestFile, "Radium Animation File (*.rdma)" );
 
     if ( !filename.isEmpty() )
     {
@@ -299,7 +298,8 @@ void AnimationUI::on_pushButton_newRdmaFile_clicked() {
             QFileInfo file( filename );
             msgBox.setText( "This file '" + file.fileName() + "' has not rdma file extension !" );
             msgBox.exec();
-        } else
+        }
+        else
         {
             ui->label_currentRDMA->setText( filename );
             ui->pushButton_saveRdmaFile->setEnabled( true );

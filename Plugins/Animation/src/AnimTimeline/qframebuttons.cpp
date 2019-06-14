@@ -4,44 +4,34 @@
 #include <QMessageBox>
 #include <QWheelEvent>
 
-QFrameButtons::QFrameButtons(QWidget* parent)
-    : QFrame(parent)
-{
-}
+QFrameButtons::QFrameButtons( QWidget* parent ) : QFrame( parent ) {}
 
-void QFrameButtons::setRuler(QWidgetRuler* value)
-{
+void QFrameButtons::setRuler( QWidgetRuler* value ) {
     ruler = value;
 }
 
-void QFrameButtons::keyPressEvent(QKeyEvent* event)
-{
-    emit keyPressed(event);
+void QFrameButtons::keyPressEvent( QKeyEvent* event ) {
+    emit keyPressed( event );
 }
 
-void QFrameButtons::keyReleaseEvent(QKeyEvent* event)
-{
-    emit keyReleased(event);
+void QFrameButtons::keyReleaseEvent( QKeyEvent* event ) {
+    emit keyReleased( event );
 }
 
-void QFrameButtons::setAnimTimeline(AnimTimeline* value)
-{
+void QFrameButtons::setAnimTimeline( AnimTimeline* value ) {
     animTimeline = value;
 }
 
-void QFrameButtons::helpClicked()
-{
+void QFrameButtons::helpClicked() {
     QMessageBox msgBox;
-    msgBox.setText(helpButton->toolTip());
+    msgBox.setText( helpButton->toolTip() );
     msgBox.exec();
 }
 
-void QFrameButtons::setHelpButton(QToolButton* value)
-{
+void QFrameButtons::setHelpButton( QToolButton* value ) {
     helpButton = value;
 }
 
-void QFrameButtons::setScrollArea(QScrollArea* value)
-{
+void QFrameButtons::setScrollArea( QScrollArea* value ) {
     scrollArea = value;
 }
