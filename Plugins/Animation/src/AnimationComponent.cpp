@@ -45,7 +45,7 @@ AnimationComponent::AnimationComponent( const std::string& name, Ra::Engine::Ent
 AnimationComponent::~AnimationComponent() {}
 
 void AnimationComponent::setSkeleton( const Ra::Core::Animation::Skeleton& skel ) {
-    m_skel = skel;
+    m_skel    = skel;
     m_refPose = skel.getPose( Handle::SpaceType::MODEL );
     setupSkeletonDisplay();
 }
@@ -74,7 +74,7 @@ void AnimationComponent::update( Scalar dt ) {
         else
         {
             m_resetDone = false;
-            m_wasReset = false;
+            m_wasReset  = false;
         }
     }
 
@@ -105,7 +105,8 @@ void AnimationComponent::setupSkeletonDisplay() {
             m_boneDrawables.emplace_back(
                 new SkeletonBoneRenderObject( name, this, i, getRoMgr() ) );
             m_renderObjects.push_back( m_boneDrawables.back()->getRenderObjectIndex() );
-        } else
+        }
+        else
         { LOG( logDEBUG ) << "Bone " << m_skel.getLabel( i ) << " not displayed."; }
     }
     for ( const auto& b : m_boneDrawables )
@@ -141,7 +142,7 @@ void AnimationComponent::reset() {
     m_animationTime = std::get<1>( m_animsPlayzones[m_animationID][m_playzoneID] );
     updateCurrentPose();
     m_wasReset = true;
-    m_playing = false;
+    m_playing  = false;
 }
 
 void AnimationComponent::setPlaying( bool playing ) {
@@ -297,20 +298,14 @@ void AnimationComponent::setAnimation( const uint i ) {
     if ( i < m_animations.size() )
     {
         m_animationID = i;
-        if ( m_animsPlayzones.empty() )
-        {
-            m_animsPlayzones.emplace_back();
-        }
+        if ( m_animsPlayzones.empty() ) { m_animsPlayzones.emplace_back(); }
         setPlayzone( 0 );
     }
 }
 
 void AnimationComponent::setPlayzone( const uint i ) {
     m_playzoneID = i;
-    if ( m_animsPlayzones[m_animationID].empty() )
-    {
-        newPlayzone( "Default playzone" );
-    }
+    if ( m_animsPlayzones[m_animationID].empty() ) { newPlayzone( "Default playzone" ); }
 }
 
 bool AnimationComponent::canEdit( const Ra::Core::Utils::Index& roIdx ) const {
@@ -342,7 +337,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
         } );
 
     // get bone data
-    const uint boneIdx = ( *bonePos )->getBoneIndex();
+    const uint boneIdx  = ( *bonePos )->getBoneIndex();
     const uint pBoneIdx = m_skel.m_graph.parents()[boneIdx];
 
     /// if IK solver is on, the transform is a translation, and the selected bone isn't the root
@@ -364,7 +359,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
         jointsIndices.emplace_back( boneIdx );
 
         while ( pJointIdx != -1 )
-    {
+        {
             pJoint = m_skel.getTransform( pJointIdx, Handle::SpaceType::MODEL ).translation();
             Scalar length = ( joint - pJoint ).norm();
             max_length += length;
@@ -373,7 +368,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
             lengths.emplace_back( length );
             p.emplace_back( pJoint );
 
-            joint = std::move( pJoint );
+            joint     = std::move( pJoint );
             pJointIdx = m_skel.m_graph.parents()[pJointIdx];
         }
 
@@ -389,7 +384,7 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
                 m_skel.getTransform( jointsIndices[i + 1], Handle::SpaceType::MODEL );
             const auto& TBoneLocal =
                 m_skel.getTransform( jointsIndices[i], Handle::SpaceType::LOCAL );
-            auto trf = TBoneModel;
+            auto trf          = TBoneModel;
             trf.translation() = p[i];
 
             // turn bone translation into rotation for parent
@@ -403,18 +398,20 @@ void AnimationComponent::setTransform( const Ra::Core::Utils::Index& roIdx,
                 Ra::Core::Transform R( q );
                 R.pretranslate( A );
                 R.translate( -A );
-                m_skel.setTransform( jointsIndices[i + 1], R * pTBoneModel,
-                                     Handle::SpaceType::MODEL );
+                m_skel.setTransform(
+                    jointsIndices[i + 1], R * pTBoneModel, Handle::SpaceType::MODEL );
             }
 
             // update bone local transform
-            m_skel.setTransform( jointsIndices[i], TBoneLocal * TBoneModel.inverse() * trf,
+            m_skel.setTransform( jointsIndices[i],
+                                 TBoneLocal * TBoneModel.inverse() * trf,
                                  Handle::SpaceType::LOCAL );
         }
-    } else
+    }
+    else
     {
-        const auto& TBoneModel = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
-        const auto& TBoneLocal = m_skel.getTransform( boneIdx, Handle::SpaceType::LOCAL );
+        const auto& TBoneModel  = m_skel.getTransform( boneIdx, Handle::SpaceType::MODEL );
+        const auto& TBoneLocal  = m_skel.getTransform( boneIdx, Handle::SpaceType::LOCAL );
         // turn bone translation into rotation for parent
         if ( pBoneIdx != -1 && m_skel.m_graph.children()[pBoneIdx].size() == 1 )
         {
@@ -456,7 +453,7 @@ void AnimationComponent::IKsolver( const std::vector<Scalar>& lengths,
             for ( int i = 1; i < p.size(); ++i )
             {
                 const Scalar u = lengths[i - 1] / ( p[i - 1] - p[i] ).norm();
-                p[i] = ( 1 - u ) * p[i - 1] + u * p[i];
+                p[i]           = ( 1 - u ) * p[i - 1] + u * p[i];
             }
 
             // Backward
@@ -464,10 +461,11 @@ void AnimationComponent::IKsolver( const std::vector<Scalar>& lengths,
             for ( int i = p.size() - 2; i >= 0; --i )
             {
                 const Scalar u = lengths[i] / ( p[i] - p[i + 1] ).norm();
-                p[i] = ( 1 - u ) * p[i + 1] + u * p[i];
+                p[i]           = ( 1 - u ) * p[i + 1] + u * p[i];
             }
         }
-    } else
+    }
+    else
     {
         /// Makes it more uncontrolable than anything, but you're the judge
         // for ( int i = p.size() - 2; i >= 0; --i )
@@ -496,14 +494,8 @@ Scalar AnimationComponent::getTime() const {
 }
 
 Scalar AnimationComponent::getDuration() const {
-    if ( m_animations.empty() )
-    {
-        return Scalar( 0 );
-    }
-    if ( m_animations[m_animationID].size() == 0 )
-    {
-        return Scalar ( 5.0 );
-    }
+    if ( m_animations.empty() ) { return Scalar( 0 ); }
+    if ( m_animations[m_animationID].size() == 0 ) { return Scalar( 5.0 ); }
     return m_animations[m_animationID].getDuration();
 }
 
@@ -623,7 +615,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
     for ( int i = m_firstEditableID; i < m_animations.size(); ++i )
     {
         const auto& anim = m_animations[i];
-        size = anim.size();
+        size             = anim.size();
         output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
         for ( int i = 0; i < size; ++i )
         {
@@ -633,7 +625,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
             for ( const auto& transform : keypose.second )
             {
                 output.write( reinterpret_cast<const char*>( transform.data() ),
-                              sizeof( Transform ) );
+                              sizeof( Ra::Core::Transform ) );
             }
         }
     }
@@ -648,7 +640,7 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
         for ( const auto& playzone : playzones )
         {
             const auto& name = std::get<0>( playzone );
-            size = name.length();
+            size             = name.length();
             output.write( reinterpret_cast<const char*>( &size ), sizeof( size ) );
             output.write( reinterpret_cast<const char*>( &name[0] ), size );
             output.write( reinterpret_cast<const char*>( &std::get<1>( playzone ) ),
@@ -665,28 +657,22 @@ void AnimationComponent::saveRDMA( const std::string& filepath ) {
                   size * sizeof( Scalar ) );
 }
 
-void AnimationComponent::newPlayzone( const std::string& name) {
+void AnimationComponent::newPlayzone( const std::string& name ) {
     const auto& anim = m_animations[m_animationID];
-    m_playzoneID = m_animsPlayzones.size();
+    m_playzoneID     = m_animsPlayzones.size();
     if ( m_animations[m_animationID].size() >= 2 )
-        m_animsPlayzones[m_animationID].emplace_back( name, anim.keyPose( 0 ).first,
-                                                      anim.keyPose( anim.size() - 1 ).first );
+        m_animsPlayzones[m_animationID].emplace_back(
+            name, anim.keyPose( 0 ).first, anim.keyPose( anim.size() - 1 ).first );
     else
         m_animsPlayzones[m_animationID].emplace_back( name, 0.0, 20.0 );
 }
 
 void AnimationComponent::removePlayzone( int i ) {
     auto& playzone = m_animsPlayzones[m_animationID];
-    if ( playzone.size() <= i )
-    {
-        return;
-    }
+    if ( playzone.size() <= i ) { return; }
 
     playzone.erase( playzone.begin() + i );
-    if ( i <= m_playzoneID )
-    {
-        setPlayzone( m_playzoneID - 1 );
-    }
+    if ( i <= m_playzoneID ) { setPlayzone( m_playzoneID - 1 ); }
 }
 
 void AnimationComponent::newAnimation() {
@@ -704,17 +690,11 @@ void AnimationComponent::copyCurrentAnimation() {
 }
 
 void AnimationComponent::removeAnimation( int i ) {
-    if ( i < m_firstEditableID || i >= m_animations.size() || m_animations.size() <= 1 )
-    {
-        return;
-    }
+    if ( i < m_firstEditableID || i >= m_animations.size() || m_animations.size() <= 1 ) { return; }
 
-    m_animations.erase(m_animations.begin() + i);
+    m_animations.erase( m_animations.begin() + i );
     m_animsPlayzones.erase( m_animsPlayzones.begin() + i );
-    if ( i <= m_animationID )
-    {
-        setAnimation( m_animationID - 1 );
-    }
+    if ( i <= m_animationID ) { setAnimation( m_animationID - 1 ); }
     setPlayzone( 0 );
 }
 
@@ -724,19 +704,20 @@ void AnimationComponent::updateCurrentPose() {
     {
         // If before/after the first/last pose, fix the displayed pose to the first/last
         if ( m_animationTime <= animation.keyPose( 0 ).first )
-        {
-            m_skel.setPose( animation.keyPose( 0 ).second, Handle::SpaceType::LOCAL );
-        } else if ( m_animationTime > animation.keyPose( animation.size() - 1 ).first )
+        { m_skel.setPose( animation.keyPose( 0 ).second, Handle::SpaceType::LOCAL ); }
+        else if ( m_animationTime > animation.keyPose( animation.size() - 1 ).first )
         {
             m_skel.setPose( animation.keyPose( animation.size() - 1 ).second,
                             Handle::SpaceType::LOCAL );
-        } else
+        }
+        else
         {
             // else interpolate
             const auto& pose = animation.getPose( m_animationTime );
-        m_skel.setPose(pose, Handle::SpaceType::LOCAL);
+            m_skel.setPose( pose, Handle::SpaceType::LOCAL );
         }
-    } else if ( animation.size() == 0 )
+    }
+    else if ( animation.size() == 0 )
     {
         // The animation is empty, display the reference pose
         m_skel.setPose( m_refPose, Handle::SpaceType::MODEL );
@@ -787,9 +768,9 @@ void AnimationComponent::removeKeyPose( size_t i ) {
         copyCurrentAnimation();
         setAnimation( m_animations.size() - 1 );
     }
-        m_animations[m_animationID].removeKeyPose(i);
+    m_animations[m_animationID].removeKeyPose( i );
     updateCurrentPose();
-    }
+}
 
 void AnimationComponent::setKeyPoseTime( size_t i, double timestamp ) {
     if ( m_animationID < m_firstEditableID )
@@ -806,7 +787,7 @@ void AnimationComponent::updateKeyPose( size_t id ) {
         copyCurrentAnimation();
         setAnimation( m_animations.size() - 1 );
     }
-    m_animations[m_animationID].replacePose(id, m_skel.getPose(Handle::SpaceType::LOCAL));
+    m_animations[m_animationID].replacePose( id, m_skel.getPose( Handle::SpaceType::LOCAL ) );
 }
 
 void AnimationComponent::offsetKeyPoses( double offset, size_t first ) {
@@ -816,7 +797,7 @@ void AnimationComponent::offsetKeyPoses( double offset, size_t first ) {
         setAnimation( m_animations.size() - 1 );
     }
     m_animations[m_animationID].offsetKeyPoses( static_cast<Scalar>( offset ), first );
-    
+
     for ( int i = first; i < m_animsPlayzones[m_animationID].size(); ++i )
     {
         std::get<1>( m_animsPlayzones[m_animationID][i] ) += offset;
@@ -824,26 +805,31 @@ void AnimationComponent::offsetKeyPoses( double offset, size_t first ) {
     }
 }
 
-void AnimationComponent::saveEnv( void ** anim, size_t * bytes )
-{
-    auto env = new std::pair<Animation, Playzone>{m_animations[m_animationID], m_animsPlayzones[m_animationID][m_playzoneID]};
-    size_t nbPoses =static_cast<size_t>(env->first.size()); // number of poses in current animation
-    size_t nbBytesPerPose = m_refPose.size() * sizeof(Eigen::Transform<Scalar, 3, Eigen::Affine>); // consider skeleton do not change, no loosing bones
+void AnimationComponent::saveEnv( void** anim, size_t* bytes ) {
+    auto env = new std::pair<Animation, Playzone>{m_animations[m_animationID],
+                                                  m_animsPlayzones[m_animationID][m_playzoneID]};
+    size_t nbPoses =
+        static_cast<size_t>( env->first.size() ); // number of poses in current animation
+    size_t nbBytesPerPose =
+        m_refPose.size() *
+        sizeof( Eigen::Transform<Scalar, 3, Eigen::Affine> ); // consider skeleton do not change, no
+                                                              // loosing bones
 
-    *bytes = sizeof(Animation) + nbPoses * (sizeof(Animation::MyKeyPose) + nbBytesPerPose) + sizeof (Playzone); // save just current playzone
+    *bytes = sizeof( Animation ) + nbPoses * ( sizeof( Animation::MyKeyPose ) + nbBytesPerPose ) +
+             sizeof( Playzone ); // save just current playzone
     *anim = env;
 }
 
 void AnimationComponent::rendering( void* anim ) {
-    auto env = static_cast<std::pair<Animation, Playzone>*>(anim);
+    auto env = static_cast<std::pair<Animation, Playzone>*>( anim );
 
-    m_animations[m_animationID] = env->first;
+    m_animations[m_animationID]                   = env->first;
     m_animsPlayzones[m_animationID][m_playzoneID] = env->second;
     updateCurrentPose();
 }
 
 void AnimationComponent::deleteRender( void* anim ) {
-    auto env = static_cast<std::pair<Animation, Playzone>*>(anim);
+    auto env = static_cast<std::pair<Animation, Playzone>*>( anim );
 
     delete env;
 }
@@ -870,10 +856,10 @@ int AnimationComponent::nonEditableCount() const {
 std::vector<double> AnimationComponent::keyposesTimes() const {
     std::vector<double> times;
     times.reserve( m_animations[m_animationID].size() );
-    
+
     for ( int i = 0; i < m_animations[m_animationID].size(); ++i )
     {
-        times.push_back( static_cast<double>( m_animations[m_animationID].keyPose(i).first ) );
+        times.push_back( static_cast<double>( m_animations[m_animationID].keyPose( i ).first ) );
     }
 
     return times;
