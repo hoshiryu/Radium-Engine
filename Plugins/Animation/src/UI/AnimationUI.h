@@ -162,7 +162,7 @@ class AnimationUI : public QFrame
     void on_m_enableIK_toggled( bool checked );
 
     // Player
-    void on_m_play_clicked();
+    void on_m_play_clicked( bool checked );
     void on_m_step_clicked();
     void on_m_reset_clicked();
     void on_m_timeStep_currentIndexChanged( int index );

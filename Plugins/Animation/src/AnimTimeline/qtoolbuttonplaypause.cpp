@@ -1,6 +1,5 @@
 #include <AnimTimeline/qtoolbuttonplaypause.h>
 
-#include <QDebug>
 #include <QMouseEvent>
 
 QToolButtonPlayPause::QToolButtonPlayPause( QWidget* parent ) : QToolButton( parent ) {
@@ -28,11 +27,7 @@ void QToolButtonPlayPause::mousePressEvent( QMouseEvent* event ) {
 
 // EXTERNAL SLOT
 void QToolButtonPlayPause::onPlayMode() {
-    if ( play )
-    {
-        qDebug() << "\033[31mQToolButtonPlayPause::onPlayMode() : already on play mode\033[0m";
-        return;
-    }
+    if ( play ) { return; }
 
     this->setIcon( *pauseIcon );
     play = true;
@@ -40,11 +35,7 @@ void QToolButtonPlayPause::onPlayMode() {
 
 // EXTERNAL SLOT
 void QToolButtonPlayPause::onPauseMode() {
-    if ( !play )
-    {
-        qDebug() << "\033[31mQToolButtonPlayPause::onPauseMode() : already on pause mode\033[0m";
-        return;
-    }
+    if ( !play ) { return; }
 
     this->setIcon( *playIcon );
     play = false;
@@ -55,13 +46,11 @@ void QToolButtonPlayPause::onChangeMode() {
     {
         onPauseMode();
         emit pauseClicked();
-        qDebug() << "\033[35mpauseClicked()\033[0m";
     }
     else
     {
         onPlayMode();
         emit playClicked();
-        qDebug() << "\033[35mplayClicked()\033[0m";
     }
 }
 

@@ -1,6 +1,5 @@
 #include <AnimTimeline/qframebuttons.h>
 
-#include <QDebug>
 #include <QMessageBox>
 #include <QWheelEvent>
 

@@ -129,8 +129,8 @@ void AnimationUI::switchToPlayButton() {
     ui->m_play->update();
 }
 
-void AnimationUI::on_m_play_clicked() {
-    if ( ui->m_play->isChecked() )
+void AnimationUI::on_m_play_clicked( bool checked ) {
+    if ( checked )
     {
         switchToPauseButton();
         emit play();

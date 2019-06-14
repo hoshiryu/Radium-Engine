@@ -1,6 +1,5 @@
 #include <AnimTimeline/qscrollarearuler.h>
 
-#include <QDebug>
 #include <QScrollBar>
 #include <QWheelEvent>
 #include <QtMath>
@@ -28,8 +27,6 @@ QScrollAreaRuler::QScrollAreaRuler( QWidget* parent ) : QScrollArea( parent ) {
 }
 
 void QScrollAreaRuler::keyPressEvent( QKeyEvent* event ) {
-    //    qDebug() << "QScrollAreaRuler::keyPressEvent event : " << event;
-
     switch ( event->key() )
     {
 
@@ -97,8 +94,6 @@ void QScrollAreaRuler::keyPressEvent( QKeyEvent* event ) {
 }
 
 void QScrollAreaRuler::keyReleaseEvent( QKeyEvent* event ) {
-    //    qDebug() << "QScrollAreaRuler::keyReleaseEvent event : " << event;
-
     switch ( event->key() )
     {
 
@@ -113,7 +108,6 @@ void QScrollAreaRuler::keyReleaseEvent( QKeyEvent* event ) {
 }
 
 void QScrollAreaRuler::wheelEvent( QWheelEvent* event ) {
-    //    qDebug() << "scroll area ruler width : " << width();
     int ry = event->angleDelta().ry();
 
     // change dialog width
@@ -158,7 +152,6 @@ void QScrollAreaRuler::wheelEvent( QWheelEvent* event ) {
             else
             { newRulerWidth = width() - 2; }
         }
-        //        qDebug() << "new ruler width : " << newRulerWidth;
 
         double hScroll = horizontalScrollBar()->value();
         double x       = event->x();
@@ -168,7 +161,6 @@ void QScrollAreaRuler::wheelEvent( QWheelEvent* event ) {
 
         double time = ( hScroll + x - *zero ) / *pixPerSec;
         time        = selector->nearestStep( time );
-        //        qDebug() << "TIME = " << time;
 
         ruler->onDrawRuler( newRulerWidth );
 
@@ -176,7 +168,6 @@ void QScrollAreaRuler::wheelEvent( QWheelEvent* event ) {
 
         double hScrollAfterProjection = a - x;
 
-        //        qDebug() << "scroll : " << hScrollAfterProjection;
         horizontalScrollBar()->setValue( static_cast<int>( hScrollAfterProjection ) );
     }
     event->accept(); // parent is animTimeline (root) with non event catching

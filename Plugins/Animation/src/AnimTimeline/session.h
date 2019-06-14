@@ -10,28 +10,29 @@
 #include <set>
 #include <stack>
 
-class Session : public QObject {
+class Session : public QObject
+{
     Q_OBJECT
-public:
-    Session(QObject* parent = nullptr);
+  public:
+    Session( QObject* parent = nullptr );
     virtual ~Session();
 
-signals:
+  signals:
     void envSaved(); // EXTERNAL
 
-    void rendered(void* render); // EXTERNAL
-    void renderDeleted(void* render); // EXTERNAL
+    void rendered( void* render );      // EXTERNAL
+    void renderDeleted( void* render ); // EXTERNAL
 
-public slots:
+  public slots:
     void onChangeEnv();
 
     void onClearSession();
     void onUndo();
     void onRedo();
 
-    void onSaveRendering(void* anim, size_t bytes); // EXTERNAL
+    void onSaveRendering( void* anim, size_t bytes ); // EXTERNAL
 
-private:
+  private:
     typedef struct s_Env {
         double start;
         double end;
@@ -55,7 +56,7 @@ private:
     double* duration;
     std::set<double>* keyPoses;
 
-    size_t size { 0 };
+    size_t size{0};
 
     QDoubleSpinBoxSmart* startSpin;
     QDoubleSpinBoxSmart* endSpin;
@@ -70,27 +71,23 @@ private:
     QFrameSelector* selector;
     QSpinBoxSmart* nbKeyPosesSpin;
 
-private:
-    void setEnv(Env env);
+  private:
+    void setEnv( Env env );
 
-#ifndef QT_NO_DEBUG_OUTPUT
-    void envSavedTrace();
-#endif
-
-public: // setters
-    void setStart(double* value);
-    void setEnd(double* value);
-    void setCursor(double* value);
-    void setDuration(double* value);
-    void setKeyPoses(std::set<double>* value);
-    void setStartSpin(QDoubleSpinBoxSmart* value);
-    void setEndSpin(QDoubleSpinBoxSmart* value);
-    void setCursorSpin(QDoubleSpinBoxSmart* value);
-    void setDurationSpin(QDoubleSpinBoxSmart* value);
-    void setPlayButton(QToolButtonPlayPause* value);
-    void setRuler(QWidgetRuler* value);
-    void setSelector(QFrameSelector* value);
-    void setNbKeyPosesSpin(QSpinBoxSmart* value);
+  public: // setters
+    void setStart( double* value );
+    void setEnd( double* value );
+    void setCursor( double* value );
+    void setDuration( double* value );
+    void setKeyPoses( std::set<double>* value );
+    void setStartSpin( QDoubleSpinBoxSmart* value );
+    void setEndSpin( QDoubleSpinBoxSmart* value );
+    void setCursorSpin( QDoubleSpinBoxSmart* value );
+    void setDurationSpin( QDoubleSpinBoxSmart* value );
+    void setPlayButton( QToolButtonPlayPause* value );
+    void setRuler( QWidgetRuler* value );
+    void setSelector( QFrameSelector* value );
+    void setNbKeyPosesSpin( QSpinBoxSmart* value );
 };
 
 #endif // SESSION_H

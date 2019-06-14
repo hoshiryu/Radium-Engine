@@ -2,7 +2,6 @@
 #include <AnimTimeline/configurations.h>
 #include <AnimTimeline/session.h>
 
-#include <QDebug>
 #include <QTimer>
 #include <set>
 //#include <boost/circular_buffer.hpp> // need boost lib
@@ -10,9 +9,6 @@
 Session::Session( QObject* parent ) : QObject( parent ) {
     saveDelay = new QTimer( this );
     connect( saveDelay, &QTimer::timeout, this, &Session::envSaved );
-#ifndef QT_NO_DEBUG_OUTPUT
-    connect( this, &Session::envSaved, this, &Session::envSavedTrace );
-#endif
     saveDelay->setSingleShot( true );
 }
 
@@ -23,7 +19,6 @@ Session::~Session() {
 
 // timeline changed, save timeline and anim environment
 void Session::onChangeEnv() {
-    qDebug() << "Session::onChangeEnv()";
     saveDelay->start( DELAY_AUTO_SAVE );
 }
 
@@ -31,13 +26,11 @@ void Session::onClearSession() {
     while ( !undo.empty() )
     {
         emit renderDeleted( undo.back().anim );
-        qDebug() << "\033[35mrenderDeleted(" << undo.back().anim << ")\033[0m";
         undo.pop_back();
     }
     while ( !redoHeap.empty() )
     {
         emit renderDeleted( redoHeap.top().anim );
-        qDebug() << "\033[35mrenderDeleted(" << redoHeap.top().anim << ")\033[0m";
         redoHeap.pop();
     }
 
@@ -47,13 +40,7 @@ void Session::onClearSession() {
 }
 
 void Session::onUndo() {
-    if ( undo.empty() )
-    {
-        qDebug() << "\033[31mSession::onUndo() : empty buffer ! (suggestion for client : "
-                    "you need to catch envSaved to launch onSaveRendering with your anim "
-                    "structure due of undo/redo calling, wanted to restore your environment\033[0m";
-        return;
-    }
+    if ( undo.empty() ) { return; }
 
     if ( undo.size() > 1 )
     {
@@ -62,16 +49,10 @@ void Session::onUndo() {
 
         setEnv( undo.back() );
     }
-    else
-    { qDebug() << "\033[31mSession::onUndo() : last element, can't delete !\033[0m"; }
 }
 
 void Session::onRedo() {
-    if ( redoHeap.empty() )
-    {
-        qDebug() << "\033[31mSession::onRedo() : empty stack !\033[0m";
-        return;
-    }
+    if ( redoHeap.empty() ) { return; }
 
     undo.emplace_back( redoHeap.top() );
     redoHeap.pop();
@@ -84,7 +65,6 @@ void Session::onSaveRendering( void* anim, size_t bytes ) {
     while ( !redoHeap.empty() )
     {
         emit renderDeleted( redoHeap.top().anim );
-        qDebug() << "\033[35mrenderDeleted(" << redoHeap.top().anim << ")\033[0m";
         size -= redoHeap.top().bytes;
         redoHeap.pop();
     }
@@ -94,15 +74,10 @@ void Session::onSaveRendering( void* anim, size_t bytes ) {
 
     while ( size > BUFFER_SESSION_MAX_SIZE )
     {
-        qDebug() << "\033[31monSaveRendering : buffer overflow\033[0m";
         emit renderDeleted( undo.front().anim );
-        qDebug() << "\033[35mrenderDeleted(" << undo.front().anim << ")\033[0m";
         size -= undo.front().bytes;
         undo.pop_front();
     }
-
-    qDebug() << "Session::onSaveRendering() : buff size (bytes) =" << size << "/"
-             << BUFFER_SESSION_MAX_SIZE << "(" << size * 100.0 / BUFFER_SESSION_MAX_SIZE << "% )";
 }
 
 void Session::setEnv( Env env ) {
@@ -124,14 +99,7 @@ void Session::setEnv( Env env ) {
     ruler->onDrawRuler( ruler->width() );
 
     emit rendered( env.anim );
-    qDebug() << "\033[35mrendered(" << env.anim << ")\033[0m";
 }
-
-#ifndef QT_NO_DEBUG_OUTPUT
-void Session::envSavedTrace() {
-    qDebug() << "\033[35menvSaved()\033[0m";
-}
-#endif
 
 void Session::setKeyPoses( std::set<double>* value ) {
     keyPoses = value;

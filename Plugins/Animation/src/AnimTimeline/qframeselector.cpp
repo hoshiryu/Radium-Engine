@@ -1,7 +1,6 @@
 #include <AnimTimeline/animtimeline.h>
 #include <AnimTimeline/qframeselector.h>
 
-#include <QDebug>
 #include <QPainter>
 #include <QTimer>
 #include <QWheelEvent>
@@ -17,7 +16,6 @@ QFrameSelector::QFrameSelector( QWidget* parent ) : QFrame( parent ) {
 
     timer = new QTimer( this );
     connect( timer, SIGNAL( timeout() ), this, SLOT( update() ) );
-    //    qDebug() << "end construct frameSelector, parent : " << parent;
 }
 
 QFrameSelector::~QFrameSelector() {
@@ -70,7 +68,6 @@ double QFrameSelector::nearestStep( double time ) const {
 
 // ------------------------------- PROTECTED ----------------------------------
 void QFrameSelector::paintEvent( QPaintEvent* ) {
-    qDebug() << "QFrameSelector::paintEvent " << ++paintCounter;
 
     QPainter painter( this );
     int h = height();
@@ -197,7 +194,6 @@ void QFrameSelector::mousePressEvent( QMouseEvent* event ) {
                         update();
 
                         emit keyPoseMoved( id, cursor ); // EXTERNAL SIGNAL
-                        qDebug() << "\033[35mkeyPoseMoved(" << id << ", " << cursor << ")\033[0m";
                     }
                 }
 
@@ -315,7 +311,6 @@ void QFrameSelector::onAddingKeyPose( double time, bool internal /* = true */ ) 
         if ( internal )
         {
             emit keyPoseAdded( time ); // EXTERNAL SIGNAL
-            qDebug() << "\033[35mkeyPoseAdded(" << time << ")\033[0m";
         }
 
         nbKeyPosesSpin->setValue( static_cast<int>( keyPoses.size() ) );
@@ -330,7 +325,6 @@ void QFrameSelector::onAddingKeyPose( double time, bool internal /* = true */ ) 
         if ( internal )
         {
             emit keyPoseChanged( id ); // EXTERNAL SIGNAL
-            qDebug() << "\033[35mkeyPoseChanged(" << id << ")\033[0m";
         }
 
         updateKeyPoseFlash = 6;
@@ -368,7 +362,6 @@ void QFrameSelector::onChangeStart( double time, bool internal /* = true */ ) {
         if ( internal || out )
         {
             emit startChanged( start ); // EXTERNAL SIGNAL
-            qDebug() << "\033[35mstartChanged(" << start << ")\033[0m";
         }
     }
     else
@@ -395,7 +388,6 @@ void QFrameSelector::onChangeEnd( double time, bool internal /* = true */ ) {
         if ( internal || out )
         {
             emit endChanged( end ); // EXTERNAL SIGNAL
-            qDebug() << "\033[35mendChanged(" << end << ")\033[0m";
         }
     }
     else
@@ -423,7 +415,6 @@ void QFrameSelector::onChangeCursor( double time, bool internal /* = true */ ) {
         if ( internal || out )
         {
             emit cursorChanged( cursor ); // EXTERNAL SIGNAL
-            qDebug() << "\033[35mcursorChanged(" << time << ")\033[0m";
         }
     }
     else
@@ -447,11 +438,7 @@ void QFrameSelector::onChangeDuration( double time, bool internal /* = true */ )
         updateDurationSpin();
 
         // emit signal if time of emitter is internal changed due of limits
-        if ( internal || out )
-        {
-            emit durationChanged( *duration );
-            qDebug() << "\033[35mdurationChanged(" << *duration << ")\033[0m";
-        }
+        if ( internal || out ) { emit durationChanged( *duration ); }
     }
     else
     {
@@ -519,7 +506,6 @@ void QFrameSelector::onDeleteKeyPose() {
 
         nbKeyPosesSpin->setValue( static_cast<int>( keyPoses.size() ) );
         emit keyPoseDeleted( id ); // EXTERNAL SIGNAL
-        qDebug() << "\033[35mkeyPoseDeleted(" << id << ")\033[0m";
 
         onSetCursorToNextKeyPose();
     }
@@ -614,7 +600,6 @@ void QFrameSelector::moveKeyPoses( double gap, size_t iFirst ) {
 
     // emit keyPosesMoved before emitting cursorChanged to render the truly pose on cursor
     emit keyPosesMoved( gap, iFirst ); // EXTERNAL SIGNAL
-    qDebug() << "\033[35mkeyPosesMoved(" << gap << ", " << iFirst << ")\033[0m";
 
     if ( start >= left )
     {
@@ -623,7 +608,6 @@ void QFrameSelector::moveKeyPoses( double gap, size_t iFirst ) {
         updateStartSpin();
 
         emit startChanged( start );
-        qDebug() << "\033[35mstartChanged(" << start << ")\033[0m";
     }
 
     if ( end >= left )
@@ -633,7 +617,6 @@ void QFrameSelector::moveKeyPoses( double gap, size_t iFirst ) {
         updateEndSpin();
 
         emit endChanged( end );
-        qDebug() << "\033[35mendChanged(" << end << ")\033[0m";
     }
 
     if ( cursor >= left )
@@ -643,11 +626,7 @@ void QFrameSelector::moveKeyPoses( double gap, size_t iFirst ) {
         cursor = qMax( cursor + gap, 0.0 );
         updateCursorSpin();
 
-        if ( !cursorOnKeyPose )
-        {
-            emit cursorChanged( cursor );
-            qDebug() << "\033[35mcursorChanged(" << cursor << ")\033[0m";
-        }
+        if ( !cursorOnKeyPose ) { emit cursorChanged( cursor ); }
     }
 
     update();
@@ -675,16 +654,12 @@ void QFrameSelector::deleteZone( double time, double time2 ) {
                 if ( first )
                 {
                     emit keyPosesMoved( -dist, id );
-                    qDebug() << "\033[35mkeyPosesMoved(" << -dist << ", " << id << ")\033[0m";
                     first = false;
                 }
                 keyPoses.insert( keyPose - dist );
             }
             else
-            {
-                emit keyPoseDeleted( id );
-                qDebug() << "\033[35mkeyPoseDeleted(" << id << ")\033[0m";
-            }
+            { emit keyPoseDeleted( id ); }
         }
         else
         {
@@ -701,7 +676,6 @@ void QFrameSelector::deleteZone( double time, double time2 ) {
         updateStartSpin();
 
         emit startChanged( start );
-        qDebug() << "\033[35mstartChanged(" << start << ")\033[0m";
     }
 
     double newEnd = qMax( qMax( qMin( end, left ), end - dist ), 0.0 );
@@ -711,7 +685,6 @@ void QFrameSelector::deleteZone( double time, double time2 ) {
         updateEndSpin();
 
         emit endChanged( end );
-        qDebug() << "\033[35mendChanged(" << end << ")\033[0m";
     }
 
     update();

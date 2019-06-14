@@ -1,6 +1,5 @@
 #include <AnimTimeline/qdoublespinboxsmart.h>
 
-#include <QDebug>
 #include <QWheelEvent>
 
 QDoubleSpinBoxSmart::QDoubleSpinBoxSmart( QWidget* parent ) : QDoubleSpinBox( parent ) {}
@@ -14,8 +13,6 @@ void QDoubleSpinBoxSmart::wheelEvent( QWheelEvent* event ) {
 }
 
 void QDoubleSpinBoxSmart::keyPressEvent( QKeyEvent* event ) {
-    //    qDebug() << "QDoubleSpinBoxSmart::keyPressEvent(" << event << ")";
-
     QDoubleSpinBox::keyPressEvent( event );
     switch ( event->key() )
     {

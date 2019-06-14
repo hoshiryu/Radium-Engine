@@ -1,7 +1,6 @@
 #include "ui_animtimeline.h" // moc not found in <AnimTimeline/*>, created on build
 #include <AnimTimeline/animtimeline.h>
 
-#include <QDebug>
 #include <QDesktopWidget>
 #include <QEvent>
 #include <QPainter>
@@ -10,7 +9,6 @@
 
 AnimTimeline::AnimTimeline( QWidget* parent ) : QDialog( parent ), ui( new Ui::AnimTimeline ) {
     ui->setupUi( this );
-    //    qDebug() << "AnimTimeline::AnimTimeline(" << parent << ") : ui setup end";
 
     // --------------------------- INTERNAL CONNECTIONS -----------------------
     // FRAME_BUTTONS
@@ -215,49 +213,40 @@ AnimTimeline::~AnimTimeline() {
 
 // todo : ctrlDown = shiftDown = false, on focus event (initialize state)
 void AnimTimeline::resizeEvent( QResizeEvent* event ) {
-    qDebug() << "AnimTimeline::resizeEvent(" << event->size() << ")";
 
     ui->scrollAreaWidgetContents->onDrawRuler( event->size().width() - 2 );
 }
 
 // ------------------------------- EXTERNAL SLOTS -----------------------------
 void AnimTimeline::onChangeStart( double time ) {
-    qDebug() << "\033[32monChangeStart(" << time << ")\033[0m";
     ui->frame_selector->onChangeStart( time, false );
 }
 
 void AnimTimeline::onChangeEnd( double time ) {
-    qDebug() << "\033[32monChangeEnd(" << time << ")\033[0m";
     ui->frame_selector->onChangeEnd( time, false );
 }
 
 void AnimTimeline::onChangeCursor( double time ) {
-    qDebug() << "\033[32monChangeCursor(" << time << ")\033[0m";
     ui->frame_selector->onChangeCursor( time, false );
 }
 
 void AnimTimeline::onChangeDuration( double time ) {
-    qDebug() << "\033[32monChangeDuration(" << time << ")\033[0m";
     ui->frame_selector->onChangeDuration( time, false );
 }
 
 void AnimTimeline::onAddingKeyPose( double time ) {
-    qDebug() << "\033[32monAddingKeyPose(" << time << ")\033[0m";
     ui->frame_selector->onAddingKeyPose( time, false );
 }
 
 void AnimTimeline::onClearKeyPoses() {
-    qDebug() << "\033[32monClearKeyPoses()\033[0m";
     ui->frame_selector->onClearKeyPoses();
 }
 
 void AnimTimeline::onSetPlayMode() {
-    qDebug() << "\033[32monSetPlayMode()\033[0m";
     ui->toolButton_playPause->onPlayMode();
 }
 
 void AnimTimeline::onSetPauseMode() {
-    qDebug() << "\033[32monSetPauseMode()\033[0m";
     ui->toolButton_playPause->onPauseMode();
 }
 
@@ -329,6 +318,5 @@ void AnimTimelineWithSession::onClearKeyPoses() {
 }
 
 void AnimTimelineWithSession::onSaveRendering( void* anim, size_t bytes ) {
-    qDebug() << "\033[32monSaveRendering(" << anim << ", " << bytes << ")\033[0m";
     session.onSaveRendering( anim, bytes );
 }

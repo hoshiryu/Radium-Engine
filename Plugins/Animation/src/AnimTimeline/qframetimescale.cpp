@@ -1,7 +1,6 @@
 #include <AnimTimeline/qframetimescale.h>
 #include <AnimTimeline/qwidgetruler.h>
 
-#include <QDebug>
 #include <QPainter>
 
 QFrameTimescale::QFrameTimescale( QWidget* parent ) : QFrame( parent ) {
@@ -15,7 +14,6 @@ QFrameTimescale::QFrameTimescale( QWidget* parent ) : QFrame( parent ) {
 }
 
 void QFrameTimescale::paintEvent( QPaintEvent* ) {
-    qDebug() << "QFrameTimescale::paintEvent " << ++counter;
 
     QPainter painter( this );
     painter.setRenderHint( QPainter::HighQualityAntialiasing );

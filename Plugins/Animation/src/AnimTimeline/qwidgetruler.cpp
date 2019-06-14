@@ -2,7 +2,6 @@
 
 #include <AnimTimeline/configurations.h>
 
-#include <QDebug>
 #include <QScrollBar>
 #include <QWheelEvent>
 #include <QtMath>
@@ -14,12 +13,7 @@ int QWidgetRuler::drawRuler( int width ) {
     while ( iStep < nbSteps && width * steps[iStep] < 50 * maxDuration )
         iStep++;
 
-    if ( iStep == nbSteps )
-    {
-        qDebug() << "\033[31mQWidgetRuler::drawRuler : " << width << " too short step\033[0m";
-
-        return this->width();
-    }
+    if ( iStep == nbSteps ) { return this->width(); }
 
     step = steps[iStep];
     spinStart->setSingleStep( 0.5 * step );
