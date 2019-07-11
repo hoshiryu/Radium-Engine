@@ -200,8 +200,8 @@ void SkinningComponent::skin() {
             m_forceUpdate            = false;
             m_frameData.m_doSkinning = true;
             m_frameData.m_frameCounter++;
-            m_frameData.m_refToCurrentRelPose =
-                Ra::Core::Animation::relativePose( m_frameData.m_currentPose, m_refData.m_refPose );
+            m_frameData.m_refToCurrentRelPose = m_frameData.m_currentPose;
+            Ra::Core::Animation::relativePose( m_frameData.m_currentPose, m_refData.m_refPose );
             m_frameData.m_prevToCurrentRelPose = Ra::Core::Animation::relativePose(
                 m_frameData.m_currentPose, m_frameData.m_previousPose );
 
@@ -392,7 +392,7 @@ void SkinningComponent::createWeightMatrix() {
 void SkinningComponent::applyBindMatrices( Ra::Core::Animation::Pose& pose ) {
     for ( auto bM : m_refData.m_bindMatrices )
     {
-        pose[bM.first] = pose[bM.first] * bM.second;
+        pose[bM.first] = pose[bM.first] * bM.second * m_skeletonGetter()->getFrame().inverse();
     }
 }
 

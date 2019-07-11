@@ -245,6 +245,15 @@ void AssimpHandleDataLoader::loadHandleData(
         handle->setType( HandleData::SKELETON );
         handle->setName( root );
 
+        Ra::Core::Transform frame = Ra::Core::Transform::Identity();
+        aiNode* node              = scene->mRootNode->FindNode( aiString( root ) );
+        while ( node->mParent != nullptr )
+        {
+            node  = node->mParent;
+            frame = assimpToCore( node->mTransformation ) * frame;
+        }
+        handle->setFrame( frame );
+
         // get list of bones and edges for this skeleton
         std::map<std::string, uint> nameTable;
         fillHandleData( root, edgeList, mapBone2Data, nameTable, handle );
