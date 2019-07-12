@@ -336,9 +336,11 @@ void SkinningComponent::endSkinning() {
 }
 
 void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData* data,
-                                               const std::string& meshName ) {
+                                               const std::string& meshName,
+                                               const Ra::Core::Transform& meshFrame ) {
     m_contentsName = data->getName();
     m_meshName     = meshName;
+    m_meshFrame    = meshFrame;
     setupIO( meshName );
     hasBindPose = true;
     for ( const auto& bone : data->getComponentData() )
@@ -392,7 +394,7 @@ void SkinningComponent::createWeightMatrix() {
 void SkinningComponent::applyBindMatrices( Ra::Core::Animation::Pose& pose ) {
     for ( auto bM : m_refData.m_bindMatrices )
     {
-        pose[bM.first] = pose[bM.first] * bM.second * m_skeletonGetter()->getFrame().inverse();
+        pose[bM.first] = pose[bM.first] * bM.second * m_meshFrame.inverse();
     }
 }
 
