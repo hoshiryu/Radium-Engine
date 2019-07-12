@@ -190,7 +190,7 @@ void SkinningComponent::skin() {
     {
         m_frameData.m_doReset      = true;
         m_frameData.m_frameCounter = 0;
-        m_forceUpdate = true;
+        m_forceUpdate              = true;
     }
     {
         m_frameData.m_currentPose = skel->getPose( SpaceType::MODEL );
@@ -237,26 +237,49 @@ void SkinningComponent::skin() {
             }
             case STBS_LBS:
             {
-                Ra::Core::Animation::linearBlendSkinningSTBS( m_refData.m_referenceMesh.vertices(),
-                                                              m_frameData.m_currentPose,
+                auto P = m_refData.m_referenceMesh.vertices();
+                auto M = *m_meshFrameGetter();
+                for ( auto& p : P )
+                {
+                    p = M * p;
+                }
+                auto pose = Ra::Core::Animation::relativePose(
+                    skel->getPose( SpaceType::MODEL ),
+                    m_refData.m_skeleton.getPose( SpaceType::MODEL ) );
+                Ra::Core::Animation::linearBlendSkinningSTBS( P,
+                                                              pose,
                                                               *skel,
                                                               m_refData.m_skeleton,
                                                               m_refData.m_weights,
                                                               m_weightSTBS,
                                                               m_frameData.m_currentPos );
+                M = M.inverse();
+                for ( auto& p : m_frameData.m_currentPos )
+                {
+                    p = M * p;
+                }
                 break;
             }
             case STBS_DQS:
             {
+                auto P = m_refData.m_referenceMesh.vertices();
+                auto M = *m_meshFrameGetter();
+                for ( auto& p : P )
+                {
+                    p = M * p;
+                }
+                auto pose = Ra::Core::Animation::relativePose(
+                    skel->getPose( SpaceType::MODEL ),
+                    m_refData.m_skeleton.getPose( SpaceType::MODEL ) );
                 Ra::Core::AlignedStdVector<DualQuaternion> DQ;
-                Ra::Core::Animation::computeDQSTBS( m_frameData.m_currentPose,
-                                                    *skel,
-                                                    m_refData.m_skeleton,
-                                                    m_refData.m_weights,
-                                                    m_weightSTBS,
-                                                    DQ );
-                Ra::Core::Animation::dualQuaternionSkinning(
-                    m_refData.m_referenceMesh.vertices(), DQ, m_frameData.m_currentPos );
+                Ra::Core::Animation::computeDQSTBS(
+                    pose, *skel, m_refData.m_skeleton, m_refData.m_weights, m_weightSTBS, DQ );
+                Ra::Core::Animation::dualQuaternionSkinning( P, DQ, m_frameData.m_currentPos );
+                M = M.inverse();
+                for ( auto& p : m_frameData.m_currentPos )
+                {
+                    p = M * p;
+                }
                 break;
             }
             }
@@ -453,9 +476,10 @@ void SkinningComponent::setupSkinningType( SkinningType type ) {
             m_weightSTBS.resize( m_refData.m_weights.rows(), m_refData.m_weights.cols() );
             std::vector<Eigen::Triplet<Scalar>> triplets;
             const auto& V = m_refData.m_referenceMesh.vertices();
+            const auto& T = *m_meshFrameGetter();
             for ( int i = 0; i < m_weightSTBS.rows(); ++i )
             {
-                const auto& pi = V[i];
+                const auto& pi = T * V[i];
                 for ( int j = 0; j < m_weightSTBS.cols(); ++j )
                 {
                     Ra::Core::Vector3 a, b;
