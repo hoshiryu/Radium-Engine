@@ -584,30 +584,30 @@ Scalar MeshFeatureTrackingComponent::getFeatureScale() const {
     // manage picking mode
     auto ro = getRoMgr()->getRenderObject( m_pickedRoIdx );
     if ( m_pickedMesh->getRenderMode() == MeshRenderMode::RM_POINTS )
-    { return ro->getAabb().sizes().norm() / 500; }
+    { return ro->getAabb().sizes().norm() / 500; } const auto& T = ro->getTransform();
     const auto& v = m_pickedMesh->getTriangleMesh().vertices();
     switch ( m_data.m_mode )
     {
     case PickingMode::VERTEX:
     {
         // return 1 fourth of the edge length of the first edge we can find with the vertex
-        const Ra::Core::Vector3& v0 = v[m_data.m_data[0]];
-        const Ra::Core::Vector3& v1 = v[m_data.m_data[1]];
+        const Ra::Core::Vector3& v0 = T * v[m_data.m_data[0]];
+        const Ra::Core::Vector3& v1 = T * v[m_data.m_data[1]];
         return ( v1 - v0 ).norm() / 4_ra;
     }
     case PickingMode::EDGE:
     {
         // return 1 fourth of the edge length
-        const Ra::Core::Vector3& v0 = v[m_data.m_data[0]];
-        const Ra::Core::Vector3& v1 = v[m_data.m_data[1]];
+        const Ra::Core::Vector3& v0 = T * v[m_data.m_data[0]];
+        const Ra::Core::Vector3& v1 = T * v[m_data.m_data[1]];
         return ( v1 - v0 ).norm() / 4_ra;
     }
     case PickingMode::TRIANGLE:
     {
         // return half the smallest distance from C to an edge
-        const Ra::Core::Vector3& v0 = v[m_data.m_data[0]];
-        const Ra::Core::Vector3& v1 = v[m_data.m_data[1]];
-        const Ra::Core::Vector3& v2 = v[m_data.m_data[2]];
+        const Ra::Core::Vector3& v0 = T * v[m_data.m_data[0]];
+        const Ra::Core::Vector3& v1 = T * v[m_data.m_data[1]];
+        const Ra::Core::Vector3& v2 = T * v[m_data.m_data[2]];
         const Ra::Core::Vector3 C   = ( v0 + v1 + v2 ) / 3_ra;
         const Ra::Core::Vector3 C0  = C - v0;
         const Ra::Core::Vector3 C1  = C - v1;

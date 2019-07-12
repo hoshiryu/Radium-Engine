@@ -25,6 +25,7 @@
 
 using Ra::Core::DualQuaternion;
 using Ra::Core::Quaternion;
+using Ra::Core::Transform;
 
 using Ra::Core::Animation::Pose;
 using Ra::Core::Animation::RefPose;
@@ -109,7 +110,8 @@ void SkinningComponent::initialize() {
             compMsg->rwCallback<Ra::Core::Vector3Array>( getEntity(), m_meshName + "v" );
         m_normalsWriter =
             compMsg->rwCallback<Ra::Core::Vector3Array>( getEntity(), m_meshName + "n" );
-        m_meshWritter = compMsg->rwCallback<TriangleMesh>( getEntity(), m_meshName );
+        m_meshWritter     = compMsg->rwCallback<TriangleMesh>( getEntity(), m_meshName );
+        m_meshFrameGetter = compMsg->getterCallback<Transform>( getEntity(), m_meshName );
 
         // fill RefData
         // copy mesh triangles and find duplicates for normal computation.
@@ -188,8 +190,8 @@ void SkinningComponent::skin() {
     {
         m_frameData.m_doReset      = true;
         m_frameData.m_frameCounter = 0;
+        m_forceUpdate = true;
     }
-    else
     {
         m_frameData.m_currentPose = skel->getPose( SpaceType::MODEL );
         applyBindMatrices( m_frameData.m_currentPose );
@@ -200,8 +202,8 @@ void SkinningComponent::skin() {
             m_forceUpdate            = false;
             m_frameData.m_doSkinning = true;
             m_frameData.m_frameCounter++;
-            m_frameData.m_refToCurrentRelPose = m_frameData.m_currentPose;
-            Ra::Core::Animation::relativePose( m_frameData.m_currentPose, m_refData.m_refPose );
+            m_frameData.m_refToCurrentRelPose =
+                Ra::Core::Animation::relativePose( m_frameData.m_currentPose, m_refData.m_refPose );
             m_frameData.m_prevToCurrentRelPose = Ra::Core::Animation::relativePose(
                 m_frameData.m_currentPose, m_frameData.m_previousPose );
 
@@ -210,7 +212,7 @@ void SkinningComponent::skin() {
             case LBS:
             {
                 Ra::Core::Animation::linearBlendSkinning( m_refData.m_referenceMesh.vertices(),
-                                                          m_frameData.m_refToCurrentRelPose,
+                                                          m_frameData.m_currentPose,
                                                           m_refData.m_weights,
                                                           m_frameData.m_currentPos );
                 break;
@@ -219,7 +221,7 @@ void SkinningComponent::skin() {
             {
                 Ra::Core::AlignedStdVector<DualQuaternion> DQ;
                 Ra::Core::Animation::computeDQ(
-                    m_frameData.m_refToCurrentRelPose, m_refData.m_weights, DQ );
+                    m_frameData.m_currentPose, m_refData.m_weights, DQ );
                 Ra::Core::Animation::dualQuaternionSkinning(
                     m_refData.m_referenceMesh.vertices(), DQ, m_frameData.m_currentPos );
                 break;
@@ -227,7 +229,7 @@ void SkinningComponent::skin() {
             case COR:
             {
                 Ra::Core::Animation::corSkinning( m_refData.m_referenceMesh.vertices(),
-                                                  m_frameData.m_refToCurrentRelPose,
+                                                  m_frameData.m_currentPose,
                                                   m_refData.m_weights,
                                                   m_refData.m_CoR,
                                                   m_frameData.m_currentPos );
@@ -236,7 +238,7 @@ void SkinningComponent::skin() {
             case STBS_LBS:
             {
                 Ra::Core::Animation::linearBlendSkinningSTBS( m_refData.m_referenceMesh.vertices(),
-                                                              m_frameData.m_refToCurrentRelPose,
+                                                              m_frameData.m_currentPose,
                                                               *skel,
                                                               m_refData.m_skeleton,
                                                               m_refData.m_weights,
@@ -247,7 +249,7 @@ void SkinningComponent::skin() {
             case STBS_DQS:
             {
                 Ra::Core::AlignedStdVector<DualQuaternion> DQ;
-                Ra::Core::Animation::computeDQSTBS( m_frameData.m_refToCurrentRelPose,
+                Ra::Core::Animation::computeDQSTBS( m_frameData.m_currentPose,
                                                     *skel,
                                                     m_refData.m_skeleton,
                                                     m_refData.m_weights,
@@ -258,8 +260,7 @@ void SkinningComponent::skin() {
                 break;
             }
             }
-            Ra::Core::Animation::computeDQ(
-                m_frameData.m_refToCurrentRelPose, m_refData.m_weights, m_DQ );
+            Ra::Core::Animation::computeDQ( m_frameData.m_currentPose, m_refData.m_weights, m_DQ );
         }
     }
 }
@@ -313,34 +314,12 @@ void SkinningComponent::endSkinning() {
 
         m_frameData.m_doSkinning = false;
     }
-    else if ( m_frameData.m_doReset )
-    {
-        // Reset mesh to its initial state.
-        Ra::Core::Vector3Array& vertices = *( m_verticesWriter() );
-        Ra::Core::Vector3Array& normals  = *( m_normalsWriter() );
-
-        vertices = m_refData.m_referenceMesh.vertices();
-        normals  = m_refData.m_referenceMesh.normals();
-
-        m_frameData.m_doReset       = false;
-        m_frameData.m_currentPose   = m_refData.m_refPose;
-        m_frameData.m_previousPose  = m_refData.m_refPose;
-        m_frameData.m_currentPos    = m_refData.m_referenceMesh.vertices();
-        m_frameData.m_previousPos   = m_refData.m_referenceMesh.vertices();
-        m_frameData.m_currentNormal = m_refData.m_referenceMesh.normals();
-        m_frameData.m_refToCurrentRelPose =
-            Ra::Core::Animation::relativePose( m_frameData.m_currentPose, m_refData.m_refPose );
-        m_frameData.m_prevToCurrentRelPose = Ra::Core::Animation::relativePose(
-            m_frameData.m_currentPose, m_frameData.m_previousPose );
-    }
 }
 
 void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData* data,
-                                               const std::string& meshName,
-                                               const Ra::Core::Transform& meshFrame ) {
+                                               const std::string& meshName ) {
     m_contentsName = data->getName();
     m_meshName     = meshName;
-    m_meshFrame    = meshFrame;
     setupIO( meshName );
     hasBindPose = true;
     for ( const auto& bone : data->getComponentData() )
@@ -392,9 +371,10 @@ void SkinningComponent::createWeightMatrix() {
 }
 
 void SkinningComponent::applyBindMatrices( Ra::Core::Animation::Pose& pose ) {
+    auto T = ( *m_meshFrameGetter() ).inverse();
     for ( auto bM : m_refData.m_bindMatrices )
     {
-        pose[bM.first] = pose[bM.first] * bM.second * m_meshFrame.inverse();
+        pose[bM.first] = T * pose[bM.first] * bM.second;
     }
 }
 

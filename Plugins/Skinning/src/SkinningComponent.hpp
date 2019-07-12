@@ -59,8 +59,7 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// Loads the skinning weights from the given Handledata.
     // TODO: for now, weights are stored in the AnimationComponent.
     void handleSkinDataLoading( const Ra::Core::Asset::HandleData* data,
-                                const std::string& meshName,
-                                const Ra::Core::Transform& meshFrame );
+                                const std::string& meshName );
 
     /// @returns the reference skinning data.
     const Ra::Core::Skinning::RefData* getRefData() const { return &m_refData; }
@@ -110,8 +109,6 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// The mesh name for Component communication.
     std::string m_meshName;
 
-    Ra::Core::Transform m_meshFrame;
-
     /// The refrence Skinning data.
     Ra::Core::Skinning::RefData m_refData;
 
@@ -137,6 +134,9 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     // Getter/Setter to the mesh
     Ra::Engine::ComponentMessenger::CallbackTypes<Ra::Core::Geometry::TriangleMesh>::ReadWrite
         m_meshWritter;
+
+    /// Getter for the mesh transform.
+    Ra::Engine::ComponentMessenger::CallbackTypes<Ra::Core::Transform>::Getter m_meshFrameGetter;
 
     /// The Skinning Method.
     SkinningType m_skinningType;

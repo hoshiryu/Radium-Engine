@@ -67,11 +67,14 @@ class RA_ENGINE_API TriangleMeshComponent : public Component
     Ra::Core::Vector3Array* getNormalsRw();
     Ra::Core::VectorArray<Ra::Core::Vector3ui>* getTrianglesRw();
 
+    const Ra::Core::Transform* getTransformRead() const;
+
     const Ra::Core::Utils::Index* roIndexRead() const;
 
   private:
     Ra::Core::Utils::Index m_meshIndex{};
     std::string m_contentName{};
+    Ra::Core::Transform m_frame{Ra::Core::Transform::Identity()};
     // directly hold a reference to the displayMesh to simplify accesses in handlers
     std::shared_ptr<Mesh> m_displayMesh{nullptr};
 };

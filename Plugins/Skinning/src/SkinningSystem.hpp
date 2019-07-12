@@ -62,7 +62,7 @@ class SKIN_PLUGIN_API SkinningSystem : public Ra::Engine::System
                     const auto& skel             = *it;
                     SkinningComponent* component = new SkinningComponent(
                         "SkC_" + geom->getName(), SkinningComponent::LBS, entity );
-                    component->handleSkinDataLoading( skel, geom->getName(), geom->getFrame() );
+                    component->handleSkinDataLoading( skel, geom->getName() );
                     registerComponent( entity, component );
                     new SkinningDisplayComponent(
                         "SkC_DSP_" + geom->getName(), geom->getName(), entity );

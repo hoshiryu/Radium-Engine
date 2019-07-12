@@ -10,6 +10,7 @@
 #include <Core/Utils/Color.hpp>
 
 #include <Engine/Managers/ComponentMessenger/ComponentMessenger.hpp>
+
 #include <Engine/Renderer/RenderObject/RenderObjectManager.hpp>
 
 #include <Engine/Renderer/Mesh/Mesh.hpp>
@@ -69,24 +70,17 @@ void TriangleMeshComponent::generateTriangleMesh( const Ra::Core::Asset::Geometr
     m_displayMesh = Ra::Core::make_shared<Mesh>( meshName );
 
     Ra::Core::Geometry::TriangleMesh mesh;
-    const auto T = data->getFrame();
-    const Ra::Core::Transform N( ( T.matrix() ).inverse().transpose() );
+    m_frame = data->getFrame();
 
-    mesh.vertices().resize( data->getVerticesSize(), Ra::Core::Vector3::Zero() );
-
-#pragma omp parallel for
-    for ( int i = 0; i < int( data->getVerticesSize() ); ++i )
-    {
-        mesh.vertices()[i] = T * data->getVertices()[i];
-    }
+    mesh.vertices() = data->getVertices();
 
     if ( data->hasNormals() )
     {
         mesh.normals().resize( data->getVerticesSize(), Ra::Core::Vector3::Zero() );
 #pragma omp parallel for
-        for ( int i = 0; i < data->getVerticesSize(); ++i )
+        for ( int i = 0; i < int( data->getVerticesSize() ); ++i )
         {
-            mesh.normals()[i] = ( N * data->getNormals()[i] ).normalized();
+            mesh.normals()[i] = data->getNormals()[i].normalized();
         }
     }
 
@@ -176,6 +170,7 @@ void TriangleMeshComponent::finalizeROFromGeometry( const Core::Asset::MaterialD
     auto ro = RenderObject::createRenderObject(
         roName, this, RenderObjectType::Geometry, m_displayMesh, rt );
     ro->setTransparent( isTransparent );
+    ro->setLocalTransform( m_frame );
 
     setupIO( m_contentName );
     m_meshIndex = addRenderObject( ro );
@@ -231,6 +226,11 @@ void TriangleMeshComponent::setupIO( const std::string& id ) {
         std::bind( &TriangleMeshComponent::getTrianglesRw, this );
     ComponentMessenger::getInstance()->registerReadWrite<TriangleArray>(
         getEntity(), this, id + "t", tRW );
+
+    ComponentMessenger::CallbackTypes<Ra::Core::Transform>::Getter TRW =
+        std::bind( &TriangleMeshComponent::getTransformRead, this );
+    ComponentMessenger::getInstance()->registerOutput<Ra::Core::Transform>(
+        getEntity(), this, id, TRW );
 }
 
 const Ra::Core::Geometry::TriangleMesh* TriangleMeshComponent::getMeshOutput() const {
@@ -269,6 +269,11 @@ Ra::Core::VectorArray<Ra::Core::Vector3ui>* TriangleMeshComponent::getTrianglesR
     CORE_ASSERT( m_displayMesh != nullptr, "DisplayMesh should exist while component is alive" );
     m_displayMesh->setDirty( Mesh::INDEX );
     return &( m_displayMesh->getTriangleMesh().m_triangles );
+}
+
+const Ra::Core::Transform* TriangleMeshComponent::getTransformRead() const {
+    CORE_ASSERT( m_displayMesh != nullptr, "DisplayMesh should exist while component is alive" );
+    return &m_frame;
 }
 
 const Ra::Core::Utils::Index* TriangleMeshComponent::roIndexRead() const {
