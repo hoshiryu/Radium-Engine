@@ -110,8 +110,7 @@ void SkinningComponent::initialize() {
             compMsg->rwCallback<Ra::Core::Vector3Array>( getEntity(), m_meshName + "v" );
         m_normalsWriter =
             compMsg->rwCallback<Ra::Core::Vector3Array>( getEntity(), m_meshName + "n" );
-        m_meshWritter     = compMsg->rwCallback<TriangleMesh>( getEntity(), m_meshName );
-        m_meshFrameGetter = compMsg->getterCallback<Transform>( getEntity(), m_meshName );
+        m_meshWritter = compMsg->rwCallback<TriangleMesh>( getEntity(), m_meshName );
 
         // fill RefData
         // copy mesh triangles and find duplicates for normal computation.
@@ -237,49 +236,28 @@ void SkinningComponent::skin() {
             }
             case STBS_LBS:
             {
-                auto P = m_refData.m_referenceMesh.vertices();
-                auto M = *m_meshFrameGetter();
-                for ( auto& p : P )
-                {
-                    p = M * p;
-                }
                 auto pose = Ra::Core::Animation::relativePose(
                     skel->getPose( SpaceType::MODEL ),
                     m_refData.m_skeleton.getPose( SpaceType::MODEL ) );
-                Ra::Core::Animation::linearBlendSkinningSTBS( P,
+                Ra::Core::Animation::linearBlendSkinningSTBS( m_refData.m_referenceMesh.vertices(),
                                                               pose,
                                                               *skel,
                                                               m_refData.m_skeleton,
                                                               m_refData.m_weights,
                                                               m_weightSTBS,
                                                               m_frameData.m_currentPos );
-                M = M.inverse();
-                for ( auto& p : m_frameData.m_currentPos )
-                {
-                    p = M * p;
-                }
                 break;
             }
             case STBS_DQS:
             {
-                auto P = m_refData.m_referenceMesh.vertices();
-                auto M = *m_meshFrameGetter();
-                for ( auto& p : P )
-                {
-                    p = M * p;
-                }
                 auto pose = Ra::Core::Animation::relativePose(
                     skel->getPose( SpaceType::MODEL ),
                     m_refData.m_skeleton.getPose( SpaceType::MODEL ) );
                 Ra::Core::AlignedStdVector<DualQuaternion> DQ;
                 Ra::Core::Animation::computeDQSTBS(
                     pose, *skel, m_refData.m_skeleton, m_refData.m_weights, m_weightSTBS, DQ );
-                Ra::Core::Animation::dualQuaternionSkinning( P, DQ, m_frameData.m_currentPos );
-                M = M.inverse();
-                for ( auto& p : m_frameData.m_currentPos )
-                {
-                    p = M * p;
-                }
+                Ra::Core::Animation::dualQuaternionSkinning(
+                    m_refData.m_referenceMesh.vertices(), DQ, m_frameData.m_currentPos );
                 break;
             }
             }
@@ -340,11 +318,13 @@ void SkinningComponent::endSkinning() {
 }
 
 void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData* data,
-                                               const std::string& meshName ) {
+                                               const std::string& meshName,
+                                               const Ra::Core::Transform& meshFrame ) {
     m_contentsName = data->getName();
     m_meshName     = meshName;
     setupIO( meshName );
-    hasBindPose = true;
+    hasBindPose    = true;
+    m_meshFrameInv = meshFrame.inverse();
     for ( const auto& bone : data->getComponentData() )
     {
         auto it_w = bone.m_weights.find( meshName );
@@ -353,7 +333,8 @@ void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData
             m_loadedWeights[bone.m_name] = it_w->second;
             auto it_b                    = bone.m_bindMatrices.find( meshName );
             if ( it_b != bone.m_bindMatrices.end() )
-            { m_loadedBindMatrices[bone.m_name] = it_b->second; } else
+            { m_loadedBindMatrices[bone.m_name] = it_b->second; }
+            else
             {
                 hasBindPose = false;
                 LOG( logWARNING ) << "Bone " << bone.m_name
@@ -363,7 +344,8 @@ void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData
         }
     }
     if ( !hasBindPose )
-    { LOG( logWARNING ) << "Model " << meshName << " does not provide bind pose."; } }
+    { LOG( logWARNING ) << "Model " << meshName << " does not provide bind pose."; }
+}
 
 void SkinningComponent::createWeightMatrix() {
     m_refData.m_weights.resize( int( m_refData.m_referenceMesh.vertices().size() ),
@@ -394,10 +376,9 @@ void SkinningComponent::createWeightMatrix() {
 }
 
 void SkinningComponent::applyBindMatrices( Ra::Core::Animation::Pose& pose ) {
-    auto T = ( *m_meshFrameGetter() ).inverse();
     for ( auto bM : m_refData.m_bindMatrices )
     {
-        pose[bM.first] = T * pose[bM.first] * bM.second;
+        pose[bM.first] = pose[bM.first] * bM.second * m_meshFrameInv;
     }
 }
 
@@ -476,10 +457,9 @@ void SkinningComponent::setupSkinningType( SkinningType type ) {
             m_weightSTBS.resize( m_refData.m_weights.rows(), m_refData.m_weights.cols() );
             std::vector<Eigen::Triplet<Scalar>> triplets;
             const auto& V = m_refData.m_referenceMesh.vertices();
-            const auto& T = *m_meshFrameGetter();
             for ( int i = 0; i < m_weightSTBS.rows(); ++i )
             {
-                const auto& pi = T * V[i];
+                const auto& pi = V[i];
                 for ( int j = 0; j < m_weightSTBS.cols(); ++j )
                 {
                     Ra::Core::Vector3 a, b;
