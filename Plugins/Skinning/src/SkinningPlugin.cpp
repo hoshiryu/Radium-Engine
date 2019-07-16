@@ -283,6 +283,7 @@ void SkinningWidget::setCurrent( const Ra::Engine::ItemEntry& entry, SkinningCom
         m_actionSTBSLBS->setEnabled( true );
         m_actionSTBSDQS->setEnabled( true );
         m_skinningSelect->setCurrentIndex( int( comp->getSkinningType() ) );
+        onSkinningChanged( int( comp->getSkinningType() ) );
     }
     else
     {
@@ -306,23 +307,72 @@ void SkinningWidget::onSkinningChanged( int newType ) {
     {
     case 0:
     {
+        m_actionLBS->setChecked( true );
+        m_actionDQ->setChecked( false );
+        m_actionCoR->setChecked( false );
+        m_actionSTBSLBS->setChecked( false );
+        m_actionSTBSDQS->setChecked( false );
         m_actionLBS->setIcon( QIcon( ":/Resources/Icons/LB_on.png" ) );
         m_actionDQ->setIcon( QIcon( ":/Resources/Icons/DQ.png" ) );
         m_actionCoR->setIcon( QIcon( ":/Resources/Icons/CoR.png" ) );
+        m_actionSTBSLBS->setIcon( QIcon( ":/Resources/Icons/STBSLB.png" ) );
+        m_actionSTBSDQS->setIcon( QIcon( ":/Resources/Icons/STBSDQ.png" ) );
         break;
     }
     case 1:
     {
+        m_actionLBS->setChecked( false );
+        m_actionDQ->setChecked( true );
+        m_actionCoR->setChecked( false );
+        m_actionSTBSLBS->setChecked( false );
+        m_actionSTBSDQS->setChecked( false );
         m_actionLBS->setIcon( QIcon( ":/Resources/Icons/LB.png" ) );
         m_actionDQ->setIcon( QIcon( ":/Resources/Icons/DQ_on.png" ) );
         m_actionCoR->setIcon( QIcon( ":/Resources/Icons/CoR.png" ) );
+        m_actionSTBSLBS->setIcon( QIcon( ":/Resources/Icons/STBSLB.png" ) );
+        m_actionSTBSDQS->setIcon( QIcon( ":/Resources/Icons/STBSDQ.png" ) );
         break;
     }
     case 2:
     {
+        m_actionLBS->setChecked( false );
+        m_actionDQ->setChecked( false );
+        m_actionCoR->setChecked( true );
+        m_actionSTBSLBS->setChecked( false );
+        m_actionSTBSDQS->setChecked( false );
         m_actionLBS->setIcon( QIcon( ":/Resources/Icons/LB.png" ) );
         m_actionDQ->setIcon( QIcon( ":/Resources/Icons/DQ.png" ) );
         m_actionCoR->setIcon( QIcon( ":/Resources/Icons/CoR_on.png" ) );
+        m_actionSTBSLBS->setIcon( QIcon( ":/Resources/Icons/STBSLB.png" ) );
+        m_actionSTBSDQS->setIcon( QIcon( ":/Resources/Icons/STBSDQ.png" ) );
+        break;
+    }
+    case 3:
+    {
+        m_actionLBS->setChecked( false );
+        m_actionDQ->setChecked( false );
+        m_actionCoR->setChecked( false );
+        m_actionSTBSLBS->setChecked( true );
+        m_actionSTBSDQS->setChecked( false );
+        m_actionLBS->setIcon( QIcon( ":/Resources/Icons/LB.png" ) );
+        m_actionDQ->setIcon( QIcon( ":/Resources/Icons/DQ.png" ) );
+        m_actionCoR->setIcon( QIcon( ":/Resources/Icons/CoR.png" ) );
+        m_actionSTBSLBS->setIcon( QIcon( ":/Resources/Icons/STBSLB_on.png" ) );
+        m_actionSTBSDQS->setIcon( QIcon( ":/Resources/Icons/STBSDQ.png" ) );
+        break;
+    }
+    case 4:
+    {
+        m_actionLBS->setChecked( false );
+        m_actionDQ->setChecked( false );
+        m_actionCoR->setChecked( false );
+        m_actionSTBSLBS->setChecked( false );
+        m_actionSTBSDQS->setChecked( true );
+        m_actionLBS->setIcon( QIcon( ":/Resources/Icons/LB.png" ) );
+        m_actionDQ->setIcon( QIcon( ":/Resources/Icons/DQ.png" ) );
+        m_actionCoR->setIcon( QIcon( ":/Resources/Icons/CoR.png" ) );
+        m_actionSTBSLBS->setIcon( QIcon( ":/Resources/Icons/STBSLB.png" ) );
+        m_actionSTBSDQS->setIcon( QIcon( ":/Resources/Icons/STBSDQ_on.png" ) );
         break;
     }
     default:

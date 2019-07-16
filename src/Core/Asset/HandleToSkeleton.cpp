@@ -39,7 +39,6 @@ void addBone( const int parent,                        // index of parent bone
 void createSkeleton( const Ra::Core::Asset::HandleData& data, Core::Animation::Skeleton& skelOut ) {
     const uint size = data.getComponentDataSize();
     auto component  = data.getComponentData();
-    skelOut.setFrame( data.getFrame() );
 
     std::set<uint> root;
     for ( uint i = 0; i < size; ++i )

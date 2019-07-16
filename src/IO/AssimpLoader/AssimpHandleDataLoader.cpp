@@ -26,19 +26,6 @@ AssimpHandleDataLoader::~AssimpHandleDataLoader() = default;
 
 /// LOAD
 
-void print( aiNode* node, int lvl = 0 ) {
-    for ( int i = 0; i < lvl; ++i )
-    {
-        std::cout << "  ";
-    }
-    std::cout << assimpToCore( node->mName ) << std::endl;
-    std::cout << assimpToCore( node->mTransformation ).matrix() << std::endl;
-    for ( uint i = 0; i < node->mNumChildren; ++i )
-    {
-        print( node->mChildren[i], lvl + 1 );
-    }
-}
-
 void AssimpHandleDataLoader::loadData( const aiScene* scene,
                                        std::vector<std::unique_ptr<HandleData>>& data ) {
     data.clear();
@@ -61,7 +48,6 @@ void AssimpHandleDataLoader::loadData( const aiScene* scene,
         LOG( logDEBUG ) << "Handle Loading begin...";
     }
 
-    //    print( scene->mRootNode );
     loadHandleData( scene, data );
 
     if ( m_verbose ) { LOG( logDEBUG ) << "Handle Loading end.\n"; }

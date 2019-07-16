@@ -89,10 +89,6 @@ class RA_CORE_API Handle
      */
     LocalPose m_pose;
 
-    const Ra::Core::Transform& getFrame() const { return m_frame; }
-
-    void setFrame( const Ra::Core::Transform& frame ) { m_frame = frame; }
-
   protected:
     /**
      * The Handle's name
@@ -103,8 +99,6 @@ class RA_CORE_API Handle
      * The names of the transforms.
      */
     std::vector<Label> m_label;
-
-    Ra::Core::Transform m_frame;
 };
 
 } // namespace Animation

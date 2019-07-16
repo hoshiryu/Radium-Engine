@@ -6,5 +6,9 @@
         <file>Icons/CoR_on.png</file>
         <file>Icons/LB.png</file>
         <file>Icons/LB_on.png</file>
+        <file>Icons/STBSDQ.png</file>
+        <file>Icons/STBSDQ_on.png</file>
+        <file>Icons/STBSLB.png</file>
+        <file>Icons/STBSLB_on.png</file>
     </qresource>
 </RCC>

@@ -4,13 +4,12 @@ namespace Ra {
 namespace Core {
 namespace Animation {
 
-Handle::Handle() : m_pose(), m_name( "" ), m_label(), m_frame( Ra::Core::Transform::Identity() ) {}
+Handle::Handle() : m_pose(), m_name( "" ), m_label() {}
 
 Handle::Handle( const uint n ) :
     m_pose( n, Transform::Identity() ),
     m_name( "" ),
-    m_label( n, "" ),
-    m_frame( Ra::Core::Transform::Identity() ) {}
+    m_label( n, "" ) {}
 
 Handle::~Handle() {}
 

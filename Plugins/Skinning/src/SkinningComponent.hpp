@@ -68,9 +68,6 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// @returns the current Pose data.
     const Ra::Core::Skinning::FrameData* getFrameData() const { return &m_frameData; }
 
-    /// @returns the list of DualQuaternions used for DQS.
-    const Ra::Core::AlignedStdVector<Ra::Core::DualQuaternion>* getDQ() const { return &m_DQ; }
-
     /// Toggles display of skinning weights.
     void showWeights( bool on );
 
@@ -148,9 +145,6 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// Whether skinning is mandatory for the current frame.
     bool m_forceUpdate;
 
-    /// The list of DualQuaternions used for DQS.
-    Ra::Core::AlignedStdVector<Ra::Core::DualQuaternion> m_DQ;
-
     /// The duplicate vertices map, used to recompute smooth normals.
     // FIXME: implement proper normal skinning such as http://vcg.isti.cnr.it/deformFactors/
     std::vector<Ra::Core::Utils::Index> m_duplicatesMap;
@@ -159,7 +153,6 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     std::map<std::string, std::vector<std::pair<uint, Scalar>>> m_loadedWeights;
     /// The bind matrices, stored per bone.
     std::map<std::string, Ra::Core::Transform> m_loadedBindMatrices;
-    bool hasBindPose;
 
     /// The STBS weights.
     Ra::Core::Animation::WeightMatrix m_weightSTBS;

@@ -261,7 +261,6 @@ void SkinningComponent::skin() {
                 break;
             }
             }
-            Ra::Core::Animation::computeDQ( m_frameData.m_currentPose, m_refData.m_weights, m_DQ );
         }
     }
 }
@@ -323,7 +322,6 @@ void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData
     m_contentsName = data->getName();
     m_meshName     = meshName;
     setupIO( meshName );
-    hasBindPose    = true;
     m_meshFrameInv = meshFrame.inverse();
     for ( const auto& bone : data->getComponentData() )
     {
@@ -336,20 +334,18 @@ void SkinningComponent::handleSkinDataLoading( const Ra::Core::Asset::HandleData
             { m_loadedBindMatrices[bone.m_name] = it_b->second; }
             else
             {
-                hasBindPose = false;
                 LOG( logWARNING ) << "Bone " << bone.m_name
                                   << " has skinning weights but no bind matrix. Using Identity.";
                 m_loadedBindMatrices[bone.m_name] = Ra::Core::Transform::Identity();
             }
         }
     }
-    if ( !hasBindPose )
-    { LOG( logWARNING ) << "Model " << meshName << " does not provide bind pose."; }
 }
 
 void SkinningComponent::createWeightMatrix() {
     m_refData.m_weights.resize( int( m_refData.m_referenceMesh.vertices().size() ),
                                 m_refData.m_skeleton.size() );
+    std::vector<Eigen::Triplet<Scalar>> triplets;
     for ( uint col = 0; col < m_refData.m_skeleton.size(); ++col )
     {
         std::string boneName = m_refData.m_skeleton.getLabel( col );
@@ -364,11 +360,13 @@ void SkinningComponent::createWeightMatrix() {
                 const Scalar w = W[i].second;
                 CORE_ASSERT( row < m_refData.m_weights.rows(),
                              "Weights are incompatible with mesh." );
-                m_refData.m_weights.coeffRef( row, col ) = w;
+                triplets.push_back( {int( row ), int( col ), w} );
             }
             m_refData.m_bindMatrices[col] = m_loadedBindMatrices[boneName];
         }
     }
+    m_refData.m_weights.setFromTriplets( triplets.begin(), triplets.end() );
+
     Ra::Core::Animation::checkWeightMatrix( m_refData.m_weights, false, true );
 
     if ( Ra::Core::Animation::normalizeWeights( m_refData.m_weights, true ) )
@@ -383,13 +381,6 @@ void SkinningComponent::applyBindMatrices( Ra::Core::Animation::Pose& pose ) {
 }
 
 void SkinningComponent::setupIO( const std::string& id ) {
-    using DualQuatVector = Ra::Core::AlignedStdVector<Ra::Core::DualQuaternion>;
-
-    ComponentMessenger::CallbackTypes<DualQuatVector>::Getter dqOut =
-        std::bind( &SkinningComponent::getDQ, this );
-    ComponentMessenger::getInstance()->registerOutput<DualQuatVector>(
-        getEntity(), this, id, dqOut );
-
     ComponentMessenger::CallbackTypes<WeightMatrix>::Getter wOut =
         std::bind( &SkinningComponent::getWeightsOutput, this );
     ComponentMessenger::getInstance()->registerOutput<Ra::Core::Animation::WeightMatrix>(
@@ -426,29 +417,13 @@ void SkinningComponent::setupSkinningType( SkinningType type ) {
     case LBS:
         break;
     case DQS:
-    {
-        if ( m_DQ.empty() )
-        {
-            m_DQ.resize( m_refData.m_weights.rows(),
-                         DualQuaternion( Quaternion( 0.0, 0.0, 0.0, 0.0 ),
-                                         Quaternion( 0.0, 0.0, 0.0, 0.0 ) ) );
-        }
         break;
-    }
     case COR:
     {
         if ( m_refData.m_CoR.empty() ) { Ra::Core::Animation::computeCoR( m_refData ); }
         break;
     }
     case STBS_DQS:
-    {
-        if ( m_DQ.empty() )
-        {
-            m_DQ.resize( m_refData.m_weights.rows(),
-                         DualQuaternion( Quaternion( 0.0, 0.0, 0.0, 0.0 ),
-                                         Quaternion( 0.0, 0.0, 0.0, 0.0 ) ) );
-        }
-    }
         [[fallthrough]];
     case STBS_LBS:
     {
