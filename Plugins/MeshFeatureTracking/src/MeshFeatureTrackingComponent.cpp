@@ -584,7 +584,8 @@ Scalar MeshFeatureTrackingComponent::getFeatureScale() const {
     // manage picking mode
     auto ro = getRoMgr()->getRenderObject( m_pickedRoIdx );
     if ( m_pickedMesh->getRenderMode() == MeshRenderMode::RM_POINTS )
-    { return ro->getAabb().sizes().norm() / 500; } const auto& T = ro->getTransform();
+    { return ro->getAabb().sizes().norm() / 500; }
+    const auto& T = ro->getTransform();
     const auto& v = m_pickedMesh->getTriangleMesh().vertices();
     switch ( m_data.m_mode )
     {

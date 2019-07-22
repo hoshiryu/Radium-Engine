@@ -123,7 +123,7 @@ void MeshPaintComponent::bakePaintToDiffuse() {
     // auto triangleMesh = compMess->get<Ra::Core::Geometry::TriangleMesh>( getEntity(),
     // m_dataId ); however here we skip the search in the component map
     Ra::Core::Geometry::TriangleMesh& triangleMesh = m_mesh->getTriangleMesh();
-    m_baseColors = triangleMesh.getAttrib( m_currentColorAttribHdl ).data();
+    m_baseColors       = triangleMesh.getAttrib( m_currentColorAttribHdl ).data();
     m_isBaseColorValid = true;
 }
 
