@@ -70,14 +70,14 @@ FileData* AssimpFileLoader::loadFile( const std::string& filename ) {
     // failes with Light only. If one need to load file with only skeleton or animation, this must
     // be changed. Note that loading only skeletons or animations from a file is not allowed in
     // Radium For now, Skeleton must be loaded from a file with meshes
-    if ( scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE )
-    {
-        LOG( logWARNING ) << " ai scene is incomplete, just try to load lights ..";
-        AssimpLightDataLoader lightLoader( Core::Utils::getDirName( filename ),
-                                           fileData->isVerbose() );
-        lightLoader.loadData( scene, fileData->m_lightData );
-    }
-    else
+//    if ( scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE )
+//    {
+//        LOG( logWARNING ) << " ai scene is incomplete, just try to load lights ..";
+//        AssimpLightDataLoader lightLoader( Core::Utils::getDirName( filename ),
+//                                           fileData->isVerbose() );
+//        lightLoader.loadData( scene, fileData->m_lightData );
+//    }
+//    else
     {
         AssimpGeometryDataLoader geometryLoader( Core::Utils::getDirName( filename ),
                                                  fileData->isVerbose() );
@@ -90,7 +90,7 @@ FileData* AssimpFileLoader::loadFile( const std::string& filename ) {
         bool ok = std::any_of( fileData->m_geometryData.begin(),
                                fileData->m_geometryData.end(),
                                []( const auto& geom ) -> bool { return geom->hasFaces(); } );
-        if ( !ok )
+        if ( fileData->hasGeometry() && !ok )
         {
             if ( fileData->isVerbose() )
             {
