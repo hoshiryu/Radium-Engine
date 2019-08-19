@@ -592,27 +592,23 @@ Scalar MeshFeatureTrackingComponent::getFeatureScale() const {
     case PickingMode::VERTEX:
     {
         // return 1 fourth of the edge length of the first edge we can find with the vertex
-        const Ra::Core::Vector3& v0 = T * v[m_data.m_data[0]];
-        const Ra::Core::Vector3& v1 = T * v[m_data.m_data[1]];
-        return ( v1 - v0 ).norm() / 4_ra;
+        return ( T.linear() * ( v[m_data.m_data[1]] - v[m_data.m_data[0]] ) ).norm() / 4_ra;
     }
     case PickingMode::EDGE:
     {
         // return 1 fourth of the edge length
-        const Ra::Core::Vector3& v0 = T * v[m_data.m_data[0]];
-        const Ra::Core::Vector3& v1 = T * v[m_data.m_data[1]];
-        return ( v1 - v0 ).norm() / 4_ra;
+        return ( T.linear() * ( v[m_data.m_data[1]] - v[m_data.m_data[0]] ) ).norm() / 4_ra;
     }
     case PickingMode::TRIANGLE:
     {
         // return half the smallest distance from C to an edge
-        const Ra::Core::Vector3& v0 = T * v[m_data.m_data[0]];
-        const Ra::Core::Vector3& v1 = T * v[m_data.m_data[1]];
-        const Ra::Core::Vector3& v2 = T * v[m_data.m_data[2]];
-        const Ra::Core::Vector3 C   = ( v0 + v1 + v2 ) / 3_ra;
-        const Ra::Core::Vector3 C0  = C - v0;
-        const Ra::Core::Vector3 C1  = C - v1;
-        const Ra::Core::Vector3 C2  = C - v2;
+        const Ra::Core::Vector3 v0 = T.linear() * v[m_data.m_data[0]];
+        const Ra::Core::Vector3 v1 = T.linear() * v[m_data.m_data[1]];
+        const Ra::Core::Vector3 v2 = T.linear() * v[m_data.m_data[2]];
+        const Ra::Core::Vector3 C  = ( v0 + v1 + v2 ) / 3_ra;
+        const Ra::Core::Vector3 C0 = C - v0;
+        const Ra::Core::Vector3 C1 = C - v1;
+        const Ra::Core::Vector3 C2 = C - v2;
         return sqrt( std::min(
                    std::min( C0.squaredNorm() *
                                  ( v1 - v0 ).normalized().cross( C0.normalized() ).squaredNorm(),
@@ -620,7 +616,7 @@ Scalar MeshFeatureTrackingComponent::getFeatureScale() const {
                                  ( v2 - v1 ).normalized().cross( C1.normalized() ).squaredNorm() ),
                    C2.squaredNorm() *
                        ( v0 - v2 ).normalized().cross( C2.normalized() ).squaredNorm() ) ) /
-               2.0;
+               2_ra;
     }
     default:
         return ro->getAabb().diagonal().norm() / 100_ra;

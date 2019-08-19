@@ -10,9 +10,9 @@
 #include <Core/Animation/StretchableTwistableBoneSkinning.hpp>
 #include <Core/Geometry/DistanceQueries.hpp>
 #include <Core/Geometry/TriangleOperation.hpp>
+#include <Core/Resources/Resources.hpp>
 #include <Core/Utils/Color.hpp>
 #include <Core/Utils/Log.hpp>
-#include <Core/Resources/Resources.hpp>
 
 #include <Engine/Renderer/Material/BlinnPhongMaterial.hpp>
 #include <Engine/Renderer/Mesh/Mesh.hpp>
@@ -356,11 +356,11 @@ void SkinningComponent::createWeightMatrix() {
             const uint size = uint( W.size() );
             for ( uint i = 0; i < size; ++i )
             {
-                const uint row = W[i].first;
-                const Scalar w = W[i].second;
+                const auto& w = W[i];
+                int row{int( w.first )};
                 CORE_ASSERT( row < m_refData.m_weights.rows(),
                              "Weights are incompatible with mesh." );
-                triplets.push_back( {int( row ), int( col ), w} );
+                triplets.push_back( {row, int( col ), w.second} );
             }
             m_refData.m_bindMatrices[col] = m_loadedBindMatrices[boneName];
         }

@@ -56,8 +56,8 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// \returns the current skinning method.
     inline SkinningType getSkinningType() const { return m_skinningType; }
 
-    /// Loads the skinning weights from the given Handledata.
-    // TODO: for now, weights are stored in the AnimationComponent.
+    /// Loads the skinning data from the given Handledata.
+    /// \note Call initialize() afterwards to finalize data registration.
     void handleSkinDataLoading( const Ra::Core::Asset::HandleData* data,
                                 const std::string& meshName,
                                 const Ra::Core::Transform& meshFrame );
@@ -107,7 +107,7 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     /// The mesh name for Component communication.
     std::string m_meshName;
 
-    /// The initial mesh transform.
+    /// Inverse of the initial mesh transform.
     Ra::Core::Transform m_meshFrameInv;
 
     /// The refrence Skinning data.
@@ -150,8 +150,12 @@ class SKIN_PLUGIN_API SkinningComponent : public Ra::Engine::Component
     std::vector<Ra::Core::Utils::Index> m_duplicatesMap;
 
     /// The skinning weights, stored per bone.
+    /// \note These are stored this way because we cannot build the weight matrix
+    ///       without data from other components (skeleton).
     std::map<std::string, std::vector<std::pair<uint, Scalar>>> m_loadedWeights;
     /// The bind matrices, stored per bone.
+    /// \note These are stored this way because we cannot fill m_refData
+    ///       without data from other components (skeleton).
     std::map<std::string, Ra::Core::Transform> m_loadedBindMatrices;
 
     /// The STBS weights.

@@ -14,7 +14,7 @@ namespace Asset {
 
 namespace {
 // Recursive function to add bones
-void addBone( const int parent,                        // index of parent bone
+void addBone( const uint parent,                       // index of parent bone
               const uint dataID,                       // index in map
               const Ra::Core::Asset::HandleData& data, // handle data
               const Ra::Core::AlignedStdVector<Ra::Core::Vector2ui>& edgeList, // list of edges
@@ -25,7 +25,7 @@ void addBone( const int parent,                        // index of parent bone
     {
         processed[dataID] = true;
         const auto& dd    = data.getComponentData()[dataID];
-        int index         = skelOut.addBone(
+        uint index        = skelOut.addBone(
             parent, dd.m_frame, Ra::Core::Animation::Handle::SpaceType::MODEL, dd.m_name );
         for ( const auto& edge : edgeList )
         {
@@ -57,7 +57,7 @@ void createSkeleton( const Ra::Core::Asset::HandleData& data, Core::Animation::S
     std::vector<bool> processed( size, false );
     for ( const auto& r : root )
     {
-        addBone( -1, r, data, edgeList, processed, skelOut );
+        addBone( uint( -1 ), r, data, edgeList, processed, skelOut );
     }
 
     if ( data.needsEndNodes() )
@@ -73,7 +73,7 @@ void createSkeleton( const Ra::Core::Asset::HandleData& data, Core::Animation::S
             if ( dd.m_weights.size() )
             {
                 LOG( logDEBUG ) << "Adding end-bone at " << dd.m_name << ".";
-                skelOut.addBone( int( boneNameMap[dd.m_name] ),
+                skelOut.addBone( boneNameMap[dd.m_name],
                                  data.getFrame().inverse() * dd.m_frame,
                                  Ra::Core::Animation::Handle::SpaceType::MODEL,
                                  dd.m_name + "_Ra_endBone" );

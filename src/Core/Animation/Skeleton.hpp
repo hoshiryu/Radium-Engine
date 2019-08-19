@@ -41,11 +41,13 @@ class RA_CORE_API Skeleton : public Handle
      * @param MODE   SpaceType of T (either SpaceType::LOCAL or SpaceType::GLOBAL)
      * @param label  the name for the new joint
      * @return       the index of the new joint
+     * \note In order to insert the root node, use \code uint( -1 ) \endcode as
+     *       its parent's index.
      */
-    int addBone( const int parent     = -1,
-                 const Transform& T   = Transform::Identity(),
-                 const SpaceType MODE = SpaceType::LOCAL,
-                 const Label label    = "" );
+    uint addBone( const uint parent    = uint( -1 ),
+                  const Transform& T   = Transform::Identity(),
+                  const SpaceType MODE = SpaceType::LOCAL,
+                  const Label label    = "" );
 
     /**
      * Get the i-th bone endpoints.
@@ -58,7 +60,7 @@ class RA_CORE_API Skeleton : public Handle
     /**
      * Project point \p pos onto the bone with index \p boneIdx.
      */
-    Ra::Core::Vector3 projectOnBone( int boneIdx, const Ra::Core::Vector3& pos ) const;
+    Ra::Core::Vector3 projectOnBone( uint boneIdx, const Ra::Core::Vector3& pos ) const;
 
     /**
      * Stream insertion operator.

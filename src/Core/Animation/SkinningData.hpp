@@ -25,7 +25,7 @@ struct RefData {
     /// Skinning weights.
     Ra::Core::Animation::WeightMatrix m_weights;
 
-    /// The per-bone inverse bind matrices.
+    /// The per-bone bind matrices.
     std::map<uint, Ra::Core::Transform> m_bindMatrices;
 
     /// Optionnal centers of rotations for CoR skinning
