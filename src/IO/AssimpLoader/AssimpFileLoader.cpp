@@ -7,6 +7,7 @@
 #include <assimp/scene.h>
 
 #include <IO/AssimpLoader/AssimpAnimationDataLoader.hpp>
+#include <IO/AssimpLoader/AssimpCameraDataLoader.hpp>
 #include <IO/AssimpLoader/AssimpGeometryDataLoader.hpp>
 #include <IO/AssimpLoader/AssimpHandleDataLoader.hpp>
 #include <IO/AssimpLoader/AssimpLightDataLoader.hpp>
@@ -65,51 +66,39 @@ FileData* AssimpFileLoader::loadFile( const std::string& filename ) {
     std::clock_t startTime;
     startTime = std::clock();
 
-    // FIXME : this warkaround is related to assimp issue #2260 Mesh created for a light only file
-    // (collada) https://github.com/assimp/assimp/issues/2260 For the moment, only allow to load
-    // failes with Light only. If one need to load file with only skeleton or animation, this must
-    // be changed. Note that loading only skeletons or animations from a file is not allowed in
-    // Radium For now, Skeleton must be loaded from a file with meshes
-//    if ( scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE )
-//    {
-//        LOG( logWARNING ) << " ai scene is incomplete, just try to load lights ..";
-//        AssimpLightDataLoader lightLoader( Core::Utils::getDirName( filename ),
-//                                           fileData->isVerbose() );
-//        lightLoader.loadData( scene, fileData->m_lightData );
-//    }
-//    else
+    AssimpGeometryDataLoader geometryLoader( Core::Utils::getDirName( filename ),
+                                             fileData->isVerbose() );
+    geometryLoader.loadData( scene, fileData->m_geometryData );
+
+    // check if that the scene contains at least one mesh
+    // Note that currently, Assimp is ALWAYS creating faces, even when
+    // loading point clouds
+    // (see 3rdPartyLibraries/Assimp/code/PlyLoader.cpp:260)
+    bool ok = std::any_of( fileData->m_geometryData.begin(),
+                           fileData->m_geometryData.end(),
+                           []( const auto& geom ) -> bool { return geom->hasFaces(); } );
+    if ( fileData->hasGeometry() && !ok )
     {
-        AssimpGeometryDataLoader geometryLoader( Core::Utils::getDirName( filename ),
-                                                 fileData->isVerbose() );
-        geometryLoader.loadData( scene, fileData->m_geometryData );
-
-        // check if that the scene contains at least one mesh
-        // Note that currently, Assimp is ALWAYS creating faces, even when
-        // loading point clouds
-        // (see 3rdPartyLibraries/Assimp/code/PlyLoader.cpp:260)
-        bool ok = std::any_of( fileData->m_geometryData.begin(),
-                               fileData->m_geometryData.end(),
-                               []( const auto& geom ) -> bool { return geom->hasFaces(); } );
-        if ( fileData->hasGeometry() && !ok )
+        if ( fileData->isVerbose() )
         {
-            if ( fileData->isVerbose() )
-            {
-                LOG( logINFO ) << "Point-cloud found. Aborting";
-                delete fileData;
-                return nullptr;
-            }
+            LOG( logINFO ) << "Point-cloud found. Aborting";
+            delete fileData;
+            return nullptr;
         }
-
-        AssimpHandleDataLoader handleLoader( fileData->isVerbose() );
-        handleLoader.loadData( scene, fileData->m_handleData );
-
-        AssimpAnimationDataLoader animationLoader( fileData->isVerbose() );
-        animationLoader.loadData( scene, fileData->m_animationData );
-
-        AssimpLightDataLoader lightLoader( Core::Utils::getDirName( filename ),
-                                           fileData->isVerbose() );
-        lightLoader.loadData( scene, fileData->m_lightData );
     }
+
+    AssimpHandleDataLoader handleLoader( fileData->isVerbose() );
+    handleLoader.loadData( scene, fileData->m_handleData );
+
+    AssimpAnimationDataLoader animationLoader( fileData->isVerbose() );
+    animationLoader.loadData( scene, fileData->m_animationData );
+
+    AssimpLightDataLoader lightLoader( Core::Utils::getDirName( filename ), fileData->isVerbose() );
+    lightLoader.loadData( scene, fileData->m_lightData );
+
+    AssimpCameraDataLoader cameraLoader( Core::Utils::getDirName( filename ),
+                                         fileData->isVerbose() );
+    cameraLoader.loadData( scene, fileData->m_cameraData );
 
     fileData->m_loadingTime = ( std::clock() - startTime ) / Scalar( CLOCKS_PER_SEC );
 
