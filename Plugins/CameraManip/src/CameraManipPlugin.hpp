@@ -5,9 +5,10 @@
 #include <PluginBase/RadiumPluginInterface.hpp>
 #include <QObject>
 
-#include <UI/CameraManipUI.h>
+#include <map>
 
 #include <CameraManipPluginMacros.hpp>
+#include <UI/CameraManipUI.h>
 
 namespace Ra {
 namespace Engine {
@@ -17,6 +18,8 @@ class Entity;
 } // namespace Ra
 
 namespace CameraManipPlugin {
+
+class CameraManipSystem;
 
 // Due to an ambigous name while compiling with Clang, must differentiate plugin class from plugin
 // namespace
@@ -47,14 +50,31 @@ class CameraManipPluginC : public QObject, Ra::Plugins::RadiumPluginInterface
     void useSelectedCamera();
     void saveCamera();
     void createCamera();
+    void addKeyFrame();
+    void showFrames( bool show );
+    void playPath( bool play );
+    void resetPath();
+    void advance();
+    void savePath() const;
+    void loadPath();
     void onCurrentChanged( const QModelIndex& current, const QModelIndex& prev );
+
+  signals:
+    void setContinuousUpdate( bool on );
+    void askForUpdate();
 
   private:
     CameraManipUI* m_widget;
+    CameraManipSystem* m_system;
 
     Ra::Engine::RadiumEngine* m_engine;
     Ra::GuiBase::SelectionManager* m_selectionManager;
     Ra::Gui::Viewer* m_viewer;
+
+    std::map<Scalar, Ra::Engine::Camera*> m_keyFrames;
+    Scalar m_time{0_ra};
+    bool m_isPlaying{false};
+    bool m_isReset{true};
 };
 
 } // namespace CameraManipPlugin

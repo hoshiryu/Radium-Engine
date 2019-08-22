@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>320</width>
-    <height>95</height>
+    <width>342</width>
+    <height>162</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,6 +51,72 @@
         <widget class="QPushButton" name="m_saveCamera">
          <property name="text">
           <string>Save Camera</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="m_addKeyFrame">
+         <property name="text">
+          <string>Add Key Frame</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="m_showFrames">
+         <property name="text">
+          <string>Show Frames</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="m_playPath">
+         <property name="text">
+          <string>Play Path</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="m_resetPath">
+         <property name="text">
+          <string>Reset Path</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="m_savePath">
+         <property name="text">
+          <string>Save Path</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="m_loadPath">
+         <property name="text">
+          <string>Load Path</string>
          </property>
         </widget>
        </item>
