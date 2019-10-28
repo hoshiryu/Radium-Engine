@@ -31,6 +31,10 @@ class Obb
 
     /// Return the AABB enclosing this
     inline Aabb toAabb() const {
+        if ( m_aabb.isEmpty() )
+        {
+            return m_aabb;
+        }
         Aabb tmp;
         for ( int i = 0; i < 8; ++i )
         {
