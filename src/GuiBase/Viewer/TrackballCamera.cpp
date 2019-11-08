@@ -201,6 +201,7 @@ void Gui::TrackballCamera::setCamera( Engine::Camera* camera ) {
     camera->resize( m_camera->getWidth(), m_camera->getHeight() );
     m_camera          = camera;
     m_trackballCenter = m_camera->getPosition() + 2 * m_camera->getDirection().normalized();
+    m_fixUpVector     = Ra::Core::Vector3( 0_ra, 1_ra, 0_ra );
     m_distFromCenter  = 2.0;
     updatePhiTheta();
     m_camera->show( false );
@@ -281,6 +282,23 @@ void Gui::TrackballCamera::fitScene( const Core::Aabb& aabb ) {
 }
 
 void Gui::TrackballCamera::handleCameraRotate( Scalar dx, Scalar dy ) {
+    if ( !m_rotateAround )
+    {
+        Scalar dphi   = dx * m_cameraSensitivity * m_quickCameraModifier;
+        Scalar dtheta = -dy * m_cameraSensitivity * m_quickCameraModifier;
+
+        Core::Transform R( Core::Transform::Identity() );
+        if ( std::abs( dphi ) > std::abs( dtheta ) )
+        { R = Core::AngleAxis( -dphi, m_fixUpVector.normalized() ); }
+        else
+        { R = Core::AngleAxis( -dtheta, -m_camera->getRightVector().normalized() ); }
+
+        Scalar d = ( m_trackballCenter - m_camera->getPosition() ).norm();
+
+        m_camera->applyTransform( R );
+        m_trackballCenter = m_camera->getPosition() + d * m_camera->getDirection();
+        return;
+    }
     Scalar x = dx * m_cameraSensitivity * m_quickCameraModifier;
     Scalar y = -dy * m_cameraSensitivity * m_quickCameraModifier;
 

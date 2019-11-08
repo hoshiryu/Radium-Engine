@@ -97,6 +97,7 @@ class RA_GUIBASE_API TrackballCamera : public CameraInterface,
 
   private:
     static void configureKeyMapping_impl();
+    Ra::Core::Vector3 m_fixUpVector{0_ra, 1_ra, 0_ra};
 
 #define KeyMappingCamera                \
     KMA_VALUE( TRACKBALLCAMERA_ROTATE ) \

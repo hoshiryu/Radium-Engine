@@ -9,7 +9,9 @@
 #include <Engine/ItemModel/ItemEntry.hpp>
 #include <Engine/Managers/CameraManager/CameraManager.hpp>
 #include <Engine/Managers/EntityManager/EntityManager.hpp>
+#include <Engine/Managers/SystemDisplay/SystemDisplay.hpp>
 #include <Engine/Renderer/Camera/Camera.hpp>
+#include <Engine/Renderer/Light/Light.hpp>
 
 #include <GuiBase/SelectionManager/SelectionManager.hpp>
 #include <GuiBase/Viewer/TrackballCamera.hpp>
@@ -187,7 +189,7 @@ void CameraManipPluginC::onCurrentChanged( const QModelIndex& current, const QMo
     }
 }
 
-#define TIME_DELTA 1_ra
+#define TIME_DELTA 10_ra
 #define DT 0.1_ra
 
 void CameraManipPluginC::addKeyFrame() {
@@ -204,6 +206,67 @@ void CameraManipPluginC::showFrames( bool show ) {
     for ( auto& cam : m_keyFrames )
     {
         cam.second->show( show );
+    }
+    if ( m_keyFrames.size() > 0 )
+    {
+        for ( auto t = m_keyFrames.begin()->first; t < m_keyFrames.rbegin()->first; t += DT )
+        {
+            Scalar t0, t1, dt;
+            auto it = m_keyFrames.find( t );
+            // exact match
+            if ( it != m_keyFrames.end() )
+            {
+                t0 = it->first;
+                t1 = t0;
+                dt = 0.0;
+            }
+            // before first
+            else if ( t < m_keyFrames.begin()->first )
+            {
+                t0 = m_keyFrames.begin()->first;
+                t1 = t0;
+                dt = 0.0;
+            }
+            // after last
+            else if ( t > m_keyFrames.rbegin()->first )
+            {
+                t0 = m_keyFrames.rbegin()->first;
+                t1 = t0;
+                dt = 0.0;
+            }
+            // in-between
+            else
+            {
+                auto upper = m_keyFrames.upper_bound( t );
+                auto lower = upper;
+                --lower;
+                t0 = lower->first;
+                t1 = upper->first;
+                dt = ( t - t0 ) / ( t1 - t0 );
+            }
+            Ra::Core::Transform frame;
+            Ra::Core::Animation::interpolate(
+                m_keyFrames[t0]->getFrame(), m_keyFrames[t1]->getFrame(), dt, frame );
+
+            RA_DISPLAY_SPHERE( frame.translation(), 0.05_ra, Ra::Core::Utils::Color::Red() );
+
+            auto camMngr = static_cast<Ra::Engine::CameraManager*>(
+                m_engine->getSystem( "DefaultCameraManager" ) );
+            std::string camName = "CAMERA_" + std::to_string( camMngr->count() );
+            auto manip = static_cast<Ra::Gui::TrackballCamera*>( m_viewer->getCameraInterface() );
+
+            const auto& C       = manip->getTrackballCenter();
+            auto r0             = ( C - m_keyFrames[t0]->getPosition() ).norm();
+            auto r1             = ( C - m_keyFrames[t1]->getPosition() ).norm();
+            auto r              = ( 1 - dt ) * r0 + dt * r1;
+            Ra::Core::Vector3 P = C + r * ( frame.translation() - C ).normalized();
+
+            RA_DISPLAY_SPHERE( P, 0.05_ra, Ra::Core::Utils::Color::Green() );
+
+            P.y() = frame.translation().y();
+
+            RA_DISPLAY_SPHERE( P, 0.05_ra, Ra::Core::Utils::Color::Blue() );
+        }
     }
     askForUpdate();
 }
@@ -272,7 +335,22 @@ void CameraManipPluginC::advance() {
     std::string camName = "CAMERA_" + std::to_string( camMngr->count() );
     auto manip          = static_cast<Ra::Gui::TrackballCamera*>( m_viewer->getCameraInterface() );
     auto camera         = manip->getCamera();
+
+    const auto& C           = manip->getTrackballCenter();
+    auto r0                 = ( C - m_keyFrames[t0]->getPosition() ).norm();
+    auto r1                 = ( C - m_keyFrames[t1]->getPosition() ).norm();
+    auto r                  = ( 1 - dt ) * r0 + dt * r1;
+    Ra::Core::Vector3 P     = C + r * ( frame.translation() - C ).normalized();
+    frame.translation().x() = P.x();
+    frame.translation().z() = P.z();
+
     camera->setFrame( frame );
+
+    if ( manip->getLight() )
+    {
+        manip->getLight()->setPosition( frame.translation() );
+        manip->getLight()->setDirection( manip->getTrackballCenter() - frame.translation() );
+    }
 }
 
 void CameraManipPluginC::savePath() const {
