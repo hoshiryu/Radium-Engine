@@ -27,9 +27,22 @@ void main() {
         vec3 tangentLocal 	= normalize(cross(binormalLocal, normalLocal));
 
         vec3 materialColor 	= computeMaterialInternal(material, in_texcoord.xy, in_lightVector, in_viewVector,
-                                                                                                  normalLocal, tangentLocal, binormalLocal);
+                                                          normalLocal, tangentLocal, binormalLocal);
+
+        vec3 materialColor1 	= computeMaterialInternal(material, in_texcoord.xy, in_lightVector, in_viewVector,
+                                                          -normalLocal, tangentLocal, -binormalLocal);
 
         vec3 attenuation 	= lightContributionFrom(light, in_position);
 
-    fragColor = vec4(materialColor * attenuation, 1.0);
+        vec4 fragColor0 = vec4(materialColor * attenuation, 1.0);
+        vec4 fragColor1 = vec4(materialColor1 * attenuation, 1.0);
+
+        if ( length(fragColor0) > length(fragColor1) )
+        {
+            fragColor = fragColor0;
+        }
+        else
+        {
+            fragColor = fragColor1;
+        }
 }
