@@ -57,5 +57,9 @@ inline const ParentList& AdjacencyList::parents() const {
     return m_parent;
 }
 
+inline const LevelList& AdjacencyList::levels() const {
+    return m_level;
+}
+
 } // namespace Core
 } // namespace Ra

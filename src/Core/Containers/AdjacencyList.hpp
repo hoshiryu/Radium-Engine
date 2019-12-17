@@ -89,6 +89,7 @@ class RA_CORE_API AdjacencyList
 
     inline const Adjacency& children() const;
     inline const ParentList& parents() const;
+    inline const LevelList& levels() const;
 
     //////////////////////////////////////////////////////////////////////////////
     // VARIABLE
