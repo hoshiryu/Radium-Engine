@@ -215,18 +215,15 @@ TriangleMesh TopologicalMesh::toTriangleMesh() {
         }
     };
 
-    struct hash_vec {
+    struct hash_vertex {
         size_t operator()( const VertexDataInternal& lvalue ) const {
-            size_t hx = std::hash<Scalar>()( lvalue._vertex[0] );
-            size_t hy = std::hash<Scalar>()( lvalue._vertex[1] );
-            size_t hz = std::hash<Scalar>()( lvalue._vertex[2] );
-            return ( hx ^ ( hy << 1 ) ) ^ hz;
+            return hash_vec {}( lvalue._vertex );
         }
     };
 
     TriangleMesh out;
 
-    using VertexMap = std::unordered_map<VertexDataInternal, int, hash_vec>;
+    using VertexMap = std::unordered_map<VertexDataInternal, int, hash_vertex>;
 
     VertexMap vertexHandles;
 

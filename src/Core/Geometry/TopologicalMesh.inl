@@ -9,6 +9,15 @@ namespace Ra {
 namespace Core {
 namespace Geometry {
 
+struct hash_vec {
+    std::size_t operator()( const Vector3& lvalue ) const {
+        size_t hx = std::hash<Scalar>()( lvalue[0] );
+        size_t hy = std::hash<Scalar>()( lvalue[1] );
+        size_t hz = std::hash<Scalar>()( lvalue[2] );
+        return ( hx ^ ( hy << 1 ) ) ^ hz;
+    }
+};
+
 template <typename NonManifoldFaceCommand>
 inline TopologicalMesh::TopologicalMesh( const TriangleMesh& triMesh,
                                          NonManifoldFaceCommand command ) :
@@ -16,15 +25,6 @@ inline TopologicalMesh::TopologicalMesh( const TriangleMesh& triMesh,
 
     LOG( logINFO ) << "TopologicalMesh: load triMesh with " << triMesh.getIndices().size()
                    << " faces and " << triMesh.vertices().size() << " vertices.";
-
-    struct hash_vec {
-        size_t operator()( const Vector3& lvalue ) const {
-            size_t hx = std::hash<Scalar>()( lvalue[0] );
-            size_t hy = std::hash<Scalar>()( lvalue[1] );
-            size_t hz = std::hash<Scalar>()( lvalue[2] );
-            return ( hx ^ ( hy << 1 ) ) ^ hz;
-        }
-    };
     // use a hashmap for fast search of existing vertex position
     using VertexMap = std::unordered_map<Vector3, TopologicalMesh::VertexHandle, hash_vec>;
     VertexMap vertexHandles;
@@ -147,15 +147,6 @@ void TopologicalMesh::initWithWedge( const TriangleMesh& triMesh, NonManifoldFac
     LOG( logINFO ) << "TopologicalMesh: load triMesh with " << triMesh.getIndices().size()
                    << " faces and " << triMesh.vertices().size() << " vertices.";
 
-    ///\todo use a kdtree
-    struct hash_vec {
-        size_t operator()( const Vector3& lvalue ) const {
-            size_t hx = std::hash<Scalar>()( lvalue[0] );
-            size_t hy = std::hash<Scalar>()( lvalue[1] );
-            size_t hz = std::hash<Scalar>()( lvalue[2] );
-            return ( hx ^ ( hy << 1 ) ) ^ hz;
-        }
-    };
     // use a hashmap for fast search of existing vertex position
     using VertexMap = std::unordered_map<Vector3, TopologicalMesh::VertexHandle, hash_vec>;
     VertexMap vertexHandles;
