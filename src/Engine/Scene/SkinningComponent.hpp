@@ -5,6 +5,7 @@
 #include <Core/Animation/SkinningData.hpp>
 #include <Core/Asset/HandleData.hpp>
 #include <Core/Geometry/TriangleMesh.hpp>
+#include <Core/Geometry/TopologicalMesh.hpp>
 #include <Core/Math/DualQuaternion.hpp>
 #include <Core/Utils/Index.hpp>
 
@@ -155,6 +156,8 @@ class RA_ENGINE_API SkinningComponent : public Component
     /// The duplicate vertices map, used to recompute smooth normals.
     // FIXME: implement proper normal skinning such as http://vcg.isti.cnr.it/deformFactors/
     std::vector<Ra::Core::Utils::Index> m_duplicatesMap;
+    Ra::Core::Geometry::TopologicalMesh m_topoMesh;
+    Ra::Core::Geometry::TriangleMesh m_triangulatePolyMesh;
 
     /// The skinning weights, stored per bone.
     /// \note These are stored this way because we cannot build the weight matrix

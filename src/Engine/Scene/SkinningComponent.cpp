@@ -2,6 +2,7 @@
 
 #include <Core/Animation/PoseOperation.hpp>
 #include <Core/Geometry/Normal.hpp>
+#include <Core/Geometry/TopologicalMesh.hpp>
 
 #include <Core/Animation/DualQuaternionSkinning.hpp>
 #include <Core/Animation/HandleWeightOperation.hpp>
@@ -22,6 +23,8 @@
 #include <Engine/Rendering/RenderObject.hpp>
 #include <Engine/Rendering/RenderObjectManager.hpp>
 #include <Engine/Rendering/RenderTechnique.hpp>
+
+#include <Core/Utils/Timer.hpp>
 
 using Ra::Core::DualQuaternion;
 using Ra::Core::Quaternion;
@@ -161,7 +164,13 @@ void SkinningComponent::initialize() {
         }
         // = const_cast<TriangleMesh*>( m_meshWriter() );
         m_refData.m_referenceMesh.copy( mesh );
+        TimePoint start = Clock::now();
         findDuplicates( mesh, m_duplicatesMap );
+        std::cout << "Build duplicate list: " << getIntervalMicro( start, Clock::now() ) << std::endl;
+        start = Clock::now();
+        m_triangulatePolyMesh.copy( mesh );
+        m_topoMesh.initWithWedge( m_triangulatePolyMesh );
+        std::cout << "Build topo mesh: " << getIntervalMicro( start, Clock::now() ) << std::endl;
 
         // get other data
         m_refData.m_skeleton = *m_skeletonGetter();
@@ -354,7 +363,25 @@ void SkinningComponent::endSkinning() {
         vertices = m_frameData.m_currentPos;
 
         // FIXME: normals should be computed by the Skinning method!
+        TimePoint start = Clock::now();
         uniformNormal( vertices, m_refData.m_referenceMesh.getIndices(), m_duplicatesMap, normals );
+        std::cout << "Computing normals through duplicates: " << getIntervalMicro( start, Clock::now() ) << std::endl;
+
+        start = Clock::now();
+        if ( !m_meshIsPoly )
+        {
+            m_topoMesh.update( *static_cast<TriangleMesh*>( geom ) );
+            m_topoMesh.updateWedgeNormals();
+            m_topoMesh.updateTriangleMesh( *static_cast<TriangleMesh*>( geom ) );
+        }
+        else {
+            m_triangulatePolyMesh.setVertices( m_frameData.m_currentPos );
+            m_topoMesh.update( m_triangulatePolyMesh );
+            m_topoMesh.updateWedgeNormals();
+            m_topoMesh.updateTriangleMesh( m_triangulatePolyMesh );
+            normals = m_triangulatePolyMesh.normals();
+        }
+        std::cout << "Computing normals through topomesh: " << getIntervalMicro( start, Clock::now() ) << std::endl;
 
         std::swap( m_frameData.m_previousPose, m_frameData.m_currentPose );
         std::swap( m_frameData.m_previousPos, m_frameData.m_currentPos );
