@@ -351,29 +351,19 @@ void SkinningComponent::endSkinning() {
         vertices = m_frameData.m_currentPos;
 
         // FIXME: normals should be computed by the Skinning method!
-        TimePoint start = Clock::now();
-        uniformNormal( vertices, m_refData.m_referenceMesh.getIndices(), m_duplicatesMap, normals );
-        std::cout << "Computing normals through duplicates: "
-                  << getIntervalMicro( start, Clock::now() ) << std::endl;
-
-        start = Clock::now();
-
-        if ( !m_meshIsPoly )
+        static bool odd = false;
+        if ( odd )
         {
-            auto step0 = Clock::now();
-            m_topoMesh.updatePositions( vertices );
-            auto step1 = Clock::now();
-            m_topoMesh.updateWedgeNormals();
-            auto step2 = Clock::now();
-            m_topoMesh.updateTriangleMeshNormals( normals );
-            auto step3 = Clock::now();
-
-            std::cout << "Steps Trimesh: " << getIntervalMicro( step0, step1 ) << std::endl
-                      << getIntervalMicro( step1, step2 ) << std::endl
-                      << getIntervalMicro( step2, step3 ) << std::endl;
+            auto start = Clock::now();
+            uniformNormal(
+                vertices, m_refData.m_referenceMesh.getIndices(), m_duplicatesMap, normals );
+            std::cout << "Computing normals through duplicates: "
+                      << getIntervalMicro( start, Clock::now() ) << std::endl;
         }
         else
         {
+            auto start = Clock::now();
+
             auto step0 = Clock::now();
             m_topoMesh.updatePositions( vertices );
             auto step1 = Clock::now();
@@ -381,13 +371,15 @@ void SkinningComponent::endSkinning() {
             auto step2 = Clock::now();
             m_topoMesh.updateTriangleMeshNormals( normals );
             auto step3 = Clock::now();
-            std::cout << "Steps Polymesh: " << getIntervalMicro( step0, step1 ) << std::endl
+            std::cout << "Steps Polymesh: \n"
+                      << getIntervalMicro( step0, step1 ) << std::endl
                       << getIntervalMicro( step1, step2 ) << std::endl
                       << getIntervalMicro( step2, step3 ) << std::endl;
-        }
 
-        std::cout << "Computing normals through topomesh: "
-                  << getIntervalMicro( start, Clock::now() ) << std::endl;
+            std::cout << "Computing normals through topomesh: "
+                      << getIntervalMicro( start, Clock::now() ) << std::endl;
+        }
+        odd = !odd;
 
         std::swap( m_frameData.m_previousPose, m_frameData.m_currentPose );
         std::swap( m_frameData.m_previousPos, m_frameData.m_currentPos );
