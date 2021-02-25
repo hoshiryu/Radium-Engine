@@ -55,35 +55,8 @@ class RA_ENGINE_API SkeletonBasedAnimationSystem : public System
     void toggleSkeleton( const bool status );
     /// \}
 
-    /// \name Animation parameters
-    /// \{
-
-    /**
-     * Sets the animation speed factor for all AnimationComponents.
-     */
-    void setAnimationSpeed( const Scalar value );
-
-    /**
-     * Toggles animation auto repeat for all AnimationComponents.
-     */
-    void autoRepeat( const bool status );
-
-    /**
-     * Toggles animation ping-pong for all AnimationComponents.
-     */
-    void pingPong( const bool status );
-
-    /**
-     * \returns the animation time of the AnimationComponent corresponding to \p entry 's entity.
-     */
-    Scalar getAnimationTime( const ItemEntry& entry ) const;
-    /// \}
-
-    /// Enable display of skinning weights.
-    void showWeights( bool on );
-
-    /// Sets the type of skinning weights to display: 0 - standard, 1 - stbs.
-    void showWeightsType( int type );
+    /// Enforce Skeleton update at the next frame.
+    void enforceUpdate() { m_time = -1; }
 
   private:
     /// True if we want to show xray-bones.

@@ -36,6 +36,7 @@ void SkeletonBasedAnimationSystem::generateTasks( Ra::Core::TaskQueue* taskQueue
             auto animComp = static_cast<SkeletonComponent*>( compEntry.second );
             if ( !Ra::Core::Math::areApproxEqual( m_time, frameInfo.m_animationTime ) )
             {
+                // here we update the skeleton w.r.t. the animation
                 auto animFunc = std::bind( &SkeletonComponent::update, animComp, frameInfo.m_animationTime );
                 auto animTask = new Ra::Core::FunctionTask(
                     animFunc, "AnimatorTask_" + animComp->getSkeleton()->getName() );
@@ -43,6 +44,7 @@ void SkeletonBasedAnimationSystem::generateTasks( Ra::Core::TaskQueue* taskQueue
             }
             else
             {
+                // here we update the skeleton w.r.t. the manipulation
                 auto animFunc = std::bind( &SkeletonComponent::updateDisplay, animComp ) ;
                 auto animTask = new Ra::Core::FunctionTask(
                     animFunc, "AnimatorTask_" + animComp->getSkeleton()->getName() );
@@ -132,62 +134,6 @@ void SkeletonBasedAnimationSystem::toggleSkeleton( const bool status ) {
     {
         if ( comp.second->getName().compare( 0, 3, "AC_" ) == 0 )
         { static_cast<SkeletonComponent*>( comp.second )->toggleSkeleton( status ); }
-    }
-}
-
-// Animation parameters
-
-void SkeletonBasedAnimationSystem::setAnimationSpeed( const Scalar value ) {
-    for ( const auto& comp : m_components )
-    {
-        if ( comp.second->getName().compare( 0, 3, "AC_" ) == 0 )
-        { static_cast<SkeletonComponent*>( comp.second )->setSpeed( value ); }
-    }
-}
-
-void SkeletonBasedAnimationSystem::autoRepeat( const bool status ) {
-    for ( const auto& comp : m_components )
-    {
-        if ( comp.second->getName().compare( 0, 3, "AC_" ) == 0 )
-        { static_cast<SkeletonComponent*>( comp.second )->autoRepeat( status ); }
-    }
-}
-
-void SkeletonBasedAnimationSystem::pingPong( const bool status ) {
-    for ( const auto& comp : m_components )
-    {
-        if ( comp.second->getName().compare( 0, 3, "AC_" ) == 0 )
-        { static_cast<SkeletonComponent*>( comp.second )->pingPong( status ); }
-    }
-}
-
-Scalar SkeletonBasedAnimationSystem::getAnimationTime( const ItemEntry& entry ) const {
-    if ( entry.isValid() )
-    {
-        // If entry is/has an existing animation component, we return this one's time
-        auto it =
-            std::find_if( m_components.begin(), m_components.end(), [&entry]( const auto& comp ) {
-                return comp.first == entry.m_entity;
-            } );
-        if ( it != m_components.end() )
-        { return static_cast<SkeletonComponent*>( it->second )->getAnimationTime(); }
-    }
-    return 0_ra;
-}
-
-void SkeletonBasedAnimationSystem::showWeights( bool on ) {
-    for ( auto& compEntry : m_components )
-    {
-        if ( compEntry.second->getName().compare( 0, 4, "SkC_" ) == 0 )
-        { static_cast<SkinningComponent*>( compEntry.second )->showWeights( on ); }
-    }
-}
-
-void SkeletonBasedAnimationSystem::showWeightsType( int type ) {
-    for ( auto& compEntry : m_components )
-    {
-        if ( compEntry.second->getName().compare( 0, 4, "SkC_" ) == 0 )
-        { static_cast<SkinningComponent*>( compEntry.second )->showWeightsType( type ); }
     }
 }
 

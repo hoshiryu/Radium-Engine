@@ -31,13 +31,19 @@ class RA_ENGINE_API SkinningComponent : public Component
         STBS_DQS  ///< Stretchable Twistable Bone Skinning with DQS
     };
 
+    /// The skinning weight type.
+    enum WeightType {
+        STANDARD = 0, ///< Standard geometric skinning weights
+        STBS          ///< Stretchable Twistable Bone Skinning weights
+    };
+
     SkinningComponent( const std::string& name, SkinningType type, Entity* entity ) :
         Component( name, entity ),
         m_skinningType( type ),
         m_isReady( false ),
         m_forceUpdate( false ),
         m_weightBone( 0 ),
-        m_weightType( 0 ),
+        m_weightType( STANDARD ),
         m_showingWeights( false ) {}
 
     ~SkinningComponent() override {}
@@ -78,15 +84,21 @@ class RA_ENGINE_API SkinningComponent : public Component
     void setSmartStretch( bool on );
 
     /// @returns whether smart stretch is active or not.
-    bool getSmartStretch() const { return m_smartStretch; }
+    bool isSmartStretchOn() const { return m_smartStretch; }
 
     /// Toggles display of skinning weights.
     void showWeights( bool on );
 
+    /// Returns whether the skinning weights are displayed or not.
+    bool isShowingWeights();
+
     /// Set the type of skinning weight to display:
     ///  - 0 for standard skinning weights
     ///  - 1 for stbs weights
-    void showWeightsType( int type );
+    void showWeightsType( WeightType type );
+
+    /// Returns the type of skinning weights displayed.
+    WeightType getWeightsType();
 
     /// Set the bone to show the weights of.
     void setWeightBone( uint bone );
@@ -181,7 +193,7 @@ class RA_ENGINE_API SkinningComponent : public Component
     Ra::Core::Vector3Array m_baseUV;
     Ra::Core::Vector3Array m_weightsUV;
     uint m_weightBone;
-    uint m_weightType;
+    WeightType m_weightType;
     bool m_showingWeights;
 };
 

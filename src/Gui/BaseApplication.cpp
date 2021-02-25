@@ -12,6 +12,8 @@
 #include <Core/Utils/StringUtils.hpp>
 #include <Core/Utils/Version.hpp>
 
+#include <Engine/Data/Texture.hpp>
+#include <Engine/Data/TextureManager.hpp>
 #include <Engine/RadiumEngine.hpp>
 #include <Engine/Rendering/RenderObject.hpp>
 #include <Engine/Scene/Camera.hpp>
@@ -340,6 +342,16 @@ void BaseApplication::engineBaseInitialization() {
 void BaseApplication::engineOpenGLInitialize() {
     // initialize here the OpenGL part of the engine used by the application
     m_engine->initializeGL();
+
+    // load texture for animation skinning weights
+    QImage influenceImage( ":/Textures/Influence0.png" );
+    auto img = influenceImage.convertToFormat( QImage::Format_RGB888 );
+    Engine::Data::TextureParameters texData;
+    texData.width     = size_t( img.width() );
+    texData.height    = size_t( img.height() );
+    texData.texels    = img.bits();
+    texData.name      = ":/Textures/Influence0.png";
+    m_engine->getTextureManager()->getOrLoadTexture( texData );
 }
 
 void BaseApplication::createConnections() {
