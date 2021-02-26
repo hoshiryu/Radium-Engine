@@ -8,6 +8,7 @@
 #include <Core/Animation/LinearBlendSkinning.hpp>
 #include <Core/Animation/RotationCenterSkinning.hpp>
 #include <Core/Animation/StretchableTwistableBoneSkinning.hpp>
+#include <Core/Geometry/Adjacency.hpp>
 #include <Core/Geometry/DistanceQueries.hpp>
 #include <Core/Geometry/TriangleOperation.hpp>
 #include <Core/Utils/Color.hpp>
@@ -36,9 +37,14 @@ using namespace Skinning;
 
 using namespace Utils;
 
+static bool g_standardLBS = true;
+
 namespace Ra {
 namespace Engine {
 namespace Scene {
+
+static const auto tangentName = Data::Mesh::getAttribName( Data::Mesh::VERTEX_TANGENT );
+static const auto bitangentName = Data::Mesh::getAttribName( Data::Mesh::VERTEX_BITANGENT );
 
 bool findDuplicates( const TriangleMesh& mesh,
                      std::vector<Index>& duplicatesMap ) {
@@ -153,15 +159,162 @@ void SkinningComponent::initialize() {
         else {
             mesh = triangulate( *m_polyMeshWriter() );
         }
-        // = const_cast<TriangleMesh*>( m_meshWriter() );
         m_refData.m_referenceMesh.copy( mesh );
-        findDuplicates( mesh, m_duplicatesMap );
+        // make sure we have the tangents and bitangents
+        // FIXME: Is it ok to suppose that the mesh has normals ?
+        bool hasTangents = m_refData.m_referenceMesh.hasAttrib( tangentName );
+        bool hasBitangents = m_refData.m_referenceMesh.hasAttrib( bitangentName );
+        if ( !hasTangents && !hasBitangents )
+        {
+            const auto& normals = m_refData.m_referenceMesh.normals();
+            const auto N = normals.size();
+            Vector3Array tangents( N );
+            Vector3Array bitangents( N );
+#pragma omp parallel for
+            for ( int i = 0; i < int( N ); ++i )
+            {
+                Math::getOrthogonalVectors( normals[i], tangents[i], bitangents[i] );
+            }
+            m_refData.m_referenceMesh.addAttrib( tangentName, tangents );
+            m_refData.m_referenceMesh.addAttrib( bitangentName, bitangents );
+        }
+        else if ( !hasTangents )
+        {
+            const auto& normals = m_refData.m_referenceMesh.normals();
+            const auto& bitangents = m_refData.m_referenceMesh.getAttrib(
+                m_refData.m_referenceMesh.getAttribHandle<Vector3>( bitangentName ) ).data();
+            const auto N = normals.size();
+            Vector3Array tangents( N );
+#pragma omp parallel for
+            for ( int i = 0; i < int( N ); ++i )
+            {
+                tangents[i] = bitangents[i].cross( normals[i] );
+            }
+            m_refData.m_referenceMesh.addAttrib( tangentName, tangents );
+        }
+        else if ( !hasBitangents )
+        {
+            const auto& normals = m_refData.m_referenceMesh.normals();
+            const auto& tangents = m_refData.m_referenceMesh.getAttrib(
+                m_refData.m_referenceMesh.getAttribHandle<Vector3>( tangentName ) ).data();
+            const auto N = normals.size();
+            Vector3Array bitangents( N );
+#pragma omp parallel for
+            for ( int i = 0; i < int( N ); ++i )
+            {
+                bitangents[i] = normals[i].cross( tangents[i] );
+            }
+            m_refData.m_referenceMesh.addAttrib( bitangentName, bitangents );
+        }
+        findDuplicates( m_refData.m_referenceMesh, m_duplicatesMap );
 
         // get other data
         m_refData.m_skeleton = *m_skeletonGetter();
         createWeightMatrix();
         m_refData.m_refPose  = m_refData.m_skeleton.getPose( SpaceType::MODEL );
         applyBindMatrices( m_refData.m_refPose );
+
+        // compute the per-vertex deform factors
+        {
+            const auto& vertices = m_refData.m_referenceMesh.vertices();
+            // prepare per-vertex influencing bone list
+            const auto& W = m_refData.m_weights;
+            std::vector<std::vector<uint>> vbones( vertices.size() );
+#pragma omp parallel for
+            for ( int i = 0; i < vertices.size(); ++i )
+            {
+                const Eigen::SparseVector<Scalar> bones = W.row( i );
+                for ( Eigen::SparseVector<Scalar>::InnerIterator it(bones); it; ++it )
+                {
+                    vbones[i].emplace_back( it.index() );
+                }
+            }
+            // compute per-triangle constant homogeneous vector a[s]
+            const auto& triangles = m_refData.m_referenceMesh.getIndices();
+            std::vector<std::map<uint,Vector4>> AS( triangles.size() );
+#pragma omp parallel for
+            for ( int t = 0; t < triangles.size(); ++t )
+            {
+                const auto& T = triangles[t];
+                // get the set B of bones influencing the vertices of T
+                std::vector<uint> B;
+                {
+                    std::set<uint> bones;
+                    for ( int v = 0; v < 3; ++v )
+                    {
+                        bones.insert( vbones[T[v]].begin(), vbones[T[v]].end() );
+                    }
+                    B.resize( bones.size() );
+                    std::copy( bones.begin(), bones.end(), B.begin() );
+                }
+                // compute A for each bone s
+                const auto nT = Geometry::triangleNormal( vertices[T[0]], vertices[T[1]], vertices[T[2]] );
+                Matrix4 M;
+                M.block<1,3>( 0, 0 ) = vertices[T[0]].transpose();
+                M.block<1,3>( 1, 0 ) = vertices[T[1]].transpose();
+                M.block<1,3>( 2, 0 ) = vertices[T[2]].transpose();
+                M.block<1,3>( 3, 0 ) = nT.transpose();
+                M.col( 3 ) = Vector4( 1, 1, 1, 0 );
+                for ( const auto& s : B )
+                {
+                    AS[t][s] = M.inverse() * Vector4( W.coeff( T[0], s ),
+                                                      W.coeff( T[1], s ),
+                                                      W.coeff( T[2], s ), 0 );
+#pragma omp critical
+                    {
+                        std::cout << T[0] << " " << T[1] << " " << T[2] << " " << s << std::endl;
+                        std::cout << M << std::endl;
+                        std::cout << W.coeff( T[0], s ) << " " <<
+                                     W.coeff( T[1], s ) << " " <<
+                                     W.coeff( T[2], s ) << std::endl;
+                        std::cout << AS[t][s].transpose() << std::endl;
+                        std::cout << std::endl;
+                    }
+                }
+            }
+            // compute per-vertex a[s] through cotangent weights
+            const auto COT = Geometry::cotangentWeightAdjacency( vertices, triangles );
+            std::vector<std::map<uint,Vector4>> AIS( vertices.size() );
+#pragma omp parallel for
+            for ( int t = 0; t < triangles.size(); ++t )
+            {
+                const auto& T = triangles[t];
+                for ( int v = 0; v < 3; ++v )
+                {
+                    const Scalar w = COT.coeff( T[v], T[( v + 1 ) % 3] );
+                    for ( const auto& s : vbones[T[v]] )
+#pragma omp critical
+                    {
+                        AIS[T[v]][s] += w * AS[t][s];
+                    }
+                }
+            }
+#pragma omp parallel for
+            for ( int v = 0; v < vertices.size(); ++v )
+            {
+                const Scalar sum = COT.row( v ).sum();
+                for ( auto& a : AIS[v] )
+                {
+                    a.second /= sum;
+                }
+            }
+            // compute per-vertex, per-bone Alpha-Beta
+            const auto& tangents = m_refData.m_referenceMesh.getAttrib(
+                m_refData.m_referenceMesh.getAttribHandle<Vector3>( tangentName ) ).data();
+            const auto& bitangents = m_refData.m_referenceMesh.getAttrib(
+                m_refData.m_referenceMesh.getAttribHandle<Vector3>( bitangentName ) ).data();
+            m_refData.m_alphaBeta.resize( vertices.size() );
+#pragma omp parallel for
+            for ( int v = 0; v < vertices.size(); ++v )
+            {
+                m_refData.m_alphaBeta[v].reserve( vbones[v].size() );
+                for ( auto s : vbones[v] )
+                {
+                    m_refData.m_alphaBeta[v].emplace_back( std::make_tuple( s,
+                        AIS[v][s].block<3,1>(0,0).dot( tangents[v] ), AIS[v][s].block<3,1>(0,0).dot( bitangents[v] ) ) );
+                }
+            }
+        }
 
         // initialize frame data
         m_frameData.m_frameCounter = 0;
@@ -171,6 +324,10 @@ void SkinningComponent::initialize() {
         m_frameData.m_previousPos   = m_refData.m_referenceMesh.vertices();
         m_frameData.m_currentPos    = m_refData.m_referenceMesh.vertices();
         m_frameData.m_currentNormal = m_refData.m_referenceMesh.normals();
+        m_frameData.m_currentTangent = m_refData.m_referenceMesh.getAttrib(
+            m_refData.m_referenceMesh.getAttribHandle<Vector3>( tangentName ) ).data();
+        m_frameData.m_currentBitangent = m_refData.m_referenceMesh.getAttrib(
+            m_refData.m_referenceMesh.getAttribHandle<Vector3>( bitangentName ) ).data();
 
         m_frameData.m_previousPose = m_refData.m_refPose;
         m_frameData.m_currentPose  = m_refData.m_refPose;
@@ -247,10 +404,21 @@ void SkinningComponent::skin() {
         {
         case LBS:
         {
-            linearBlendSkinning( m_refData.m_referenceMesh.vertices(),
-                                 m_frameData.m_currentPose,
-                                 m_refData.m_weights,
-                                 m_frameData.m_currentPos );
+            if ( g_standardLBS )
+            {
+                linearBlendSkinning( m_refData.m_referenceMesh.vertices(),
+                                     m_frameData.m_currentPose,
+                                     m_refData.m_weights,
+                                     m_frameData.m_currentPos );
+            }
+            else {
+                const auto& tHandle = m_refData.m_referenceMesh.getAttribHandle<Vector3>( tangentName );
+                const auto& bHandle = m_refData.m_referenceMesh.getAttribHandle<Vector3>( bitangentName );
+                accurateLightningLBS( m_refData,
+                                      m_refData.m_referenceMesh.getAttrib( tHandle ).data(),
+                                      m_refData.m_referenceMesh.getAttrib( bHandle ).data(),
+                                      m_frameData );
+            }
             break;
         }
         case DQS:
@@ -335,13 +503,33 @@ void SkinningComponent::endSkinning() {
         else {
             geom = const_cast<PolyMesh*>( m_polyMeshWriter() );
         }
+
         Vector3Array& vertices = geom->verticesWithLock();
         Vector3Array& normals  = geom->normalsWithLock();
 
         vertices = m_frameData.m_currentPos;
 
         // FIXME: normals should be computed by the Skinning method!
-        uniformNormal( vertices, m_refData.m_referenceMesh.getIndices(), m_duplicatesMap, normals );
+        if ( m_skinningType != LBS || g_standardLBS )
+        {
+            uniformNormal( vertices, m_refData.m_referenceMesh.getIndices(), m_duplicatesMap, normals );
+        }
+
+        if ( m_skinningType == LBS && !g_standardLBS )
+        {
+            if ( geom->hasAttrib( tangentName ) )
+            {
+                geom->getAttrib( geom->getAttribHandle<Vector3>( tangentName ) ).
+                    setData( m_frameData.m_currentTangent );
+            }
+            if ( geom->hasAttrib( bitangentName ) )
+            {
+                geom->getAttrib( geom->getAttribHandle<Vector3>( bitangentName ) ).
+                    setData( m_frameData.m_currentBitangent );
+            }
+        }
+
+        g_standardLBS = !g_standardLBS;
 
         std::swap( m_frameData.m_previousPose, m_frameData.m_currentPose );
         std::swap( m_frameData.m_previousPos, m_frameData.m_currentPos );
