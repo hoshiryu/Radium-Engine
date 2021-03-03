@@ -53,7 +53,9 @@ void RA_CORE_API accurateLightningLBS( const Skinning::RefData& refData,
             frameData.m_currentBitangent[v] += b * Q;
         }
         frameData.m_currentTangent[v] += T * tangents[v];
+        frameData.m_currentTangent[v].normalize();
         frameData.m_currentBitangent[v] += T * bitangents[v];
+        frameData.m_currentBitangent[v].normalize();
         // compute n
         frameData.m_currentNormal[v] = frameData.m_currentTangent[v].cross(
                     frameData.m_currentBitangent[v] );

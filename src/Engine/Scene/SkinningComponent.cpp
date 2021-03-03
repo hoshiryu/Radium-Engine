@@ -216,6 +216,7 @@ void SkinningComponent::initialize() {
 
         // compute the per-vertex deform factors
         {
+#if 0
             const auto& vertices = m_refData.m_referenceMesh.vertices();
             // prepare per-vertex influencing bone list
             const auto& W = m_refData.m_weights;
@@ -314,6 +315,130 @@ void SkinningComponent::initialize() {
                         AIS[v][s].block<3,1>(0,0).dot( tangents[v] ), AIS[v][s].block<3,1>(0,0).dot( bitangents[v] ) ) );
                 }
             }
+
+#else
+
+            auto angle = []( Eigen::Ref<Vector3> p1, Eigen::Ref<Vector3> p2 )
+            {
+                Scalar w = p1.norm()*p2.norm();
+                if(w==0) return Scalar(-1);
+                Scalar t = (p1.dot(p2))/w;
+                if(t>1) t = 1;
+                else if(t<-1) t = -1;
+                return std::acos(t);
+            };
+
+            // Here we derive from the authors' code
+            const auto& vertices = m_refData.m_referenceMesh.vertices();
+            const auto& tangents = m_refData.m_referenceMesh.getAttrib(
+                m_refData.m_referenceMesh.getAttribHandle<Vector3>( tangentName ) ).data();
+            const auto& bitangents = m_refData.m_referenceMesh.getAttrib(
+                m_refData.m_referenceMesh.getAttribHandle<Vector3>( bitangentName ) ).data();
+            // prepare per-vertex influencing bone list
+            const auto& W = m_refData.m_weights;
+            std::vector<std::vector<uint>> vbones( vertices.size() );
+#pragma omp parallel for
+            for ( int i = 0; i < vertices.size(); ++i )
+            {
+                const Eigen::SparseVector<Scalar> bones = W.row( i );
+                for ( Eigen::SparseVector<Scalar>::InnerIterator it(bones); it; ++it )
+                {
+                    vbones[i].emplace_back( it.index() );
+                }
+            }
+            // initialize all alphaBeta to 0 and weight sum to 0
+            m_refData.m_alphaBeta.resize( vertices.size() );
+            std::vector<std::vector<Scalar>> summator( vertices.size() );
+#pragma omp parallel for
+            for ( int v = 0; v < vertices.size(); ++v )
+            {
+                for ( auto s : vbones[v] )
+                {
+                    m_refData.m_alphaBeta[v].emplace_back( std::make_tuple( s, 0, 0 ) );
+                }
+                summator[v].resize( vbones[v].size(), 0 );
+            }
+            const auto& face = m_refData.m_referenceMesh.getIndices();
+            int nBones = m_refData.m_skeleton.size();
+            for (unsigned int ff=0; ff<face.size(); ff++)
+            {
+                int pi[3];
+                pi[0] = face[ff][0];
+                pi[1] = face[ff][1];
+                pi[2] = face[ff][2];
+
+                Matrix3 m;
+                Vector3 e0 = vertices[pi[1]] - vertices[pi[0]];
+                Vector3 e1 = vertices[pi[2]] - vertices[pi[0]];
+                Vector3 n = e1.cross( e0 );
+
+                float faceArea = n.norm();
+
+                m.row( 0 ) = e0.transpose();
+                m.row( 1 ) = e1.transpose();
+                m.row( 2 ) = n.transpose();
+                m = m.inverse();
+
+                std::vector< bool > weightsDone(nBones , false );
+
+                for (int w=0; w<3; w++) {
+
+                    for (int r=0; r<vbones[pi[w]].size(); r++) {
+
+                        int bi = vbones[pi[w]][r];
+                        if ((bi<0) || ( W.coeff( pi[w], bi ) ==0)) continue;
+                        if ( weightsDone[bi] ) continue;
+
+                        weightsDone[bi] = true;
+
+                        float dw0 = W.coeff( pi[1], bi ) - W.coeff( pi[0], bi );
+                        float dw1 = W.coeff( pi[2], bi ) - W.coeff( pi[0], bi );
+
+                        if ((dw0==0)&&(dw1==0)) continue;
+
+                        Vector3 faceWeightGradient = ( m * Vector3( dw0, dw1, 0 ) ) ;
+
+                        // add it to all verteces
+                        for (int z=0; z<3; z++)
+                        {
+                            auto it = std::find_if( m_refData.m_alphaBeta[pi[z]].begin(),
+                                                    m_refData.m_alphaBeta[pi[z]].end(),
+                                    [&bi]( const auto& tuple ) { return std::get<0>( tuple ) == bi; } );
+                            Vector3 e1 = vertices[ pi[(z+1)%3] ] - vertices[ pi[z] ];
+                            Vector3 e2 = vertices[ pi[(z+2)%3] ] - vertices[ pi[z] ];
+                            float wedgeAngle = angle(e1,e2) * faceArea;
+                            auto& [s,a,b] = *it;
+                            a += tangents[ pi[z] ].dot( faceWeightGradient ) * wedgeAngle;
+                            b += bitangents[ pi[z] ].dot( faceWeightGradient ) * wedgeAngle;
+                            summator[ pi[z] ][ std::distance( m_refData.m_alphaBeta[pi[z]].begin(), it ) ] += wedgeAngle;
+                        }
+                    }
+                }
+            }
+
+            for (unsigned int vi=0; vi<vertices.size(); vi++)
+            {
+                for (uint k=0; k<vbones[vi].size(); k++) {
+                    if (summator[ vi ][k]) {
+                        auto& [s,a,b] = m_refData.m_alphaBeta[vi][k];
+                        a /= summator[ vi ][k];
+                        b /= summator[ vi ][k];
+                    }
+                }
+            }
+
+
+            /* THIS MIGHT NOT BE MANDATORY SINCE WE SLIGHTLY DIFFER FOR THE EVAL
+            // shift 1st three
+            for (unsigned int vi=0; vi<vertices.size(); vi++){
+                //vert[vi].orderBoneSlotsWithWeights();
+                for (uint k=0; k<3; k++) {
+                   vert[vi].deformFactorsTang[k] = vert[vi].deformFactorsTang[k+1];
+                   vert[vi].deformFactorsBtan[k] = vert[vi].deformFactorsBtan[k+1];
+                }
+            }
+            */
+#endif
         }
 
         // initialize frame data
