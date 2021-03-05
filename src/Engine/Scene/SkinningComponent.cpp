@@ -24,6 +24,8 @@
 #include <Engine/Rendering/RenderObjectManager.hpp>
 #include <Engine/Rendering/RenderTechnique.hpp>
 
+#include <Core/Utils/Timer.hpp>
+
 using namespace Ra::Core;
 
 using Geometry::AttribArrayGeometry;
@@ -216,7 +218,8 @@ void SkinningComponent::initialize() {
 
         // compute the per-vertex deform factors
         {
-#if 0
+            auto start = Clock::now();
+#if 1 // 749494 us with first implem (Vector4 and Matrix4), 128621 us with theirs
             const auto& vertices = m_refData.m_referenceMesh.vertices();
             // prepare per-vertex influencing bone list
             const auto& W = m_refData.m_weights;
@@ -227,12 +230,15 @@ void SkinningComponent::initialize() {
                 const Eigen::SparseVector<Scalar> bones = W.row( i );
                 for ( Eigen::SparseVector<Scalar>::InnerIterator it(bones); it; ++it )
                 {
-                    vbones[i].emplace_back( it.index() );
+                    if ( it.value() > 1e-7 )
+                    {
+                        vbones[i].emplace_back( it.index() );
+                    }
                 }
             }
             // compute per-triangle constant homogeneous vector a[s]
             const auto& triangles = m_refData.m_referenceMesh.getIndices();
-            std::vector<std::map<uint,Vector4>> AS( triangles.size() );
+            std::vector<std::map<uint,Vector3>> AS( triangles.size() );
 #pragma omp parallel for
             for ( int t = 0; t < triangles.size(); ++t )
             {
@@ -249,33 +255,35 @@ void SkinningComponent::initialize() {
                     std::copy( bones.begin(), bones.end(), B.begin() );
                 }
                 // compute A for each bone s
-                const auto nT = Geometry::triangleNormal( vertices[T[0]], vertices[T[1]], vertices[T[2]] );
-                Matrix4 M;
-                M.block<1,3>( 0, 0 ) = vertices[T[0]].transpose();
-                M.block<1,3>( 1, 0 ) = vertices[T[1]].transpose();
-                M.block<1,3>( 2, 0 ) = vertices[T[2]].transpose();
-                M.block<1,3>( 3, 0 ) = nT.transpose();
-                M.col( 3 ) = Vector4( 1, 1, 1, 0 );
+                const auto e1 = vertices[T[1]] - vertices[T[0]];
+                const auto e2 = vertices[T[2]] - vertices[T[0]];
+                const auto n = e2.cross( e1 );
+                Matrix3 M;
+                M.row( 0 ) = e1.transpose();
+                M.row( 1 ) = e2.transpose();
+                M.row( 2 ) = n.transpose();
+                M = M.inverse();
                 for ( const auto& s : B )
                 {
-                    AS[t][s] = M.inverse() * Vector4( W.coeff( T[0], s ),
-                                                      W.coeff( T[1], s ),
-                                                      W.coeff( T[2], s ), 0 );
-#pragma omp critical
-                    {
-                        std::cout << T[0] << " " << T[1] << " " << T[2] << " " << s << std::endl;
-                        std::cout << M << std::endl;
-                        std::cout << W.coeff( T[0], s ) << " " <<
-                                     W.coeff( T[1], s ) << " " <<
-                                     W.coeff( T[2], s ) << std::endl;
-                        std::cout << AS[t][s].transpose() << std::endl;
-                        std::cout << std::endl;
-                    }
+                    Scalar dw0 = W.coeff( T[1], s ) - W.coeff( T[0], s );
+                    Scalar dw1 = W.coeff( T[2], s ) - W.coeff( T[0], s );
+                    AS[t][s] = M * Vector3( dw0, dw1, 0 );
+//                    // here we compute the same, but I have (almost) zero ones
+//#pragma omp critical
+//                    {
+//                        std::cout << t << ": " << T[0] << " " << T[1] << " " << T[2] << " " << s << std::endl;
+//                        std::cout << M.inverse() << std::endl;
+//                        std::cout << W.coeff( T[0], s ) << " " <<
+//                                     W.coeff( T[1], s ) << " " <<
+//                                     W.coeff( T[2], s ) << std::endl;
+//                        std::cout << AS[t][s].transpose() << std::endl;
+//                        std::cout << std::endl;
+//                    }
                 }
             }
             // compute per-vertex a[s] through cotangent weights
             const auto COT = Geometry::cotangentWeightAdjacency( vertices, triangles );
-            std::vector<std::map<uint,Vector4>> AIS( vertices.size() );
+            std::vector<std::map<uint,Vector3>> AIS( vertices.size() );
 #pragma omp parallel for
             for ( int t = 0; t < triangles.size(); ++t )
             {
@@ -312,12 +320,12 @@ void SkinningComponent::initialize() {
                 for ( auto s : vbones[v] )
                 {
                     m_refData.m_alphaBeta[v].emplace_back( std::make_tuple( s,
-                        AIS[v][s].block<3,1>(0,0).dot( tangents[v] ), AIS[v][s].block<3,1>(0,0).dot( bitangents[v] ) ) );
+                        AIS[v][s].dot( tangents[v] ), AIS[v][s].dot( bitangents[v] ) ) );
                 }
             }
 
-#else
-
+#else // 22223 us
+            // Here is the authors' code refactored
             auto angle = []( Eigen::Ref<Vector3> p1, Eigen::Ref<Vector3> p2 )
             {
                 Scalar w = p1.norm()*p2.norm();
@@ -343,7 +351,10 @@ void SkinningComponent::initialize() {
                 const Eigen::SparseVector<Scalar> bones = W.row( i );
                 for ( Eigen::SparseVector<Scalar>::InnerIterator it(bones); it; ++it )
                 {
-                    vbones[i].emplace_back( it.index() );
+                    if ( it.value() > 1e-7 )
+                    {
+                        vbones[i].emplace_back( it.index() );
+                    }
                 }
             }
             // initialize all alphaBeta to 0 and weight sum to 0
@@ -398,6 +409,15 @@ void SkinningComponent::initialize() {
 
                         Vector3 faceWeightGradient = ( m * Vector3( dw0, dw1, 0 ) ) ;
 
+//                        // here we compute the same
+//                        std::cout << ff << ": " << pi[0] << " " << pi[1] << " " << pi[2] << " " << bi << std::endl;
+//                        std::cout << m.inverse() << std::endl;
+//                        std::cout << W.coeff( pi[0], bi ) << " " <<
+//                                     W.coeff( pi[1], bi ) << " " <<
+//                                     W.coeff( pi[2], bi ) << std::endl;
+//                        std::cout << faceWeightGradient.transpose() << std::endl;
+//                        std::cout << std::endl;
+
                         // add it to all verteces
                         for (int z=0; z<3; z++)
                         {
@@ -439,6 +459,16 @@ void SkinningComponent::initialize() {
             }
             */
 #endif
+            std::cout << getIntervalMicro( start, Clock::now() ) << std::endl;
+            // the deform factors differ from one version to the other!
+            // that might be due to the cotangent weight!
+            for ( int v = 0; v < vertices.size(); ++v )
+            {
+                for ( const auto& [s,a,b] : m_refData.m_alphaBeta[v] )
+                {
+                    std::cout << v << ": " << s << " " << a << " " << b << std::endl;
+                }
+            }
         }
 
         // initialize frame data
