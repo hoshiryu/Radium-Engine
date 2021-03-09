@@ -17,10 +17,10 @@ void RA_CORE_API linearBlendSkinning( const Vector3Array& inMesh,
 
 /// \brief Computes the LBS using the paper:
 /// http://vcg.isti.cnr.it/Publications/2014/TPS14/skin_light.pdf
-void RA_CORE_API accurateLightningLBS( const Skinning::RefData& refData,
-                                       const Vector3Array& tangents,
-                                       const Vector3Array& bitangents,
-                                       Skinning::FrameData& frameData );
+void RA_CORE_API accurateLightingLBS( const Skinning::RefData& refData,
+                                      const Vector3Array& tangents,
+                                      const Vector3Array& bitangents,
+                                      Skinning::FrameData& frameData );
 
 } // namespace Animation
 } // namespace Core

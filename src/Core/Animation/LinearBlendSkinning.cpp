@@ -26,15 +26,19 @@ void linearBlendSkinning( const Vector3Array& inMesh,
     }
 }
 
-void RA_CORE_API accurateLightningLBS( const Skinning::RefData& refData,
-                                       const Vector3Array& tangents,
-                                       const Vector3Array& bitangents,
-                                       Skinning::FrameData& frameData ) {
+void RA_CORE_API accurateLightingLBS( const Skinning::RefData& refData,
+                                      const Vector3Array& tangents,
+                                      const Vector3Array& bitangents,
+                                      Skinning::FrameData& frameData ) {
     const auto& vertices = refData.m_referenceMesh.vertices();
-#pragma omp parallel for
+    auto cap = []( Eigen::Ref<Vector3> p ) {
+        Scalar div = 1 / p.norm();
+        p *= std::min( 1_ra, div*0.9_ra );
+    };
+//#pragma omp parallel for
     for ( int v = 0; v < frameData.m_currentPos.size(); ++v )
     {
-        const auto& V = vertices[v];
+        const Vector3& V = vertices[v];
         // compute Q0
         const auto& [s,a,b] = refData.m_alphaBeta[v][0];
         const auto Q0 = frameData.m_currentPose[s] * V;
@@ -45,13 +49,18 @@ void RA_CORE_API accurateLightningLBS( const Skinning::RefData& refData,
         frameData.m_currentBitangent[v] = Vector3::Zero();
         for ( const auto& [s,a,b] : refData.m_alphaBeta[v] )
         {
-            const auto& w = refData.m_weights.coeff( v, s );
-            const auto Q = frameData.m_currentPose[s] * V - Q0;
+            const Scalar& w = refData.m_weights.coeff( v, s );
+            const Vector3 Q = frameData.m_currentPose[s] * V - Q0;
             T += w * frameData.m_currentPose[s].linear();
             frameData.m_currentPos[v] += w * Q;
+            std::cout << v << " " << a << " " << Q.transpose() << std::endl;
             frameData.m_currentTangent[v] += a * Q;
             frameData.m_currentBitangent[v] += b * Q;
         }
+        cap( frameData.m_currentTangent[v] );
+        cap( frameData.m_currentBitangent[v] );
+        std::cout << frameData.m_currentTangent[v].transpose() << std::endl;
+        std::cout << (T * tangents[v]).transpose() << std::endl;
         frameData.m_currentTangent[v] += T * tangents[v];
         frameData.m_currentTangent[v].normalize();
         frameData.m_currentBitangent[v] += T * bitangents[v];
@@ -59,6 +68,7 @@ void RA_CORE_API accurateLightningLBS( const Skinning::RefData& refData,
         // compute n
         frameData.m_currentNormal[v] = frameData.m_currentTangent[v].cross(
                     frameData.m_currentBitangent[v] );
+
     }
 }
 

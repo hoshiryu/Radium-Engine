@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Animation/Pose.hpp>
+#include <Core/Animation/SkinningData.hpp>
 #include <Core/Containers/AlignedStdVector.hpp>
 #include <Core/Containers/VectorArray.hpp>
 #include <Core/Math/DualQuaternion.hpp>
@@ -32,6 +33,12 @@ void RA_CORE_API computeDQ_naive( const Pose& pose, const Sparse& weight, DQList
 void RA_CORE_API dualQuaternionSkinning( const Ra::Core::Vector3Array& input,
                                          const DQList& DQ,
                                          Ra::Core::Vector3Array& output );
+
+void RA_CORE_API accurateLightingDQS( const Skinning::RefData& refData,
+                                      const DQList& DQ,
+                                      const Vector3Array& tangents,
+                                      const Vector3Array& bitangents,
+                                      Skinning::FrameData& frameData );
 
 } // namespace Animation
 } // namespace Core

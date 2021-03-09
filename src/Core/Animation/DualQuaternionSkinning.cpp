@@ -115,6 +115,36 @@ void dualQuaternionSkinning( const Ra::Core::Vector3Array& input,
         output[i] = DQ[i].transform( input[i] );
     }
 }
+
+void RA_CORE_API accurateLightingDQS( const Skinning::RefData& refData,
+                                      const DQList& DQ,
+                                      const Vector3Array& tangents,
+                                      const Vector3Array& bitangents,
+                                      Skinning::FrameData& frameData ) {
+    const auto& vertices = refData.m_referenceMesh.vertices();
+#pragma omp parallel for
+    for ( int v = 0; v < frameData.m_currentPos.size(); ++v )
+    {
+        const Vector3& V = vertices[v];
+        frameData.m_currentPos[v] = DQ[v].transform( V );
+        frameData.m_currentTangent[v] = DQ[v].rotate( tangents[v] );
+        frameData.m_currentBitangent[v] = DQ[v].rotate( bitangents[v] );
+        const auto& [s,a,b] = refData.m_alphaBeta[v][0];
+        const auto Q0 = DualQuaternion( frameData.m_currentPose[s] ).transform( V );
+        for ( const auto& [s,a,b] : refData.m_alphaBeta[v] )
+        {
+            const Vector3 Q = DualQuaternion( frameData.m_currentPose[s] ).transform( V ) - Q0;
+            frameData.m_currentTangent[v] += a * Q;
+            frameData.m_currentBitangent[v] += b * Q;
+        }
+        frameData.m_currentTangent[v].normalize();
+        frameData.m_currentBitangent[v].normalize();
+        // compute n
+        frameData.m_currentNormal[v] = frameData.m_currentTangent[v].cross(
+                    frameData.m_currentBitangent[v] );
+    }
+}
+
 } // namespace Animation
 } // namespace Core
 } // namespace Ra
