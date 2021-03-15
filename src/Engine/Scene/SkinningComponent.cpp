@@ -103,6 +103,7 @@ TriangleMesh triangulate( const PolyMesh& polyMesh )
     TriangleMesh res;
     res.setVertices( polyMesh.vertices() );
     res.setNormals( polyMesh.normals() );
+    res.copyAllAttributes( polyMesh );
     AlignedStdVector<Vector3ui> indices;
     // using the same triangulation as in Ra::Engine::PolyMesh::triangulate
     for ( const auto& face : polyMesh.getIndices() )
@@ -272,7 +273,7 @@ void SkinningComponent::initialize() {
                 M.row( 0 ) = e1.transpose();
                 M.row( 1 ) = e2.transpose();
                 M.row( 2 ) = n.transpose();
-                M = M.inverse();
+                M = M.inverse().eval();
                 for ( const auto& s : B )
                 {
                     Scalar dw0 = W.coeff( T[1], s ) - W.coeff( T[0], s );
@@ -284,7 +285,7 @@ void SkinningComponent::initialize() {
             const auto COT = Geometry::cotangentWeightAdjacency( vertices, triangles );
             std::vector<std::map<uint,Vector3>> AIS( vertices.size() );
             std::vector<Scalar> sums( vertices.size() );
-//#pragma omp parallel for
+#pragma omp parallel for
             for ( int t = 0; t < triangles.size(); ++t )
             {
                 const auto& T = triangles[t];
@@ -370,6 +371,7 @@ void SkinningComponent::initialize() {
             }
             const auto& face = m_refData.m_referenceMesh.getIndices();
             int nBones = m_refData.m_skeleton.size();
+#pragma omp parallel for
             for (unsigned int ff=0; ff<face.size(); ff++)
             {
                 int pi[3];
@@ -387,7 +389,7 @@ void SkinningComponent::initialize() {
                 m.row( 0 ) = e0.transpose();
                 m.row( 1 ) = e1.transpose();
                 m.row( 2 ) = n.transpose();
-                m = m.inverse();
+                m = m.inverse().eval();
 
                 std::vector< bool > weightsDone(nBones , false );
 
@@ -418,12 +420,13 @@ void SkinningComponent::initialize() {
                             Vector3 e1 = vertices[ pi[(z+1)%3] ] - vertices[ pi[z] ];
                             Vector3 e2 = vertices[ pi[(z+2)%3] ] - vertices[ pi[z] ];
                             Scalar wedgeAngle = angle(e1,e2) * faceArea;
-
-                            auto& [s,a,b] = *it;
-                            if ( s != bi ) { std::cout << "!" << std::endl; }
-                            a += tangents[ pi[z] ].dot( faceWeightGradient ) * wedgeAngle;
-                            b += bitangents[ pi[z] ].dot( faceWeightGradient ) * wedgeAngle;
-                            summator[ pi[z] ][ std::distance( m_refData.m_alphaBeta[pi[z]].begin(), it ) ] += wedgeAngle;
+#pragma omp critical
+                            {
+                                auto& [s,a,b] = *it;
+                                a += tangents[ pi[z] ].dot( faceWeightGradient ) * wedgeAngle;
+                                b += bitangents[ pi[z] ].dot( faceWeightGradient ) * wedgeAngle;
+                                summator[ pi[z] ][ std::distance( m_refData.m_alphaBeta[pi[z]].begin(), it ) ] += wedgeAngle;
+                            }
                         }
                     }
                 }
@@ -453,15 +456,9 @@ void SkinningComponent::initialize() {
             */
 #endif
             std::cout << getIntervalMicro( start, Clock::now() ) << std::endl;
-            // the deform factors differ from one version to the other!
-            // that might be due to the cotangent weight!
-            for ( int v = 0; v < vertices.size(); ++v )
-            {
-                for ( const auto& [s,a,b] : m_refData.m_alphaBeta[v] )
-                {
-                    std::cout << v << ": " << s << " " << a << " " << b << std::endl;
-                }
-            }
+            for ( int i=0; i<vertices.size(); ++i)
+                for ( auto [s,a,b] : m_refData.m_alphaBeta[i] )
+                    std::cout << i << ": " << a << " " << b << std::endl;
         }
 
         // initialize frame data
@@ -672,7 +669,7 @@ void SkinningComponent::endSkinning() {
             uniformNormal( m_frameData.m_currentPos, m_refData.m_referenceMesh.getIndices(), m_duplicatesMap, normals );
             geom->normalsUnlock();
         }
-        else // FIXME: they are computed through skinning for these only
+        else // FIXME: they are computed through skinning for LBS and DQS only
         {
             geom->setNormals( m_frameData.m_currentNormal );
             if ( geom->hasAttrib( tangentName ) )

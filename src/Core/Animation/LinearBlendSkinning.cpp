@@ -35,7 +35,7 @@ void RA_CORE_API accurateLightingLBS( const Skinning::RefData& refData,
         Scalar div = 1 / p.norm();
         p *= std::min( 1_ra, div*0.9_ra );
     };
-//#pragma omp parallel for
+#pragma omp parallel for
     for ( int v = 0; v < frameData.m_currentPos.size(); ++v )
     {
         const Vector3& V = vertices[v];
@@ -53,14 +53,11 @@ void RA_CORE_API accurateLightingLBS( const Skinning::RefData& refData,
             const Vector3 Q = frameData.m_currentPose[s] * V - Q0;
             T += w * frameData.m_currentPose[s].linear();
             frameData.m_currentPos[v] += w * Q;
-            std::cout << v << " " << a << " " << Q.transpose() << std::endl;
             frameData.m_currentTangent[v] += a * Q;
             frameData.m_currentBitangent[v] += b * Q;
         }
         cap( frameData.m_currentTangent[v] );
         cap( frameData.m_currentBitangent[v] );
-        std::cout << frameData.m_currentTangent[v].transpose() << std::endl;
-        std::cout << (T * tangents[v]).transpose() << std::endl;
         frameData.m_currentTangent[v] += T * tangents[v];
         frameData.m_currentTangent[v].normalize();
         frameData.m_currentBitangent[v] += T * bitangents[v];
