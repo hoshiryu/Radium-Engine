@@ -76,6 +76,8 @@ class RA_CORE_API Skeleton : public HandleArray
      * @param i             the bone index
      * @param[out] startOut the bone's start point
      * @param[out]  endOut   the bone's end point
+     *
+     * \note If the i-th bone is a leaf, then \p startOut == \p endOut.
      */
     void getBonePoints( uint i, Vector3& startOut, Vector3& endOut ) const;
 
