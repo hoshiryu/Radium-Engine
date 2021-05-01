@@ -79,7 +79,8 @@ void SkeletonBasedAnimationUI::selectionChanged( const Engine::Scene::ItemEntry&
             ui->m_currentAnimation->setCurrentIndex( int( m_currentSkeleton->getAnimationId() ) );
             ui->m_xray->setChecked( m_currentSkeleton->isXray() );
             ui->m_showSkeleton->setChecked( m_currentSkeleton->isShowingSkeleton() );
-            ui->m_manipulation->setCurrentIndex( int( m_currentSkeleton->getManipulationScheme() ) );
+            ui->m_manipulation->setCurrentIndex(
+                int( m_currentSkeleton->getManipulationScheme() ) );
         }
         if ( auto skinComp = dynamic_cast<Engine::Scene::SkinningComponent*>( comp.get() ) )
         {

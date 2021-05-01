@@ -24,7 +24,6 @@ namespace Animation {
 class RA_CORE_API Skeleton : public HandleArray
 {
   public:
-
     /// Edition scheme for the manipulation of the skeleton.
     /// \todo also implement Inverse Kynematics.
     enum Manipulation {

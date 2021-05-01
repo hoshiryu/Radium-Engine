@@ -71,18 +71,19 @@ void Skeleton::setTransform( const uint i, const Transform& T, const SpaceType M
     static_assert( std::is_same<bool, typename std::underlying_type<SpaceType>::type>::value,
                    "SpaceType is not a boolean" );
 
-    switch ( m_manipulation ) {
-    case FORWARD:
+    switch ( m_manipulation )
     {
+    case FORWARD: {
         // just set the transfrom
-        if ( MODE == SpaceType::LOCAL ) setLocalTransform( i, T );
-        else setModelTransform( i, T );
-    } break;
-    case PSEUDO_IK:
-    {
-        Transform modelT = T;
         if ( MODE == SpaceType::LOCAL )
-            modelT = ( m_modelSpace[i] * m_pose[i].inverse() * T );
+            setLocalTransform( i, T );
+        else
+            setModelTransform( i, T );
+    }
+    break;
+    case PSEUDO_IK: {
+        Transform modelT = T;
+        if ( MODE == SpaceType::LOCAL ) modelT = ( m_modelSpace[i] * m_pose[i].inverse() * T );
         // turn bone translation into rotation for parent
         const uint pBoneIdx = m_graph.parents()[i];
         if ( pBoneIdx != -1 && m_graph.children()[pBoneIdx].size() == 1 )
@@ -93,7 +94,7 @@ void Skeleton::setTransform( const uint i, const Transform& T, const SpaceType M
             Ra::Core::Vector3 B;
             getBonePoints( pBoneIdx, A, B );
             Ra::Core::Vector3 B_;
-            B_ = modelT.translation();
+            B_     = modelT.translation();
             auto q = Ra::Core::Quaternion::FromTwoVectors( ( B - A ), ( B_ - A ) );
             Ra::Core::Transform R( q );
             R.pretranslate( A );

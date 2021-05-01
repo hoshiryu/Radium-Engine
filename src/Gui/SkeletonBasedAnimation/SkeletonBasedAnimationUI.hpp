@@ -102,7 +102,7 @@ class RA_GUI_API SkeletonBasedAnimationUI : public QFrame
     void on_m_showSkeleton_toggled( bool checked );
 
     /// Slot for the user changing the skeleton manipulation scheme.
-    void on_m_manipulation_currentIndexChanged( int index);
+    void on_m_manipulation_currentIndexChanged( int index );
     /// \}
 
     /// \name Skinning GUI

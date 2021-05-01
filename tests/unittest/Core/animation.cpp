@@ -395,17 +395,16 @@ TEST_CASE( "Core/Animation/KeyFramedStruct" ) {
     }
 }
 
-TEST_CASE( "Core/Animation/Skeleton",
-           "[Core][Core/Animation][Skeleton]" ) {
+TEST_CASE( "Core/Animation/Skeleton", "[Core][Core/Animation][Skeleton]" ) {
     using Space = HandleArray::SpaceType;
     // build the skeleton in the X direction: > - > - > - > starting at the origin
     Skeleton skel;
-    uint root = skel.addRoot( Transform::Identity(), "root" );
-    Transform localT = Transform::Identity();
+    uint root            = skel.addRoot( Transform::Identity(), "root" );
+    Transform localT     = Transform::Identity();
     localT.translation() = Vector3::UnitX();
-    uint bone1 = skel.addBone( root, localT, Space::LOCAL, "bone1" );
-    uint bone2 = skel.addBone( bone1, localT, Space::LOCAL, "bone2" );
-    uint bone3 = skel.addBone( bone2, localT, Space::LOCAL, "bone3" );
+    uint bone1           = skel.addBone( root, localT, Space::LOCAL, "bone1" );
+    uint bone2           = skel.addBone( bone1, localT, Space::LOCAL, "bone2" );
+    uint bone3           = skel.addBone( bone2, localT, Space::LOCAL, "bone3" );
 
     SECTION( "Test initialization" ) {
         // check root / leaf status
@@ -432,19 +431,20 @@ TEST_CASE( "Core/Animation/Skeleton",
         REQUIRE( skel.m_graph.children()[bone2][0] == bone3 );
         REQUIRE( skel.m_graph.children()[bone3].size() == 0 );
         // check Local Pose
-        REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {Transform::Identity(), localT, localT, localT} ) );
+        REQUIRE( areEqual( skel.getPose( Space::LOCAL ),
+                           {Transform::Identity(), localT, localT, localT} ) );
         REQUIRE( skel.getTransform( root, Space::LOCAL ).isApprox( Transform::Identity() ) );
         REQUIRE( skel.getTransform( bone1, Space::LOCAL ).isApprox( localT ) );
         REQUIRE( skel.getTransform( bone2, Space::LOCAL ).isApprox( localT ) );
         REQUIRE( skel.getTransform( bone3, Space::LOCAL ).isApprox( localT ) );
         // check Model Pose
-        Transform T1 = Transform::Identity();
+        Transform T1     = Transform::Identity();
         T1.translation() = Vector3::UnitX();
-        Transform T2 = Transform::Identity();
+        Transform T2     = Transform::Identity();
         T2.translation() = 2 * Vector3::UnitX();
-        Transform T3 = Transform::Identity();
+        Transform T3     = Transform::Identity();
         T3.translation() = 3 * Vector3::UnitX();
-        REQUIRE( areEqual( skel.getPose( Space::MODEL ), {Transform::Identity(), T1, T2, T3} ));
+        REQUIRE( areEqual( skel.getPose( Space::MODEL ), {Transform::Identity(), T1, T2, T3} ) );
         REQUIRE( skel.getTransform( root, Space::MODEL ).isApprox( Transform::Identity() ) );
         REQUIRE( skel.getTransform( bone1, Space::MODEL ).isApprox( T1 ) );
         REQUIRE( skel.getTransform( bone2, Space::MODEL ).isApprox( T2 ) );
@@ -465,7 +465,7 @@ TEST_CASE( "Core/Animation/Skeleton",
         REQUIRE( b.isApprox( 3 * Vector3::UnitX() ) );
     }
 
-    SECTION( "Test Forward Manipulation") {
+    SECTION( "Test Forward Manipulation" ) {
         /*                                                          > - - v
          * Here we will pose the skeleton from                 to   |     |
          *                                                          ^     |
@@ -474,13 +474,13 @@ TEST_CASE( "Core/Animation/Skeleton",
          */
 
         // reminder of the current transforms:
-        Transform T = Transform::Identity();
-        Transform T1 = Transform::Identity();
-        T1.translation() = Vector3::UnitX();
-        Transform T2 = Transform::Identity();
-        T2.translation() = 2 * Vector3::UnitX();
-        Transform T3 = Transform::Identity();
-        T3.translation() = 3 * Vector3::UnitX();
+        Transform T       = Transform::Identity();
+        Transform T1      = Transform::Identity();
+        T1.translation()  = Vector3::UnitX();
+        Transform T2      = Transform::Identity();
+        T2.translation()  = 2 * Vector3::UnitX();
+        Transform T3      = Transform::Identity();
+        T3.translation()  = 3 * Vector3::UnitX();
         Transform localT1 = localT;
         Transform localT2 = localT;
         Transform localT3 = localT;
@@ -506,14 +506,14 @@ TEST_CASE( "Core/Animation/Skeleton",
              *                   ^                  ^   \
              *                   + ` > - > - >      +     > - >
              */
-            T1 = Transform::Identity();
+            T1               = Transform::Identity();
             T1.translation() = 2 * Vector3::UnitY();
             skel.setTransform( bone1, T1, Space::MODEL );
             // check Pose
             localT1 = Transform::Identity();
             localT1.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT1.translation() = Vector3::UnitX();
-            localT2 = Transform::Identity();
+            localT2               = Transform::Identity();
             localT2.translation() = 2 * Vector3::UnitX() - 2 * Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -531,7 +531,7 @@ TEST_CASE( "Core/Animation/Skeleton",
             localT2 = Transform::Identity();
             localT2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT2.translation() = 2 * Vector3::UnitX();
-            localT3 = Transform::Identity();
+            localT3               = Transform::Identity();
             localT3.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             localT3.translation() = 2 * Vector3::UnitX() + Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
@@ -572,13 +572,13 @@ TEST_CASE( "Core/Animation/Skeleton",
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
             Transform T1 = Transform::Identity();
             T1.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
-            T1.translation() = 2*Vector3::UnitY();
-            Transform T2 = Transform::Identity();
+            T1.translation() = 2 * Vector3::UnitY();
+            Transform T2     = Transform::Identity();
             T2.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
-            T2.translation() = 3*Vector3::UnitY();
-            Transform T3 = Transform::Identity();
+            T2.translation() = 3 * Vector3::UnitY();
+            Transform T3     = Transform::Identity();
             T3.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
-            T3.translation() = 4*Vector3::UnitY();
+            T3.translation() = 4 * Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
 
             /*                     ^
@@ -596,11 +596,11 @@ TEST_CASE( "Core/Animation/Skeleton",
             skel.setTransform( bone1, localT1, Space::LOCAL );
             // check Pose
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
-            T1 = Transform::Identity();
+            T1               = Transform::Identity();
             T1.translation() = 2 * Vector3::UnitY();
-            T2 = Transform::Identity();
+            T2               = Transform::Identity();
             T2.translation() = Vector3::UnitX() + 2 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.translation() = 2 * Vector3::UnitX() + 2 * Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
 
@@ -611,14 +611,14 @@ TEST_CASE( "Core/Animation/Skeleton",
              */
             localT2 = Transform::Identity();
             localT2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
-            localT2.translation() = 2*Vector3::UnitX();
+            localT2.translation() = 2 * Vector3::UnitX();
             skel.setTransform( bone2, localT2, Space::LOCAL );
             // check Pose
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
             T2 = Transform::Identity();
             T2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             T2.translation() = 2 * Vector3::UnitX() + 2 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             T3.translation() = 2 * Vector3::UnitX() + Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -665,11 +665,11 @@ TEST_CASE( "Core/Animation/Skeleton",
             skel.setTransform( bone1, localT1, Space::LOCAL );
             // check Pose
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
-            T1 = Transform::Identity();
+            T1               = Transform::Identity();
             T1.translation() = 2 * Vector3::UnitY();
-            T2 = Transform::Identity();
+            T2               = Transform::Identity();
             T2.translation() = Vector3::UnitX() + 2 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.translation() = 2 * Vector3::UnitX() + 2 * Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
 
@@ -687,7 +687,7 @@ TEST_CASE( "Core/Animation/Skeleton",
             localT2 = Transform::Identity();
             localT2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT2.translation() = 2 * Vector3::UnitX();
-            localT3 = Transform::Identity();
+            localT3               = Transform::Identity();
             localT3.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -722,13 +722,13 @@ TEST_CASE( "Core/Animation/Skeleton",
         skel.m_manipulation = Skeleton::PSEUDO_IK;
 
         // reminder of the current transforms:
-        Transform T = Transform::Identity();
-        Transform T1 = Transform::Identity();
-        T1.translation() = Vector3::UnitX();
-        Transform T2 = Transform::Identity();
-        T2.translation() = 2 * Vector3::UnitX();
-        Transform T3 = Transform::Identity();
-        T3.translation() = 3 * Vector3::UnitX();
+        Transform T       = Transform::Identity();
+        Transform T1      = Transform::Identity();
+        T1.translation()  = Vector3::UnitX();
+        Transform T2      = Transform::Identity();
+        T2.translation()  = 2 * Vector3::UnitX();
+        Transform T3      = Transform::Identity();
+        T3.translation()  = 3 * Vector3::UnitX();
         Transform localT1 = localT;
         Transform localT2 = localT;
         Transform localT3 = localT;
@@ -752,10 +752,10 @@ TEST_CASE( "Core/Animation/Skeleton",
             T1 = Transform::Identity();
             T1.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T1.translation() = 2 * Vector3::UnitY();
-            T2 = Transform::Identity();
+            T2               = Transform::Identity();
             T2.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T2.translation() = 3 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T3.translation() = 4 * Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -778,13 +778,13 @@ TEST_CASE( "Core/Animation/Skeleton",
             localT1 = Transform::Identity();
             localT1.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT1.translation() = Vector3::UnitX();
-            localT2 = Transform::Identity();
+            localT2               = Transform::Identity();
             localT2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT2.translation() = 2 * Vector3::UnitX();
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
-            T1 = Transform::Identity();
+            T1               = Transform::Identity();
             T1.translation() = 2 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             T3.translation() = 2 * Vector3::UnitX() + Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -825,10 +825,10 @@ TEST_CASE( "Core/Animation/Skeleton",
             T1 = Transform::Identity();
             T1.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T1.translation() = 2 * Vector3::UnitY();
-            T2 = Transform::Identity();
+            T2               = Transform::Identity();
             T2.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T2.translation() = 3 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T3.translation() = 4 * Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -846,7 +846,7 @@ TEST_CASE( "Core/Animation/Skeleton",
             // note: we express localT2 as we expect it to be if bone1 is not rotated!
             localT2 = Transform::Identity();
             localT2.rotate( AngleAxis( -Math::Pi, Vector3::UnitZ() ) );
-            localT2.translation() = - 2 * Vector3::UnitY();
+            localT2.translation() = -2 * Vector3::UnitY();
             skel.setTransform( bone2, localT2, Space::LOCAL );
             // note: the local transform of bone 2 is not localT2 anymore since we
             //       rotated bone1 thanks to the Pseudo-IK!
@@ -854,16 +854,16 @@ TEST_CASE( "Core/Animation/Skeleton",
             localT1 = Transform::Identity();
             localT1.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT1.translation() = Vector3::UnitX();
-            localT2 = Transform::Identity();
-            localT2.rotate( AngleAxis( - Math::Pi / 2, Vector3::UnitZ() ) );
+            localT2               = Transform::Identity();
+            localT2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT2.translation() = 2 * Vector3::UnitX();
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
-            T1 = Transform::Identity();
+            T1               = Transform::Identity();
             T1.translation() = 2 * Vector3::UnitY();
-            T2 = Transform::Identity();
+            T2               = Transform::Identity();
             T2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             T2.translation() = 2 * Vector3::UnitX() + 2 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             T3.translation() = 2 * Vector3::UnitX() + Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -904,10 +904,10 @@ TEST_CASE( "Core/Animation/Skeleton",
             T1 = Transform::Identity();
             T1.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T1.translation() = 2 * Vector3::UnitY();
-            T2 = Transform::Identity();
+            T2               = Transform::Identity();
             T2.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T2.translation() = 3 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.rotate( AngleAxis( Math::Pi / 2, Vector3::UnitZ() ) );
             T3.translation() = 4 * Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );
@@ -925,7 +925,7 @@ TEST_CASE( "Core/Animation/Skeleton",
             // note: we express localT2 as we expect it to be if bone1 is not rotated!
             localT2 = Transform::Identity();
             localT2.rotate( AngleAxis( -Math::Pi, Vector3::UnitZ() ) );
-            localT2.translation() = - 2 * Vector3::UnitY();
+            localT2.translation() = -2 * Vector3::UnitY();
             skel.setTransform( bone2, localT2, Space::LOCAL );
             // note: the local transform of bone 2 is not localT2 anymore since we
             //       rotated bone1 thanks to the Pseudo-IK!
@@ -933,16 +933,16 @@ TEST_CASE( "Core/Animation/Skeleton",
             localT1 = Transform::Identity();
             localT1.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT1.translation() = Vector3::UnitX();
-            localT2 = Transform::Identity();
-            localT2.rotate( AngleAxis( - Math::Pi / 2, Vector3::UnitZ() ) );
+            localT2               = Transform::Identity();
+            localT2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             localT2.translation() = 2 * Vector3::UnitX();
             REQUIRE( areEqual( skel.getPose( Space::LOCAL ), {T, localT1, localT2, localT3} ) );
-            T1 = Transform::Identity();
+            T1               = Transform::Identity();
             T1.translation() = 2 * Vector3::UnitY();
-            T2 = Transform::Identity();
+            T2               = Transform::Identity();
             T2.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             T2.translation() = 2 * Vector3::UnitX() + 2 * Vector3::UnitY();
-            T3 = Transform::Identity();
+            T3               = Transform::Identity();
             T3.rotate( AngleAxis( -Math::Pi / 2, Vector3::UnitZ() ) );
             T3.translation() = 2 * Vector3::UnitX() + Vector3::UnitY();
             REQUIRE( areEqual( skel.getPose( Space::MODEL ), {T, T1, T2, T3} ) );

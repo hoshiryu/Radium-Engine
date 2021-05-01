@@ -381,7 +381,8 @@ void SkeletonComponent::updateDisplay() {
     }
 }
 
-void SkeletonComponent::setManipulationScheme( const Core::Animation::Skeleton::Manipulation& scheme ) {
+void SkeletonComponent::setManipulationScheme(
+    const Core::Animation::Skeleton::Manipulation& scheme ) {
     m_skel.m_manipulation = scheme;
 }
 
