@@ -160,9 +160,10 @@ void SkeletonBasedAnimationUI::postLoadFile( Engine::Scene::Entity* entity ) {
         } );
     if ( c != entity->getComponents().end() )
     {
-        auto skel           = static_cast<Ra::Engine::Scene::SkeletonComponent*>( ( *c ).get() );
-        auto& anim          = skel->getAnimation( skel->getAnimationId() );
-        const auto& boneMap = skel->getBoneRO2idx();
+        auto skelC           = static_cast<Ra::Engine::Scene::SkeletonComponent*>( ( *c ).get() );
+        auto& anim          = skelC->getAnimation( skelC->getAnimationId() );
+        const auto& boneMap = skelC->getBoneRO2idx();
+        auto skel           = skelC->getSkeleton();
         for ( size_t j = 0; j < anim.size(); ++j )
         {
             auto it = std::find_if(
@@ -173,10 +174,13 @@ void SkeletonBasedAnimationUI::postLoadFile( Engine::Scene::Entity* entity ) {
                 it->first,
                 KeyFramedValueController(
                     &anim[j],
-                    "Animation_" + skel->getSkeleton()->getLabel( uint( j ) ),
+                    "Animation_" + skel->getLabel( uint( j ) ),
                     [&anim, j, skel]( const Scalar& t ) {
-                        anim[j].insertKeyFrame(
-                            t, skel->getSkeleton()->getPose( HandleArray::SpaceType::LOCAL )[j] );
+                        int parent = skel->m_graph.parents()[j];
+                        if ( parent != -1 )
+                            anim[parent].insertKeyFrame(
+                                t, skel->getPose( HandleArray::SpaceType::LOCAL )[parent] );
+                        anim[j].insertKeyFrame( t, skel->getPose( HandleArray::SpaceType::LOCAL )[j] );
                     } ) ); // no update callback here
         }
     }
@@ -239,6 +243,10 @@ void SkeletonBasedAnimationUI::on_m_currentAnimation_currentIndexChanged( int in
                 &anim[j],
                 "Animation_" + skel->getLabel( uint( j ) ),
                 [&anim, j, skel]( const Scalar& t ) {
+                    int parent = skel->m_graph.parents()[j];
+                    if ( parent != -1 )
+                        anim[parent].insertKeyFrame(
+                            t, skel->getPose( HandleArray::SpaceType::LOCAL )[parent] );
                     anim[j].insertKeyFrame( t, skel->getPose( HandleArray::SpaceType::LOCAL )[j] );
                 } ) ); // no update callback here
     }
