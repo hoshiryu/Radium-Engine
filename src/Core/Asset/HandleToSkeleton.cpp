@@ -86,14 +86,16 @@ void createSkeleton( const Ra::Core::Asset::HandleData& data, Core::Animation::S
         {
             boneNameMap[skelOut.getLabel( i )] = i;
         }
+        auto tr = Transform::Identity();
+        tr.translation() = Vector3::UnitY();
         for ( const auto& l : leaves )
         {
             const auto& dd = data.getComponentData()[l];
             if ( dd.m_weights.size() )
             {
                 LOG( logDEBUG ) << "Adding end-bone at " << dd.m_name << ".";
-                skelOut.addBone( boneNameMap[dd.m_name],
-                                 data.getFrame().inverse() * dd.m_frame,
+                uint endbone = skelOut.addBone( boneNameMap[dd.m_name],
+                                 data.getFrame().inverse() * dd.m_frame * tr,
                                  Ra::Core::Animation::HandleArray::SpaceType::MODEL,
                                  dd.m_name + "_Ra_endBone" );
             }
