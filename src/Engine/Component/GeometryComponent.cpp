@@ -82,10 +82,19 @@ void TriangleMeshComponent::generateTriangleMesh( const Ra::Core::Asset::Geometr
 
     const auto& faces = data->getFaces();
     mesh.m_indices.reserve( faces.size() );
-    std::transform( faces.begin(),
-                    faces.end(),
-                    std::back_inserter( mesh.m_indices ),
-                    []( const Core::VectorNui& f ) { return f.head<3>(); } );
+
+    for ( auto f : faces )
+    {
+        if (f.size() == 3)
+        {
+            mesh.m_indices.push_back( f );
+        } else {
+            mesh.m_indices.push_back( Core::Vector3ui{f[0], f[1], f[2]} );
+            mesh.m_indices.push_back( Core::Vector3ui{f[0], f[2], f[3]} );
+        }
+    }
+    mesh.m_indices.shrink_to_fit();
+
     mesh.setVertices( std::move( vertices ) );
     mesh.setNormals( std::move( normals ) );
 

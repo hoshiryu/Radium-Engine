@@ -50,7 +50,7 @@ FileData* AssimpFileLoader::loadFile( const std::string& filename ) {
 
     const aiScene* scene = m_importer.ReadFile(
         fileData->getFileName(),
-        aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_SortByPType |
+         aiProcess_GenSmoothNormals |
             aiProcess_FixInfacingNormals | aiProcess_CalcTangentSpace | aiProcess_GenUVCoords );
 
     if ( scene == nullptr )
